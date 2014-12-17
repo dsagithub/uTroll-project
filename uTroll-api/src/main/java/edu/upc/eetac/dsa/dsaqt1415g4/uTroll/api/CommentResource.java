@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import javax.sql.DataSource;
 import javax.ws.rs.BadRequestException;
@@ -17,6 +18,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.POST;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
@@ -43,6 +45,71 @@ public class CommentResource {
 	private final static String UPDATE_COMMENT_QUERY = "update comment set content=ifnull(?, content), likes=ifnull(?, likes), dislikes=ifnull(?, dislikes) where commentid=?";
 	private final static String UPDATE_LIKE_COMMENT_QUERY = "update comment set likes=? where commentid=?";
 	private final static String UPDATE_DISLIKE_COMMENT_QUERY = "update comment set dislikes=? where commentid=?";
+
+//	// Obtener colección de comentarios
+//	@GET
+//	@Produces(MediaType.UTROLL_API_COMMENT_COLLECTION)
+//	public CommentCollection getStings(@QueryParam("length") int length,
+//			@QueryParam("before") long before, @QueryParam("after") long after) {
+//		CommentCollection stings = new CommentCollection();
+//
+//		Connection conn = null;
+//		try {
+//			conn = ds.getConnection();
+//		} catch (SQLException e) {
+//			throw new ServerErrorException("Could not connect to the database",
+//					Response.Status.SERVICE_UNAVAILABLE);
+//		}
+//
+//		PreparedStatement stmt = null;
+//		try {
+//			boolean updateFromLast = after > 0;
+//			stmt = updateFromLast ? conn
+//					.prepareStatement(GET_STINGS_QUERY_FROM_LAST) : conn
+//					.prepareStatement(GET_STINGS_QUERY);
+//			if (updateFromLast) {
+//				stmt.setTimestamp(1, new Timestamp(after));
+//			} else {
+//				if (before > 0)
+//					stmt.setTimestamp(1, new Timestamp(before));
+//				else
+//					stmt.setTimestamp(1, null);
+//				length = (length <= 0) ? 5 : length;
+//				stmt.setInt(2, length);
+//			}
+//			ResultSet rs = stmt.executeQuery();
+//			boolean first = true;
+//			long oldestTimestamp = 0;
+//			while (rs.next()) {
+//				Sting sting = new Sting();
+//				sting.setStingid(rs.getInt("stingid"));
+//				sting.setUsername(rs.getString("username"));
+//				// sting.setAuthor(rs.getString("name"));
+//				sting.setSubject(rs.getString("subject"));
+//				sting.setContent(rs.getString("content"));
+//				oldestTimestamp = rs.getTimestamp("last_modified").getTime();
+//				sting.setLastModified(oldestTimestamp);
+//				if (first) {
+//					first = false;
+//					stings.setNewestTimestamp(sting.getLastModified());
+//				}
+//				stings.addSting(sting);
+//			}
+//			stings.setOldestTimestamp(oldestTimestamp);
+//		} catch (SQLException e) {
+//			throw new ServerErrorException(e.getMessage(),
+//					Response.Status.INTERNAL_SERVER_ERROR);
+//		} finally {
+//			try {
+//				if (stmt != null)
+//					stmt.close();
+//				conn.close();
+//			} catch (SQLException e) {
+//			}
+//		}
+//
+//		return stings;
+//	}
 
 	// Método obtención usuario - cacheable
 	@GET
