@@ -32,12 +32,12 @@ create table user_roles (
 );
 
 create table friend_list (
+	friendid 				int not null auto_increment primary key,
 	friend1 				varchar(20) not null,
 	friend2					varchar(20) not null,
 	state					varchar(50) not null,
 	foreign key(friend1)	references users(username),
-	foreign key(friend2)	references users(username) on delete cascade,
-	primary key(friend1)
+	foreign key(friend2)	references users(username) on delete cascade
 );
 
 create table comment (
