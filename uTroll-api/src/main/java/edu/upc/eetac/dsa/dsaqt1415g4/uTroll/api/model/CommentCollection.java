@@ -25,6 +25,10 @@ public class CommentCollection {
 		super();
 		comments = new ArrayList<>();
 	}
+	
+	public void addComment(Comment comment) {
+		comments.add(comment);
+	}
 
 	public List<Link> getLinks() {
 		return links;

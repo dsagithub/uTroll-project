@@ -34,6 +34,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import com.mysql.jdbc.Statement;
 
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.Comment;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.CommentCollection;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.User;
 
 @Path("/comments")
@@ -41,75 +42,70 @@ public class CommentResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 
 	private final static String GET_COMMENT_BY_COMMENTID_QUERY = "select * from comment where commentid=?";
+	private final static String GET_COMMENTS_QUERY = "select * from comment where groupid=? order by creation_timestamp desc limit ?";
 	private final static String INSERT_COMMENT_QUERY = "insert into comment (username, creator, content, likes, dislikes, groupid) values (?, ?, ?, ?, ?, ?)";
 	private final static String UPDATE_COMMENT_QUERY = "update comment set content=ifnull(?, content), likes=ifnull(?, likes), dislikes=ifnull(?, dislikes) where commentid=?";
 	private final static String UPDATE_LIKE_COMMENT_QUERY = "update comment set likes=? where commentid=?";
 	private final static String UPDATE_DISLIKE_COMMENT_QUERY = "update comment set dislikes=? where commentid=?";
 
-//	// Obtener colección de comentarios
-//	@GET
-//	@Produces(MediaType.UTROLL_API_COMMENT_COLLECTION)
-//	public CommentCollection getStings(@QueryParam("length") int length,
-//			@QueryParam("before") long before, @QueryParam("after") long after) {
-//		CommentCollection stings = new CommentCollection();
-//
-//		Connection conn = null;
-//		try {
-//			conn = ds.getConnection();
-//		} catch (SQLException e) {
-//			throw new ServerErrorException("Could not connect to the database",
-//					Response.Status.SERVICE_UNAVAILABLE);
-//		}
-//
-//		PreparedStatement stmt = null;
-//		try {
-//			boolean updateFromLast = after > 0;
-//			stmt = updateFromLast ? conn
-//					.prepareStatement(GET_STINGS_QUERY_FROM_LAST) : conn
-//					.prepareStatement(GET_STINGS_QUERY);
-//			if (updateFromLast) {
-//				stmt.setTimestamp(1, new Timestamp(after));
-//			} else {
-//				if (before > 0)
-//					stmt.setTimestamp(1, new Timestamp(before));
-//				else
-//					stmt.setTimestamp(1, null);
-//				length = (length <= 0) ? 5 : length;
-//				stmt.setInt(2, length);
-//			}
-//			ResultSet rs = stmt.executeQuery();
-//			boolean first = true;
-//			long oldestTimestamp = 0;
-//			while (rs.next()) {
-//				Sting sting = new Sting();
-//				sting.setStingid(rs.getInt("stingid"));
-//				sting.setUsername(rs.getString("username"));
-//				// sting.setAuthor(rs.getString("name"));
-//				sting.setSubject(rs.getString("subject"));
-//				sting.setContent(rs.getString("content"));
-//				oldestTimestamp = rs.getTimestamp("last_modified").getTime();
-//				sting.setLastModified(oldestTimestamp);
-//				if (first) {
-//					first = false;
-//					stings.setNewestTimestamp(sting.getLastModified());
-//				}
-//				stings.addSting(sting);
-//			}
-//			stings.setOldestTimestamp(oldestTimestamp);
-//		} catch (SQLException e) {
-//			throw new ServerErrorException(e.getMessage(),
-//					Response.Status.INTERNAL_SERVER_ERROR);
-//		} finally {
-//			try {
-//				if (stmt != null)
-//					stmt.close();
-//				conn.close();
-//			} catch (SQLException e) {
-//			}
-//		}
-//
-//		return stings;
-//	}
+	private final static String GET_MYGROUP_QUERY = "select groupid from users where username=?";
+
+	// Obtener comentarios del grupo al que pertenezco
+	@GET
+	@Produces(MediaType.UTROLL_API_COMMENT_COLLECTION)
+	public CommentCollection getComments(@QueryParam("length") int length) {
+		CommentCollection comments = new CommentCollection();
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			int mygroup = getMyGroup(security.getUserPrincipal().getName());
+
+			stmt = conn.prepareStatement(GET_COMMENTS_QUERY);
+			stmt.setInt(1, mygroup);
+			if (length <= 0)
+				length = 5;
+			stmt.setInt(2, length);
+
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				Comment comment = new Comment();
+				comment.setCommentid(rs.getInt("commentid"));
+				comment.setContent(rs.getString("content"));
+				comment.setCreation_timestamp(rs.getTimestamp(
+						"creation_timestamp").getTime());
+				comment.setCreator(rs.getString("creator"));
+				comment.setDislikes(rs.getInt("dislikes"));
+				comment.setGroupid(rs.getInt("groupid"));
+				comment.setLast_modified(rs.getTimestamp("last_modified")
+						.getTime());
+				comment.setLikes(rs.getInt("likes"));
+				comment.setUsername(rs.getString("username"));
+
+				comments.addComment(comment);
+			}
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null) {
+					stmt.close();
+				}
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+
+		return comments;
+	}
 
 	// Método obtención usuario - cacheable
 	@GET
@@ -142,7 +138,7 @@ public class CommentResource {
 		return rb.build();
 	}
 
-	// Crear un comentario
+	// Crear un comentario en el grupo al que pertenezco
 	@POST
 	@Consumes(MediaType.UTROLL_API_COMMENT)
 	@Produces(MediaType.UTROLL_API_COMMENT)
@@ -157,6 +153,8 @@ public class CommentResource {
 					Response.Status.SERVICE_UNAVAILABLE);
 		}
 
+		int mygroup = getMyGroup(security.getUserPrincipal().getName());
+		
 		PreparedStatement stmt = null;
 		try {
 			stmt = conn.prepareStatement(INSERT_COMMENT_QUERY,
@@ -168,7 +166,7 @@ public class CommentResource {
 			stmt.setString(3, comment.getContent());
 			stmt.setInt(4, 0);
 			stmt.setInt(5, 0);
-			stmt.setInt(6, comment.getGroupid());
+			stmt.setInt(6, mygroup);
 
 			stmt.executeUpdate();
 			ResultSet rs = stmt.getGeneratedKeys();
@@ -399,6 +397,42 @@ public class CommentResource {
 		if (comment.getContent().length() > 500)
 			throw new BadRequestException(
 					"Content can't be greater than 500 characters.");
+	}
+
+	// Método para obtener el grupo al que pertenezco
+	private int getMyGroup(String username) {
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		int mygroup = 0;
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(GET_MYGROUP_QUERY);
+			stmt.setString(1, security.getUserPrincipal().getName());
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				mygroup = rs.getInt("groupid");
+			}
+			if (mygroup == 0)
+				throw new BadRequestException("No perteneces a ningún grupo");
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null) {
+					stmt.close();
+				}
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+		return mygroup;
 	}
 
 	// Para trabajar con parámetros de seguridad
