@@ -32,7 +32,7 @@ create table user_roles (
 );
 
 create table friend_list (
-	friendid 				int not null auto_increment primary key,
+	friendshipid			int not null auto_increment primary key,
 	friend1 				varchar(20) not null,
 	friend2					varchar(20) not null,
 	state					varchar(50) not null,
