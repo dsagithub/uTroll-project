@@ -30,45 +30,22 @@ import javax.ws.rs.core.SecurityContext;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.FriendList;
-
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.FriendListCollection;
 
 @Path("/friends")
 public class FriendListResource {
-	
+
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
-	
-	private final static String GET_FRIENDS_BY_USER_QUERY = "select friend1, friend2 from friend_list where (friend1=? or friend2=?) and state = accepted";
-	
+
+	private final static String GET_FRIENDS_BY_USER_QUERY = "select friend1, friend2, state from friend_list where (friend1=? or friend2=?) and state = 'accepted'";
+
 	@GET
 	@Path("/{username}")
-	@Produces(MediaType.UTROLL_API_FRIENDLIST)
-	public Response getFriends(@PathParam("username") String username,
-			@Context Request request){
-		CacheControl cc = new CacheControl();
-		FriendList friendlist = getFriendListFromDatabase(username);
-		
-		//solo se puede cambiar el estado, por lo tanto ponemos 
-		//unicamente de eTag el estado de la amistad
-		
-		String eTagDigest = DigestUtils
-				.md5Hex(friendlist.getState());
+	@Produces(MediaType.UTROLL_API_FRIENDLIST_COLLECTION)
+	public FriendListCollection getFriends(
+			@PathParam("username") String username, @Context Request request) {
 
-		EntityTag eTag = new EntityTag(eTagDigest);
-
-		// Verificar si coincide con el etag de la peticion http
-		Response.ResponseBuilder rb = request.evaluatePreconditions(eTag);
-
-		if (rb != null) {
-			return rb.cacheControl(cc).tag(eTag).build();
-		}
-		rb = Response.ok(friendlist).cacheControl(cc).tag(eTag); // ok = status 200OK
-
-		return rb.build();
-
-	}
-	
-	private FriendList getFriendListFromDatabase(String username) {
-		FriendList friendlist = new FriendList();
+		FriendListCollection friends = new FriendListCollection();
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -76,19 +53,24 @@ public class FriendListResource {
 			throw new ServerErrorException("Could not connect to the database",
 					Response.Status.SERVICE_UNAVAILABLE);
 		}
-		
+
 		PreparedStatement stmt = null;
 		try {
 			stmt = conn.prepareStatement(GET_FRIENDS_BY_USER_QUERY);
 			stmt.setString(1, username);
+			stmt.setString(2, username);
 
 			ResultSet rs = stmt.executeQuery();
-			if (rs.next()) {
-				friendlist.setFriend1(rs.getString("friend1"));
-				friendlist.setFriend2(rs.getString("friend2"));
+			while (rs.next()) {
+				FriendList friendlist = new FriendList();
+				if (rs.getString("friend1").equals(username)) {
+					friendlist.setFriend2(rs.getString("friend2"));
+				} else {
+					friendlist.setFriend2(rs.getString("friend1"));
+				}
 				friendlist.setState(rs.getString("state"));
-			} else
-				throw new NotFoundException(username + " not found.");
+				friends.addFriend(friendlist);
+			}
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
 					Response.Status.INTERNAL_SERVER_ERROR);
@@ -100,13 +82,11 @@ public class FriendListResource {
 			} catch (SQLException e) {
 			}
 		}
-
-		return friendlist;
+		return friends;
 	}
 
 	// Para trabajar con parámetros de seguridad
 	@Context
 	private SecurityContext security;
-
 
 }
