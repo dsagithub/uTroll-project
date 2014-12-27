@@ -9,6 +9,7 @@ public class User {
 	private int points;
 	private int points_max;
 	private int groupid;
+	private boolean isTroll;
 	// private boolean loginSuccessful;
 	
 	public String getUsername() {
@@ -75,4 +76,11 @@ public class User {
 		this.groupid = groupid;
 	}
 
+	public boolean isTroll() {
+		return isTroll;
+	}
+
+	public void setTroll(boolean isTroll) {
+		this.isTroll = isTroll;
+	}
 }

@@ -6,6 +6,7 @@ public class Group {
 	private int price;
 	private long endingTimestamp;
 	private long creationTimestamp;
+	private String creator;
 	private String state;
 
 	public int getGroupid() {
@@ -54,6 +55,14 @@ public class Group {
 
 	public void setState(String state) {
 		this.state = state;
+	}
+
+	public String getCreator() {
+		return creator;
+	}
+
+	public void setCreator(String creator) {
+		this.creator = creator;
 	}
 
 }

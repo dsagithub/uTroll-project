@@ -39,7 +39,7 @@ public class UserResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 
 	private final static String GET_USER_BY_USERNAME_QUERY = "select * from users where username=?";
-	private final static String CREATE_USER_QUERY = "insert into users values (?, MD5(?), ?, ?, ?, 0, 0, 0)";
+	private final static String CREATE_USER_QUERY = "insert into users values (?, MD5(?), ?, ?, ?, 0, 0, false, 0)";
 	private final static String CREATE_USER_ROLE_QUERY = "insert into user_roles values (?, 'registered')";
 	private final static String VALIDATE_USERNAME_QUERY = "select username from users where username=?";
 
@@ -158,6 +158,7 @@ public class UserResource {
 				user.setGroupid(rs.getInt("groupid"));
 				user.setPoints(rs.getInt("points"));
 				user.setPoints_max(rs.getInt("points_max"));
+				user.setTroll(rs.getBoolean("isTroll"));
 			} else
 				throw new NotFoundException(username + " not found.");
 		} catch (SQLException e) {

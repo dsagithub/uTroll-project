@@ -9,6 +9,7 @@ create table groups (
 	price					int not null,
 	creation_timestamp		datetime not null default current_timestamp,
 	ending_timestamp		timestamp not null,
+	creator					varchar(20) not null,
 	state					varchar(50) not null
 );
 
@@ -20,6 +21,7 @@ create table users (
 	age			int not null,
 	points		int not null,
 	points_max	int not null,
+	isTroll		boolean not null,
 	groupid		int not null,
 	foreign key(groupid)	references groups(groupid)
 );
