@@ -339,7 +339,7 @@ public class GroupResource {
 		} else if (group.getState().equals("closed")) {
 
 		} else if (group.getState().equals("active")) {
-
+			//LLAMAR A UNA FUNCIÓN QUE HAGA EL SORTEO DE QUIÉN ES EL TROLL DEL GRUPO
 		} else {
 			throw new BadRequestException("The state is not valid");
 		}

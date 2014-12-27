@@ -32,6 +32,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import com.mysql.jdbc.Statement;
 
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.Comment;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.Group;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.User;
 
 @Path("/users")
@@ -42,6 +43,9 @@ public class UserResource {
 	private final static String CREATE_USER_QUERY = "insert into users values (?, MD5(?), ?, ?, ?, 0, 0, false, 0)";
 	private final static String CREATE_USER_ROLE_QUERY = "insert into user_roles values (?, 'registered')";
 	private final static String VALIDATE_USERNAME_QUERY = "select username from users where username=?";
+	private final static String VALIDATE_GROUP_BELONGING_QUERY = "select groupid from users where username = ?";
+	private final static String VALIDATE_GROUP_IS_OPEN_QUERY = "select state from groups where groupid = ?";
+	private final static String UPDATE_USER_GROUP_QUERY = "update users set groupid = ? where username = ?";
 
 	// Método obtención usuario - cacheable
 	@GET
@@ -131,6 +135,52 @@ public class UserResource {
 		return user;
 	}
 
+	// Unirse a un grupo
+	@PUT
+	@Path("/joingroup/{groupid}")
+	@Produces(MediaType.UTROLL_API_USER)
+	public User joinGroup(@PathParam("groupid") int groupid) {
+		User user = new User();
+		validateBelongingToNoGroup(security.getUserPrincipal().getName());
+
+		validateGroupIsOpen(groupid);
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(UPDATE_USER_GROUP_QUERY);
+			stmt.setInt(1, groupid);
+			stmt.setString(2, security.getUserPrincipal().getName());
+
+			int rows = stmt.executeUpdate();
+			if (rows == 1)
+				user = getUserFromDatabase(security.getUserPrincipal().getName(), false);
+			else {
+				throw new NotFoundException("Group not found");
+			}
+
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+
+		return user;
+	}
+
 	// El bool password define si se quiere recuperar o no el pwd de la BD
 	private User getUserFromDatabase(String username, boolean password) {
 		User user = new User();
@@ -196,6 +246,82 @@ public class UserResource {
 				return 0; // Username ocupado
 			} else
 				return 1; // Username libre
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+	}
+
+	// Método para validar que no estás metido en ningún grupo
+	private void validateBelongingToNoGroup(String username) {
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(VALIDATE_GROUP_BELONGING_QUERY);
+			stmt.setString(1, username);
+
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				int groupid = rs.getInt("groupid");
+
+				if (groupid != 0)
+					throw new BadRequestException(
+							"You already belong to a group");
+			}
+
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+	}
+
+	// Método para validar que el grupo está todavía abierto
+	private void validateGroupIsOpen(int groupid) {
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(VALIDATE_GROUP_IS_OPEN_QUERY);
+			stmt.setInt(1, groupid);
+
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				String state = rs.getString("state");
+
+				if (state.equals("open")) {
+					
+				} else {
+					throw new BadRequestException("The group is not open");
+				}
+			}
+
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
 					Response.Status.INTERNAL_SERVER_ERROR);
