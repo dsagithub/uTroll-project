@@ -141,7 +141,15 @@ public class UserResource {
 	@Produces(MediaType.UTROLL_API_USER)
 	public User joinGroup(@PathParam("groupid") int groupid) {
 		User user = new User();
-		validateBelongingToNoGroup(security.getUserPrincipal().getName());
+		// validateBelongingToNoGroup(security.getUserPrincipal().getName());
+
+		int myPresentGroup = validateBelongingToNoGroup(security
+				.getUserPrincipal().getName());
+
+		if (myPresentGroup != 0) {
+			// throw new ServerErrorException("You already belong to group " +
+			// myPresentGroup, Response.Status.INTERNAL_SERVER_ERROR);
+		}
 
 		validateGroupIsOpen(groupid);
 
@@ -161,7 +169,8 @@ public class UserResource {
 
 			int rows = stmt.executeUpdate();
 			if (rows == 1)
-				user = getUserFromDatabase(security.getUserPrincipal().getName(), false);
+				user = getUserFromDatabase(security.getUserPrincipal()
+						.getName(), false);
 			else {
 				throw new NotFoundException("Group not found");
 			}
@@ -178,6 +187,24 @@ public class UserResource {
 			}
 		}
 
+		return user;
+	}
+
+	// Comprobar usuario y contraseña usados
+	@Path("/login")
+	@POST
+	@Produces(MediaType.UTROLL_API_USER)
+	@Consumes(MediaType.UTROLL_API_USER)
+	public User checkLogin(User user) {
+		if (user.getUsername() == null || user.getPassword() == null)
+			throw new BadRequestException(
+					"username and password cannot be null.");
+
+		String pwdDigest = DigestUtils.md5Hex(user.getPassword());
+		String storedPwd = getUserFromDatabase(user.getUsername(), true).getPassword();
+
+		user.setLoginSuccessful(pwdDigest.equals(storedPwd));
+		user.setPassword(null);
 		return user;
 	}
 
@@ -201,7 +228,7 @@ public class UserResource {
 			if (rs.next()) {
 				user.setUsername(rs.getString("username"));
 				if (password)
-					user.setPassword(rs.getString("userpass"));
+					user.setPassword(rs.getString("password"));
 				user.setEmail(rs.getString("email"));
 				user.setName(rs.getString("name"));
 				user.setAge(rs.getInt("age"));
@@ -260,8 +287,9 @@ public class UserResource {
 	}
 
 	// Método para validar que no estás metido en ningún grupo
-	private void validateBelongingToNoGroup(String username) {
+	private int validateBelongingToNoGroup(String username) {
 		Connection conn = null;
+		int groupid = 0;
 		try {
 			conn = ds.getConnection();
 		} catch (SQLException e) {
@@ -276,11 +304,12 @@ public class UserResource {
 
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
-				int groupid = rs.getInt("groupid");
+				groupid = rs.getInt("groupid");
 
-				if (groupid != 0)
+				if (groupid != 0) {
 					throw new BadRequestException(
 							"You already belong to a group");
+				}
 			}
 
 		} catch (SQLException e) {
@@ -294,6 +323,7 @@ public class UserResource {
 			} catch (SQLException e) {
 			}
 		}
+		return groupid;
 	}
 
 	// Método para validar que el grupo está todavía abierto
@@ -316,7 +346,7 @@ public class UserResource {
 				String state = rs.getString("state");
 
 				if (state.equals("open")) {
-					
+
 				} else {
 					throw new BadRequestException("The group is not open");
 				}

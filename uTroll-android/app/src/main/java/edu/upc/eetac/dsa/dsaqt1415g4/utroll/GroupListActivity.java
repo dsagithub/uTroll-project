@@ -7,12 +7,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.ListView;
 
 import java.net.Authenticator;
@@ -20,25 +18,25 @@ import java.net.PasswordAuthentication;
 import java.util.ArrayList;
 
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.AppException;
-import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.Comment;
-import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.CommentCollection;
+import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.Group;
+import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.GroupCollection;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollAPI;
 
 
-public class uTrollMainActivity extends ListActivity {
-    private final static String TAG = uTrollMainActivity.class.toString();
+public class GroupListActivity extends ListActivity {
+    private final static String TAG = GroupListActivity.class.toString();
 
-    private CommentAdapter adapter;
-    private ArrayList<Comment> commentsList;
+    private GroupAdapter adapter;
+    private ArrayList<Group> groupsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_utroll_main);
+        setContentView(R.layout.activity_groups_list);
 
-        commentsList = new ArrayList<Comment>();
-        adapter = new CommentAdapter(this, commentsList);
+        groupsList = new ArrayList<Group>();
+        adapter = new GroupAdapter(this, groupsList);
         setListAdapter(adapter);
 
         SharedPreferences prefs = getSharedPreferences("uTroll-profile",
@@ -59,28 +57,28 @@ public class uTrollMainActivity extends ListActivity {
                         .toCharArray());
             }
         });
-        (new FetchCommentsTask()).execute();
+        (new FetchGroupsTask()).execute();
     }
 
-    private class FetchCommentsTask extends
-            AsyncTask<Void, Void, CommentCollection> {
+    private class FetchGroupsTask extends
+            AsyncTask<Void, Void, GroupCollection> {
         private ProgressDialog pd;
 
         @Override
-        protected CommentCollection doInBackground(Void... params) {
-            CommentCollection comments = null;
+        protected GroupCollection doInBackground(Void... params) {
+            GroupCollection groups = null;
             try {
-                comments = uTrollAPI.getInstance(uTrollMainActivity.this)
-                        .getComments();
+                groups = uTrollAPI.getInstance(GroupListActivity.this)
+                        .getGroups();
             } catch (AppException e) {
                 e.printStackTrace();
             }
-            return comments;
+            return groups;
         }
 
         @Override
-        protected void onPostExecute(CommentCollection result) {
-            addComments(result);
+        protected void onPostExecute(GroupCollection result) {
+            addGroups(result);
             if (pd != null) {
                 pd.dismiss();
             }
@@ -88,7 +86,7 @@ public class uTrollMainActivity extends ListActivity {
 
         @Override
         protected void onPreExecute() {
-            pd = new ProgressDialog(uTrollMainActivity.this);
+            pd = new ProgressDialog(GroupListActivity.this);
             pd.setTitle("Searching...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
@@ -107,21 +105,6 @@ public class uTrollMainActivity extends ListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_logout:
-                SharedPreferences prefs = getSharedPreferences("uTroll-profile",
-                        Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = prefs.edit(); //Esto siempre se hace así -> obtener editor + clear
-                editor.clear();
-                editor.commit();
-                Intent intent = new Intent(this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-                return true;
-            case R.id.action_joinGroup:
-                Intent intent_joinGroup = new Intent(this, GroupListActivity.class);
-                startActivity(intent_joinGroup);
-                return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -129,16 +112,16 @@ public class uTrollMainActivity extends ListActivity {
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-//        Game game = gamesList.get(position);
-//        Log.d(TAG, game.getLinks().get("self").getTarget());
-//
-//        Intent intent = new Intent(this, GameDetailActivity.class);
-//        intent.putExtra("url", game.getLinks().get("self").getTarget());
-//        startActivity(intent);
+        Group group = groupsList.get(position);
+
+        Intent intent = new Intent(this, GroupDetailActivity.class);
+        intent.putExtra("url", group.getLinks().get("join").getTarget()); //URL para unirse a un grupo
+        intent.putExtra("type", group.getLinks().get("join").getParameters().get("type"));
+        startActivity(intent);
     }
 
-    private void addComments(CommentCollection comments){
-        commentsList.addAll(comments.getComments());
+    private void addGroups(GroupCollection groups){
+        groupsList.addAll(groups.getGroups());
         adapter.notifyDataSetChanged();
     }
 }

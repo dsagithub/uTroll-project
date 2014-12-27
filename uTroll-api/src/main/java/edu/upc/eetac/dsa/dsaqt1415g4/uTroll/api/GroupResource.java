@@ -17,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.POST;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
@@ -31,25 +32,73 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import com.mysql.jdbc.Statement;
 
-import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.Comment;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.Group;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.GroupCollection;
 
 @Path("/groups")
 public class GroupResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 
 	private final static String GET_GROUP_BY_GROUPID_QUERY = "select * from groups where groupid=?";
+	private final static String GET_GROUPS_QUERY = "select * from groups";
 	private final static String CREATE_GROUP_QUERY = "insert into groups (groupname, price, ending_timestamp, creator, state) values(?, ?, ?, ?, ?)";
 	private final static String UPDATE_GROUP_QUERY = "update groups set state = ? where groupid = ?";
 	private final static String VALIDATE_CREATOR = "select groupid from users where username = ?";
 	private final static String UPDATE_USER_GROUP_QUERY = "update users set groupid = ? where username = ?";
 	private final static String VALIDATE_USER = "select groupname from groups where groupid = ? and creator = ?";
 
+	// Obtener lista de grupos
+	@GET
+	@Produces(MediaType.UTROLL_API_GROUP_COLLECTION)
+	public GroupCollection getGroups() {
+		GroupCollection groups = new GroupCollection();
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(GET_GROUPS_QUERY);
+
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				Group group = new Group();
+				group.setCreationTimestamp(rs.getLong("creation_timestamp"));
+				group.setEndingTimestamp(rs.getLong("ending_timestamp"));
+				group.setGroupid(rs.getInt("groupid"));
+				group.setGroupname(rs.getString("groupname"));
+				group.setPrice(rs.getInt("price"));
+				group.setState(rs.getString("state"));
+				group.setCreator(rs.getString("creator"));
+				
+				groups.addGroup(group);
+			}
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null) {
+					stmt.close();
+				}
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+
+		return groups;
+	}
+
 	// Método obtención grupo por id
 	@GET
 	@Path("/{groupid}")
 	@Produces(MediaType.UTROLL_API_GROUP)
-	public Group getUser(@PathParam("groupid") int groupid) {
+	public Group getGroup(@PathParam("groupid") int groupid) {
 		Group group = new Group();
 
 		Connection conn = null;
@@ -339,7 +388,8 @@ public class GroupResource {
 		} else if (group.getState().equals("closed")) {
 
 		} else if (group.getState().equals("active")) {
-			//LLAMAR A UNA FUNCIÓN QUE HAGA EL SORTEO DE QUIÉN ES EL TROLL DEL GRUPO
+			// LLAMAR A UNA FUNCIÓN QUE HAGA EL SORTEO DE QUIÉN ES EL TROLL DEL
+			// GRUPO
 		} else {
 			throw new BadRequestException("The state is not valid");
 		}

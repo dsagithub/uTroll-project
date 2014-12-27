@@ -10,7 +10,7 @@ public class User {
 	private int points_max;
 	private int groupid;
 	private boolean isTroll;
-	// private boolean loginSuccessful;
+	private boolean loginSuccessful;
 	
 	public String getUsername() {
 		return username;
@@ -83,4 +83,13 @@ public class User {
 	public void setTroll(boolean isTroll) {
 		this.isTroll = isTroll;
 	}
+
+	public boolean isLoginSuccessful() {
+		return loginSuccessful;
+	}
+
+	public void setLoginSuccessful(boolean loginSuccessful) {
+		this.loginSuccessful = loginSuccessful;
+	}
+	
 }

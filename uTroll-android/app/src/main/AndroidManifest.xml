@@ -19,6 +19,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".uTrollMainActivity" />
+        <activity android:name=".GroupListActivity" />
+        <activity android:name=".GroupDetailActivity" />
     </application>
 
 </manifest>

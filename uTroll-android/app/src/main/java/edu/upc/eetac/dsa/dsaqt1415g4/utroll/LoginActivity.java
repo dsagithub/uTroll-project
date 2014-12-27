@@ -8,9 +8,11 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -21,7 +23,6 @@ import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollAPI;
 
 public class LoginActivity extends Activity {
     private final static String TAG = LoginActivity.class.getName();
-    private Boolean correctLogin = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,26 +61,9 @@ public class LoginActivity extends Activity {
 // If correct, store username and password and start uTroll activity
 // else, handle error
 
-//        correctLogin = false;
-//        correctLogin = uTrollAPI.getInstance(LoginActivity.this).isLoginOK(); //ESTO HAY QUE ARREGLARLO
-//
-//        if (!correctLogin)
-//            throw new AppException("Login is not correct");
+        (new checkLoginTask()).execute(username, password);
 
 // I'll suppose that u/p are correct:
-        SharedPreferences prefs = getSharedPreferences("uTroll-profile",
-                Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit(); //Esto siempre se hace así -> obtener editor + clear
-        editor.clear();
-        editor.putString("username", username);
-        editor.putString("password", password);
-        boolean done = editor.commit();
-        if (done)
-            Log.d(TAG, "preferences set");
-        else
-            Log.d(TAG, "preferences not set. THIS A SEVERE PROBLEM");
-
-        startuTrollActivity();
     }
 
     private void startuTrollActivity() {
@@ -88,35 +72,69 @@ public class LoginActivity extends Activity {
         finish(); //Si no acabamos la actividad de Login, al darle al botón "back" en el móvil volvería a ella
     }
 
-//    private class checkLoginTask extends AsyncTask<Void, Void, Boolean> {
-//        private ProgressDialog pd;
-//
-//        @Override
-//        protected Boolean doInBackground(Void... params) {
-////            try {
-////                correctLogin = uTrollAPI.getInstance(LoginActivity.this)
-////                        .checkLogin();
-////            } catch (AppException e) {
-////                e.printStackTrace();
-////            }
-//            return correctLogin;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(boolean correctLogin) {
-//            if (pd != null) {
-//                pd.dismiss();
-//            }
-//        }
-//
-//        @Override
-//        protected void onPreExecute() {
-//            pd = new ProgressDialog(LoginActivity.this);
-//            pd.setTitle("Searching...");
-//            pd.setCancelable(false);
-//            pd.setIndeterminate(true);
-//            pd.show();
-//        }
-//
-//    }
+    private void evaluateLogin(Boolean loginOK) {
+        if (loginOK) {
+            EditText etUsername = (EditText) findViewById(R.id.etUsername);
+            EditText etPassword = (EditText) findViewById(R.id.etPassword);
+
+            final String username = etUsername.getText().toString();
+            final String password = etPassword.getText().toString();
+
+            SharedPreferences prefs = getSharedPreferences("uTroll-profile",
+                    Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.clear();
+            editor.putString("username", username);
+            editor.putString("password", password);
+            boolean done = editor.commit();
+            if (done)
+                Log.d(TAG, "preferences set");
+            else
+                Log.d(TAG, "preferences not set. THIS A SEVERE PROBLEM");
+
+            startuTrollActivity();
+        } else {
+            Context context = getApplicationContext();
+            CharSequence text = "El usuario o la contraseña son incorrectos";
+            int duration = Toast.LENGTH_LONG;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        }
+    }
+
+    private class checkLoginTask extends AsyncTask<String, Void, Boolean> {
+        private ProgressDialog pd;
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            Boolean correctLogin = false;
+            try {
+                correctLogin = uTrollAPI.getInstance(LoginActivity.this)
+                        .checkLogin(params[0], params[1]);
+            } catch (AppException e) {
+                e.printStackTrace();
+            }
+            return correctLogin;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean loginOK) {
+            evaluateLogin(loginOK);
+            if (pd != null) {
+                pd.dismiss();
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            pd = new ProgressDialog(LoginActivity.this);
+            pd.setTitle("Searching...");
+            pd.setCancelable(false);
+            pd.setIndeterminate(true);
+            pd.show();
+        }
+
+    }
 }

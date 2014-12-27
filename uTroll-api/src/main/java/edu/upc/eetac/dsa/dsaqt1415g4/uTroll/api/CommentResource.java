@@ -42,7 +42,8 @@ public class CommentResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 
 	private final static String GET_COMMENT_BY_COMMENTID_QUERY = "select * from comment where commentid=?";
-	private final static String GET_COMMENTS_QUERY = "select * from comment where groupid=? order by creation_timestamp desc limit ?";
+	private final static String GET_COMMENTS_BY_GROUP_QUERY = "select * from comment where groupid=? order by creation_timestamp desc limit ?";
+	private final static String GET_COMMENTS_QUERY = "select * from comment order by creation_timestamp desc limit ?";
 	private final static String INSERT_COMMENT_QUERY = "insert into comment (username, creator, content, likes, dislikes, groupid) values (?, ?, ?, ?, ?, ?)";
 	private final static String UPDATE_COMMENT_QUERY = "update comment set content=ifnull(?, content), likes=ifnull(?, likes), dislikes=ifnull(?, dislikes) where commentid=?";
 	private final static String UPDATE_LIKE_COMMENT_QUERY = "update comment set likes=? where commentid=?";
@@ -69,10 +70,14 @@ public class CommentResource {
 			int mygroup = getMyGroup(security.getUserPrincipal().getName());
 
 			stmt = conn.prepareStatement(GET_COMMENTS_QUERY);
-			stmt.setInt(1, mygroup);
+//			stmt.setInt(1, mygroup);
+//			if (length <= 0)
+//				length = 5;
+//			stmt.setInt(2, length);
+			
 			if (length <= 0)
 				length = 5;
-			stmt.setInt(2, length);
+			stmt.setInt(1, length);
 
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -418,8 +423,8 @@ public class CommentResource {
 			while (rs.next()) {
 				mygroup = rs.getInt("groupid");
 			}
-			if (mygroup == 0)
-				throw new BadRequestException("No perteneces a ningún grupo");
+//			if (mygroup == 0)
+//				throw new BadRequestException("No perteneces a ningún grupo");
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
 					Response.Status.INTERNAL_SERVER_ERROR);

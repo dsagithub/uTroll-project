@@ -135,4 +135,12 @@
 			<role-name>troll</role-name>
 		</auth-constraint>
 	</security-constraint>
+	
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Users</web-resource-name>
+			<url-pattern>/users/*</url-pattern>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+	</security-constraint>
 </web-app>

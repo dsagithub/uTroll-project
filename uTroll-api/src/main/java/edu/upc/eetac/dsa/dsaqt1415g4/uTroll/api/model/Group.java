@@ -1,5 +1,19 @@
 package edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model;
 
+import java.util.List;
+
+import javax.ws.rs.core.Link;
+
+import org.glassfish.jersey.linking.Binding;
+import org.glassfish.jersey.linking.InjectLink;
+import org.glassfish.jersey.linking.InjectLinks;
+import org.glassfish.jersey.linking.InjectLink.Style;
+
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.CommentResource;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.GroupResource;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.UserResource;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.MediaType;
+
 public class Group {
 	private int groupid;
 	private String groupname;
@@ -8,6 +22,14 @@ public class Group {
 	private long creationTimestamp;
 	private String creator;
 	private String state;
+	
+	@InjectLinks({
+		@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "create-group", title = "Create group", type = MediaType.UTROLL_API_GROUP),
+		@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "self edit", title = "Self edit", type = MediaType.UTROLL_API_GROUP, method = "getGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}")),
+		@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "join group", title = "Join group", type = MediaType.UTROLL_API_USER, method = "joinGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}")),
+		@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "update group state", title = "Update group state", type = MediaType.UTROLL_API_GROUP, method = "updateGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}"))
+		})
+	private List<Link> links;
 
 	public int getGroupid() {
 		return groupid;
@@ -63,6 +85,14 @@ public class Group {
 
 	public void setCreator(String creator) {
 		this.creator = creator;
+	}
+
+	public List<Link> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<Link> links) {
+		this.links = links;
 	}
 
 }
