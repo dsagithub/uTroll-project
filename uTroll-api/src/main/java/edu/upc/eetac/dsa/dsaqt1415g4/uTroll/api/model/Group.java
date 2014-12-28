@@ -22,6 +22,7 @@ public class Group {
 	private long creationTimestamp;
 	private String creator;
 	private String state;
+	private String troll;
 	
 	@InjectLinks({
 		@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "create-group", title = "Create group", type = MediaType.UTROLL_API_GROUP),
@@ -93,6 +94,14 @@ public class Group {
 
 	public void setLinks(List<Link> links) {
 		this.links = links;
+	}
+
+	public String getTroll() {
+		return troll;
+	}
+
+	public void setTroll(String troll) {
+		this.troll = troll;
 	}
 
 }
