@@ -1,5 +1,16 @@
 package edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model;
 
+import java.util.List;
+
+import javax.ws.rs.core.Link;
+
+import org.glassfish.jersey.linking.InjectLink;
+import org.glassfish.jersey.linking.InjectLinks;
+import org.glassfish.jersey.linking.InjectLink.Style;
+
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.MediaType;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.UserResource;
+
 public class User {
 	private String username;
 	private String password;
@@ -11,6 +22,9 @@ public class User {
 	private int groupid;
 	private boolean isTroll;
 	private boolean loginSuccessful;
+	
+	@InjectLinks({ @InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "create-user", title = "Create user", type = MediaType.UTROLL_API_USER) })
+	private List<Link> links;
 	
 	public String getUsername() {
 		return username;
@@ -90,6 +104,14 @@ public class User {
 
 	public void setLoginSuccessful(boolean loginSuccessful) {
 		this.loginSuccessful = loginSuccessful;
+	}
+
+	public List<Link> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<Link> links) {
+		this.links = links;
 	}
 	
 }

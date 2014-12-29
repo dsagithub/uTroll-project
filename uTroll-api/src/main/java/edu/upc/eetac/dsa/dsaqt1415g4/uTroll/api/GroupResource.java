@@ -444,7 +444,7 @@ public class GroupResource {
 
 			User troll = users.getUsers().get(TrollIndex);
 			stmt1 = conn.prepareStatement(UPDATE_USER_TROLL_QUERY);
-			stmt1.setBoolean(1, troll.isTroll());
+			stmt1.setBoolean(1, true);
 			stmt1.setString(2, troll.getUsername());
 			stmt1.executeUpdate();
 			

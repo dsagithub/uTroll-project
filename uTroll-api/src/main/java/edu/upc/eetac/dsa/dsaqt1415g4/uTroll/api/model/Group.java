@@ -28,7 +28,8 @@ public class Group {
 		@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "create-group", title = "Create group", type = MediaType.UTROLL_API_GROUP),
 		@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "self edit", title = "Self edit", type = MediaType.UTROLL_API_GROUP, method = "getGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}")),
 		@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "join group", title = "Join group", type = MediaType.UTROLL_API_USER, method = "joinGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}")),
-		@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "update group state", title = "Update group state", type = MediaType.UTROLL_API_GROUP, method = "updateGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}"))
+		@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "update group state", title = "Update group state", type = MediaType.UTROLL_API_GROUP, method = "updateGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}")),
+		@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "get users", title = "Get the users in this group", type = MediaType.UTROLL_API_USER_COLLECTION, method = "getUsersInGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}"))
 		})
 	private List<Link> links;
 

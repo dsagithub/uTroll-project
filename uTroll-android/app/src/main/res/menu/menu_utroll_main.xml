@@ -1,6 +1,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".uTrollMainActivity">
+    <item
+        android:id="@+id/refreshMenuItem"
+        android:title="Escribir Review"
+        android:icon="@drawable/ic_action_refresh"
+        android:showAsAction="withText|always" />
+    <item
+        android:id="@+id/writeCommentMenuItem"
+        android:title="Escribir Review"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:showAsAction="withText|always" />
     <item android:id="@+id/action_logout"
         android:title="@string/action_logout"
         android:orderInCategory="100"

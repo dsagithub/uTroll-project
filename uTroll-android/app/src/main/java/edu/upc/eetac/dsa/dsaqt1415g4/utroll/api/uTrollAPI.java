@@ -208,6 +208,137 @@ public class uTrollAPI {
         return comment;
     }
 
+    public Comment LikeDislikeComment(String urlLikeDislike, String mediaType, String urlComment) throws AppException {
+        Comment comment = null;
+        HttpURLConnection urlConnection = null;
+
+        try {
+            URL url = new URL(urlLikeDislike);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("Accept",
+                    mediaType); //Esto estaba mal en los gists
+            urlConnection.setRequestProperty("Content-Type",
+                    mediaType);
+            urlConnection.setRequestMethod("PUT");
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+
+            comment = commentsCache.get(urlComment);
+            String eTag = (comment == null) ? null : comment.getETag();
+            if (eTag != null)
+                urlConnection.setRequestProperty("If-None-Match", eTag);
+            urlConnection.connect();
+            if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED) { //Si el comment no se ha modificado, se devuelve el de la URL
+                Log.d(TAG, "CACHE");
+                return commentsCache.get(urlComment);
+            }
+            Log.d(TAG, "NOT IN CACHE"); //Si sí que se ha modificado, debemos obtenerlo
+            comment = new Comment();
+            eTag = urlConnection.getHeaderField("ETag");
+            comment.setETag(eTag);
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            JSONObject jsonComment = new JSONObject(sb.toString());
+
+            comment.setCommentid(jsonComment.getInt("commentid"));
+            comment.setContent(jsonComment.getString("content"));
+            comment.setCreation_timestamp(jsonComment.getLong("creation_timestamp"));
+            comment.setCreator(jsonComment.getString("creator"));
+            comment.setDislikes(jsonComment.getInt("dislikes"));
+            comment.setGroupid(jsonComment.getInt("groupid"));
+            comment.setLast_modified(jsonComment.getLong("last_modified"));
+            comment.setLikes(jsonComment.getInt("likes"));
+            comment.setUsername(jsonComment.getString("username"));
+
+            JSONArray jsonLinks = jsonComment.getJSONArray("links");
+            parseLinks(jsonLinks, comment.getLinks());
+
+            commentsCache.put(urlComment, comment); //Esta línea se pone al final por si hay error antes
+        } catch (MalformedURLException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Bad comment url");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Exception when getting the comment");
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Exception parsing response");
+        }
+
+        return comment;
+    }
+
+    public Comment createComment(String content) throws AppException {
+        Log.d(TAG, "createComment()");
+        Comment comment = new Comment();
+        comment.setContent(content);
+        HttpURLConnection urlConnection = null;
+        try {
+            JSONObject jsonComment = createJsonComment(comment);
+            URL urlPostComments = new URL(rootAPI.getLinks().get("post-comment")
+                    .getTarget());
+            urlConnection = (HttpURLConnection) urlPostComments.openConnection();
+            String mediaType = rootAPI.getLinks().get("post-comment").getParameters().get("type"); //Esta línea no estaba en el gist
+            urlConnection.setRequestProperty("Accept",
+                    mediaType); //Esto estaba mal en los gists
+            urlConnection.setRequestProperty("Content-Type",
+                    mediaType);
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+            urlConnection.connect();
+            PrintWriter writer = new PrintWriter(
+                    urlConnection.getOutputStream());
+            writer.println(jsonComment.toString());
+            writer.close();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            jsonComment = new JSONObject(sb.toString());
+
+            comment.setCommentid(jsonComment.getInt("commentid"));
+            comment.setContent(jsonComment.getString("content"));
+            comment.setCreation_timestamp(jsonComment.getLong("creation_timestamp"));
+            comment.setCreator(jsonComment.getString("creator"));
+            comment.setDislikes(jsonComment.getInt("dislikes"));
+            comment.setGroupid(jsonComment.getInt("groupid"));
+            comment.setLast_modified(jsonComment.getLong("last_modified"));
+            comment.setLikes(jsonComment.getInt("likes"));
+            comment.setUsername(jsonComment.getString("username"));
+
+            JSONArray jsonLinks = jsonComment.getJSONArray("links");
+            parseLinks(jsonLinks, comment.getLinks());
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error parsing response");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error getting response");
+        } finally {
+            if (urlConnection != null)
+                urlConnection.disconnect();
+        }
+
+        return comment;
+    }
+
+    private JSONObject createJsonComment(Comment comment) throws JSONException {
+        JSONObject jsonComment = new JSONObject();
+        jsonComment.put("content", comment.getContent());
+
+        return jsonComment;
+    }
+
     public GroupCollection getGroups() throws AppException {
         Log.d(TAG, "getGroups()");
         GroupCollection groups = new GroupCollection(); //Modelo de la colección
@@ -300,6 +431,64 @@ public class uTrollAPI {
                 urlConnection.disconnect();
         }
 
+    }
+
+    public UserCollection getUsersInGroup(String urlGetUsers) throws AppException {
+        Log.d(TAG, "getUsersInGroup()");
+        UserCollection users = new UserCollection(); //Modelo de la colección
+
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL(urlGetUsers);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoInput(true);
+            urlConnection.connect();
+        } catch (IOException e) {
+            throw new AppException(
+                    "Can't connect to uTroll API Web Service");
+        }
+
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+
+            JSONObject jsonObject = new JSONObject(sb.toString());
+            JSONArray jsonLinks = jsonObject.getJSONArray("links");
+            parseLinks(jsonLinks, users.getLinks());
+
+            JSONArray jsonUsers = jsonObject.getJSONArray("users");
+            for (int i = 0; i < jsonUsers.length(); i++) {
+                User user = new User();
+                JSONObject jsonUser = jsonUsers.getJSONObject(i);
+
+                user.setUsername(jsonUser.getString("username"));
+                user.setEmail(jsonUser.getString("email"));
+                user.setName(jsonUser.getString("name"));
+                user.setAge(jsonUser.getInt("age"));
+                user.setGroupid(jsonUser.getInt("groupid"));
+                user.setPoints(jsonUser.getInt("points"));
+                user.setPoints_max(jsonUser.getInt("points_max"));
+                user.setTroll(jsonUser.getBoolean("troll"));
+
+                jsonLinks = jsonUser.getJSONArray("links");
+                parseLinks(jsonLinks, user.getLinks());
+                users.getUsers().add(user);
+            }
+        } catch (IOException e) {
+            throw new AppException(
+                    "Can't get response from uTroll API Web Service");
+        } catch (JSONException e) {
+            throw new AppException("Error parsing uTroll Root API");
+        }
+
+        return users;
     }
 
     public Boolean checkLogin(String username, String password) throws AppException {

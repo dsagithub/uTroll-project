@@ -33,7 +33,9 @@ import com.mysql.jdbc.Statement;
 
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.Comment;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.Group;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.GroupCollection;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.User;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.UserCollection;
 
 @Path("/users")
 public class UserResource {
@@ -46,6 +48,7 @@ public class UserResource {
 	private final static String VALIDATE_GROUP_BELONGING_QUERY = "select groupid from users where username = ?";
 	private final static String VALIDATE_GROUP_IS_OPEN_QUERY = "select state from groups where groupid = ?";
 	private final static String UPDATE_USER_GROUP_QUERY = "update users set groupid = ? where username = ?";
+	private final static String GET_USERS_IN_A_GROUP_QUERY = "select * from users where groupid = ?";
 
 	// Método obtención usuario - cacheable
 	@GET
@@ -71,6 +74,57 @@ public class UserResource {
 		rb = Response.ok(user).cacheControl(cc).tag(eTag);
 
 		return rb.build();
+	}
+
+	// Obtener usuarios de un grupo
+	@GET
+	@Path("/{groupid}")
+	@Produces(MediaType.UTROLL_API_USER_COLLECTION)
+	public UserCollection getUsersInGroup(@PathParam("groupid") int groupid) {
+		UserCollection users = new UserCollection();
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(GET_USERS_IN_A_GROUP_QUERY);
+
+			stmt.setInt(1, groupid);
+
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				User user = new User();
+				user.setUsername(rs.getString("username"));
+				user.setEmail(rs.getString("email"));
+				user.setName(rs.getString("name"));
+				user.setAge(rs.getInt("age"));
+				user.setGroupid(rs.getInt("groupid"));
+				user.setPoints(rs.getInt("points"));
+				user.setPoints_max(rs.getInt("points_max"));
+				user.setTroll(rs.getBoolean("isTroll"));
+
+				users.addUser(user);
+			}
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null) {
+					stmt.close();
+				}
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+
+		return users;
 	}
 
 	// Crear un usuario
@@ -201,7 +255,8 @@ public class UserResource {
 					"username and password cannot be null.");
 
 		String pwdDigest = DigestUtils.md5Hex(user.getPassword());
-		String storedPwd = getUserFromDatabase(user.getUsername(), true).getPassword();
+		String storedPwd = getUserFromDatabase(user.getUsername(), true)
+				.getPassword();
 
 		user.setLoginSuccessful(pwdDigest.equals(storedPwd));
 		user.setPassword(null);

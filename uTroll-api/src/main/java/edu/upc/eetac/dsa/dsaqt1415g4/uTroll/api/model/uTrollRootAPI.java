@@ -19,6 +19,7 @@ public class uTrollRootAPI {
 	@InjectLinks({
 			@InjectLink(resource = uTrollRootAPIResource.class, style = Style.ABSOLUTE, rel = "self bookmark home", title = "uTroll Root API", method = "getRootAPI"),
 			@InjectLink(resource = CommentResource.class, style = Style.ABSOLUTE, rel = "comments", title = "Latest comments", type = MediaType.UTROLL_API_COMMENT_COLLECTION),
+			@InjectLink(resource = CommentResource.class, style = Style.ABSOLUTE, rel = "post-comment", title = "Post comment", type = MediaType.UTROLL_API_COMMENT, method = "createComment"),
 			@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "login", title = "Check login", type = MediaType.UTROLL_API_USER, method = "checkLogin"),
 			@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "groups", title = "Latest groups", type = MediaType.UTROLL_API_GROUP_COLLECTION) })
 	private List<Link> links;

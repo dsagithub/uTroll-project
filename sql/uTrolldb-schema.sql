@@ -56,3 +56,13 @@ create table comment (
 	foreign key(username) 	references users(username),
 	foreign key(groupid)	references groups(groupid)
 );
+
+create table likes (
+	likeid				int not null auto_increment primary key,
+	commentid			int not null,
+	username			varchar(20) not null,
+	likeComment			boolean not null,
+	dislikeComment		boolean not null,
+	foreign key(username) 	references users(username),
+	foreign key(commentid)	references comment(commentid)
+);

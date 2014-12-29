@@ -21,6 +21,8 @@
         <activity android:name=".uTrollMainActivity" />
         <activity android:name=".GroupListActivity" />
         <activity android:name=".GroupDetailActivity" />
+        <activity android:name=".CommentDetailActivity" />
+        <activity android:name=".WriteCommentActivity" />
     </application>
 
 </manifest>

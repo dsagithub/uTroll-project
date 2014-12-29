@@ -44,19 +44,19 @@ public class GroupListActivity extends ListActivity {
         final String username = prefs.getString("username", null);
         final String password = prefs.getString("password", null);
 
-//        Authenticator.setDefault(new Authenticator() {
-//            protected PasswordAuthentication getPasswordAuthentication() {
-//                return new PasswordAuthentication(username, password //Esto estaba mal en los gists
-//                        .toCharArray());
-//            }
-//        });
-
         Authenticator.setDefault(new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("david", "david" //Esto estaba mal en los gists
+                return new PasswordAuthentication(username, password //Esto estaba mal en los gists
                         .toCharArray());
             }
         });
+
+//        Authenticator.setDefault(new Authenticator() {
+//            protected PasswordAuthentication getPasswordAuthentication() {
+//                return new PasswordAuthentication("david", "david" //Esto estaba mal en los gists
+//                        .toCharArray());
+//            }
+//        });
         (new FetchGroupsTask()).execute();
     }
 
@@ -117,6 +117,7 @@ public class GroupListActivity extends ListActivity {
         Intent intent = new Intent(this, GroupDetailActivity.class);
         intent.putExtra("url", group.getLinks().get("join").getTarget()); //URL para unirse a un grupo
         intent.putExtra("type", group.getLinks().get("join").getParameters().get("type"));
+        intent.putExtra("url-users", group.getLinks().get("users").getTarget());
         startActivity(intent);
     }
 

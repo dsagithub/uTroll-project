@@ -8,12 +8,16 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -46,19 +50,19 @@ public class uTrollMainActivity extends ListActivity {
         final String username = prefs.getString("username", null);
         final String password = prefs.getString("password", null);
 
-//        Authenticator.setDefault(new Authenticator() {
-//            protected PasswordAuthentication getPasswordAuthentication() {
-//                return new PasswordAuthentication(username, password //Esto estaba mal en los gists
-//                        .toCharArray());
-//            }
-//        });
-
         Authenticator.setDefault(new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("david", "david" //Esto estaba mal en los gists
+                return new PasswordAuthentication(username, password //Esto estaba mal en los gists
                         .toCharArray());
             }
         });
+
+//        Authenticator.setDefault(new Authenticator() {
+//            protected PasswordAuthentication getPasswordAuthentication() {
+//                return new PasswordAuthentication("david", "david" //Esto estaba mal en los gists
+//                        .toCharArray());
+//            }
+//        });
         (new FetchCommentsTask()).execute();
     }
 
@@ -121,23 +125,50 @@ public class uTrollMainActivity extends ListActivity {
                 Intent intent_joinGroup = new Intent(this, GroupListActivity.class);
                 startActivity(intent_joinGroup);
                 return true;
+            case R.id.refreshMenuItem:
+                Bundle tempBundle = new Bundle();
+                onCreate(tempBundle);
+                return true;
+            case R.id.writeCommentMenuItem:
+                Intent intent1 = new Intent(this, WriteCommentActivity.class);
+                startActivityForResult(intent1, WRITE_ACTIVITY); //Para que aparezca la nueva review después de postearla
+                return true;
 
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    //Método para que se visualice la nueva review
+    private final static int WRITE_ACTIVITY = 0; //Porque solo hay una actividad, si se lanzan varias se asignan números sucesivos
     @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-//        Game game = gamesList.get(position);
-//        Log.d(TAG, game.getLinks().get("self").getTarget());
-//
-//        Intent intent = new Intent(this, GameDetailActivity.class);
-//        intent.putExtra("url", game.getLinks().get("self").getTarget());
-//        startActivity(intent);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case WRITE_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    Bundle res = data.getExtras();
+                    String jsonReview = res.getString("json-comment");
+                    Comment comment = new Gson().fromJson(jsonReview, Comment.class);
+                    commentsList.add(0, comment);
+                    adapter.notifyDataSetChanged();
+                }
+                break;
+        }
     }
 
-    private void addComments(CommentCollection comments){
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        Comment comment = commentsList.get(position);
+
+        Intent intent = new Intent(this, CommentDetailActivity.class);
+        intent.putExtra("url", comment.getLinks().get("self").getTarget());
+        intent.putExtra("url-like", comment.getLinks().get("like").getTarget());
+        intent.putExtra("url-dislike", comment.getLinks().get("dislike").getTarget());
+        intent.putExtra("type", comment.getLinks().get("like").getParameters().get("type"));
+        startActivity(intent);
+    }
+
+    private void addComments(CommentCollection comments) {
         commentsList.addAll(comments.getComments());
         adapter.notifyDataSetChanged();
     }

@@ -10,6 +10,7 @@ public class Group {
     private long endingTimestamp;
     private long creationTimestamp;
     private String creator;
+    private String troll;
     private String state;
     private Map<String, Link> links = new HashMap<String, Link>();
     private String eTag;
@@ -60,6 +61,14 @@ public class Group {
 
     public void setCreator(String creator) {
         this.creator = creator;
+    }
+
+    public String getTroll() {
+        return troll;
+    }
+
+    public void setTroll(String troll) {
+        this.troll = troll;
     }
 
     public String getState() {

@@ -17,4 +17,12 @@
     <string name="login_l_signin">Sign in</string>
     <string name="login_l_register">Register in uTroll</string>
 
+    <string name="group_user_list">Users in this group:</string>
+    <string name="group_detail_btn">Join group</string>
+
+    <string name="write_comment_tv">Content:</string>
+    <string name="write_comment_hint">Escriba sus inquietudes aquí</string>
+    <string name="write_comment_send_btn">Send</string>
+    <string name="write_comment_cancel_btn">Cancel</string>
+
 </resources>

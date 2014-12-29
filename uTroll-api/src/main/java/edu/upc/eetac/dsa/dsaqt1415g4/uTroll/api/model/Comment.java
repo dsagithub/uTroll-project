@@ -4,11 +4,13 @@ import java.util.List;
 
 import javax.ws.rs.core.Link;
 
+import org.glassfish.jersey.linking.Binding;
 import org.glassfish.jersey.linking.InjectLink;
 import org.glassfish.jersey.linking.InjectLinks;
 import org.glassfish.jersey.linking.InjectLink.Style;
 
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.CommentResource;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.GroupResource;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.MediaType;
 
 public class Comment {
@@ -22,7 +24,11 @@ public class Comment {
 	private long last_modified;
 	private long creation_timestamp;
 
-	@InjectLinks({ @InjectLink(resource = CommentResource.class, style = Style.ABSOLUTE, rel = "create-comment", title = "Create comment", type = MediaType.UTROLL_API_COMMENT) })
+	@InjectLinks({
+		@InjectLink(resource = CommentResource.class, style = Style.ABSOLUTE, rel = "self edit", title = "Self edit", type = MediaType.UTROLL_API_COMMENT, method = "getComment", bindings = @Binding(name = "commentid", value = "${instance.commentid}")),
+		@InjectLink(resource = CommentResource.class, style = Style.ABSOLUTE, rel = "like", title = "Like comment", type = MediaType.UTROLL_API_COMMENT, method = "likeComment", bindings = @Binding(name = "commentid", value = "${instance.commentid}")),
+		@InjectLink(resource = CommentResource.class, style = Style.ABSOLUTE, rel = "dislike", title = "Dislike comment", type = MediaType.UTROLL_API_COMMENT, method = "dislikeComment", bindings = @Binding(name = "commentid", value = "${instance.commentid}"))
+		})
 	private List<Link> links;
 
 	public int getCommentid() {
