@@ -52,7 +52,7 @@ public class UserResource {
 
 	// Método obtención usuario - cacheable
 	@GET
-	@Path("/{username}")
+	@Path("/byUsername/{username}")
 	@Produces(MediaType.UTROLL_API_USER)
 	public Response getUser(@PathParam("username") String username,
 			@Context Request request) {

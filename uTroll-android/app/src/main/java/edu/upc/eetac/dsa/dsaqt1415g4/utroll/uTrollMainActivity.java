@@ -21,16 +21,20 @@ import com.google.gson.Gson;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.net.URL;
 import java.util.ArrayList;
 
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.AppException;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.Comment;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.CommentCollection;
+import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.User;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollAPI;
+import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollRootAPI;
 
 
 public class uTrollMainActivity extends ListActivity {
     private final static String TAG = uTrollMainActivity.class.toString();
+    User user = null;
 
     private CommentAdapter adapter;
     private ArrayList<Comment> commentsList;
@@ -63,6 +67,7 @@ public class uTrollMainActivity extends ListActivity {
 //                        .toCharArray());
 //            }
 //        });
+        (new GetUserTask()).execute(username, password);
         (new FetchCommentsTask()).execute();
     }
 
@@ -101,6 +106,39 @@ public class uTrollMainActivity extends ListActivity {
 
     }
 
+    private class GetUserTask extends AsyncTask<String, Void, User> {
+        private ProgressDialog pd;
+
+        @Override
+        protected User doInBackground(String... params) {
+            try {
+                user = uTrollAPI.getInstance(uTrollMainActivity.this)
+                        .checkLogin(params[0], params[1]);
+                user = uTrollAPI.getInstance(uTrollMainActivity.this).getUser(user.getLinks().get("self").getTarget());
+            } catch (AppException e) {
+                e.printStackTrace();
+            }
+            return user;
+        }
+
+        @Override
+        protected void onPostExecute(User loginOK) {
+            if (pd != null) {
+                pd.dismiss();
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            pd = new ProgressDialog(uTrollMainActivity.this);
+            pd.setTitle("Searching...");
+            pd.setCancelable(false);
+            pd.setIndeterminate(true);
+            pd.show();
+        }
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -123,6 +161,7 @@ public class uTrollMainActivity extends ListActivity {
                 return true;
             case R.id.action_joinGroup:
                 Intent intent_joinGroup = new Intent(this, GroupListActivity.class);
+                intent_joinGroup.putExtra("user", user.getLinks().get("self").getTarget());
                 startActivity(intent_joinGroup);
                 return true;
             case R.id.refreshMenuItem:
@@ -130,12 +169,29 @@ public class uTrollMainActivity extends ListActivity {
                 onCreate(tempBundle);
                 return true;
             case R.id.writeCommentMenuItem:
-                Intent intent1 = new Intent(this, WriteCommentActivity.class);
-                startActivityForResult(intent1, WRITE_ACTIVITY); //Para que aparezca la nueva review después de postearla
+                try {
+                    userIsTroll();
+                } catch (AppException e) {
+                    e.printStackTrace();
+                }
                 return true;
 
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void userIsTroll() throws AppException {
+        if (user.isTroll()) {
+            uTrollRootAPI rootAPI = null;
+            String urlGroup = user.getLinks().get("group-users").getTarget();
+
+            Intent intent = new Intent(this, WriteCommentTrollActivity.class);
+            intent.putExtra("url", urlGroup);
+            startActivityForResult(intent, WRITE_ACTIVITY);
+        } else {
+            Intent intent = new Intent(this, WriteCommentActivity.class);
+            startActivityForResult(intent, WRITE_ACTIVITY);
         }
     }
 

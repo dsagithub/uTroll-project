@@ -274,10 +274,12 @@ public class uTrollAPI {
         return comment;
     }
 
-    public Comment createComment(String content) throws AppException {
+    public Comment createComment(String content, String username) throws AppException {
         Log.d(TAG, "createComment()");
         Comment comment = new Comment();
         comment.setContent(content);
+        if (username != null)
+            comment.setUsername(username);
         HttpURLConnection urlConnection = null;
         try {
             JSONObject jsonComment = createJsonComment(comment);
@@ -335,6 +337,8 @@ public class uTrollAPI {
     private JSONObject createJsonComment(Comment comment) throws JSONException {
         JSONObject jsonComment = new JSONObject();
         jsonComment.put("content", comment.getContent());
+        if (comment.getUsername() != null)
+            jsonComment.put("username", comment.getUsername());
 
         return jsonComment;
     }
@@ -377,14 +381,16 @@ public class uTrollAPI {
                 group.setGroupid(jsonGroup.getInt("groupid"));
                 group.setCreator(jsonGroup.getString("creator"));
                 group.setCreationTimestamp(jsonGroup.getLong("creationTimestamp"));
-                group.setEndingTimestamp(jsonGroup.getLong("endingTimestamp"));
+                //group.setEndingTimestamp(jsonGroup.getLong("endingTimestamp"));
                 group.setGroupname(jsonGroup.getString("groupname"));
                 group.setPrice(jsonGroup.getInt("price"));
                 group.setState(jsonGroup.getString("state"));
 
                 jsonLinks = jsonGroup.getJSONArray("links");
                 parseLinks(jsonLinks, group.getLinks());
-                groups.getGroups().add(group);
+
+                if (group.getGroupid() != 0) //El grupo 0 (vacío) no se debe mostrar
+                    groups.getGroups().add(group);
             }
         } catch (IOException e) {
             throw new AppException(
@@ -394,6 +400,113 @@ public class uTrollAPI {
         }
 
         return groups;
+    }
+
+    public Group getGroupByGroupid(String urlGroup) throws AppException {
+        Log.d(TAG, "getGroupByGroupid()");
+        Group group = new Group();
+        
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL(urlGroup);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoInput(true);
+            urlConnection.connect();
+        } catch (IOException e) {
+            throw new AppException(
+                    "Can't connect to uTroll API Web Service");
+        }
+
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            JSONObject jsonGroup = new JSONObject(sb.toString());
+
+            group.setGroupid(jsonGroup.getInt("groupid"));
+            group.setCreator(jsonGroup.getString("creator"));
+            group.setCreationTimestamp(jsonGroup.getLong("creationTimestamp"));
+            //group.setEndingTimestamp(jsonGroup.getLong("endingTimestamp"));
+            group.setGroupname(jsonGroup.getString("groupname"));
+            group.setPrice(jsonGroup.getInt("price"));
+            group.setState(jsonGroup.getString("state"));
+
+            JSONArray jsonLinks = jsonGroup.getJSONArray("links");
+            parseLinks(jsonLinks, group.getLinks());
+        } catch (IOException e) {
+            throw new AppException(
+                    "Can't get response from uTroll API Web Service");
+        } catch (JSONException e) {
+            throw new AppException("Error parsing uTroll Root API");
+        }
+
+        return group;
+    }
+
+    public Group createGroup(String groupname, int price, String endingTimestamp, String closingTimestamp) throws AppException {
+        Log.d(TAG, "createGroup()");
+        Group group = new Group();
+        group.setGroupname(groupname);
+        group.setPrice(price);
+        group.setEndingTimestamp(endingTimestamp);
+        group.setClosingTimestamp(closingTimestamp);
+
+        HttpURLConnection urlConnection = null;
+        try {
+            JSONObject jsonGroup = createJsonGroup(group);
+            URL urlPostGroups = new URL(rootAPI.getLinks().get("create-group")
+                    .getTarget());
+            urlConnection = (HttpURLConnection) urlPostGroups.openConnection();
+            String mediaType = rootAPI.getLinks().get("create-group").getParameters().get("type"); //Esta línea no estaba en el gist
+            urlConnection.setRequestProperty("Accept",
+                    mediaType); //Esto estaba mal en los gists
+            urlConnection.setRequestProperty("Content-Type",
+                    mediaType);
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+            urlConnection.connect();
+            PrintWriter writer = new PrintWriter(
+                    urlConnection.getOutputStream());
+            writer.println(jsonGroup.toString());
+            writer.close();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            jsonGroup = new JSONObject(sb.toString());
+
+            group.setGroupid(jsonGroup.getInt("groupid"));
+            group.setCreator(jsonGroup.getString("creator"));
+            group.setCreationTimestamp(jsonGroup.getLong("creationTimestamp"));
+            //group.setEndingTimestamp(jsonGroup.getLong("endingTimestamp"));
+            group.setGroupname(jsonGroup.getString("groupname"));
+            group.setPrice(jsonGroup.getInt("price"));
+            group.setState(jsonGroup.getString("state"));
+
+            JSONArray jsonLinks = jsonGroup.getJSONArray("links");
+            parseLinks(jsonLinks, group.getLinks());
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error parsing response");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error getting response");
+        } finally {
+            if (urlConnection != null)
+                urlConnection.disconnect();
+        }
+
+        return group;
     }
 
     public void joinGroup(String urlGroup, String mediaType) throws AppException {
@@ -431,6 +544,124 @@ public class uTrollAPI {
                 urlConnection.disconnect();
         }
 
+    }
+
+    public void changeGroupState(String urlGroup, String mediaType, String state) throws AppException {
+        HttpURLConnection urlConnection = null;
+        Group group = new Group();
+        group.setState(state);
+
+        try {
+            JSONObject jsonGroup = createJsonGroup(group);
+            URL url = new URL(urlGroup);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("Accept",
+                    mediaType);
+            urlConnection.setRequestProperty("Content-Type",
+                    mediaType);
+            urlConnection.setRequestMethod("PUT");
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+            urlConnection.connect();
+
+            PrintWriter writer = new PrintWriter(urlConnection.getOutputStream());
+            writer.println(jsonGroup.toString());
+            writer.close();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error parsing response");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error getting response");
+        } finally {
+            if (urlConnection != null)
+                urlConnection.disconnect();
+        }
+
+    }
+
+    // Crear JSON de un Grupo
+    private JSONObject createJsonGroup(Group group) throws JSONException {
+        JSONObject jsonGroup = new JSONObject();
+        jsonGroup.put("groupid", group.getGroupid());
+        jsonGroup.put("creator", group.getCreator());
+        jsonGroup.put("groupname", group.getGroupname());
+        jsonGroup.put("price", group.getPrice());
+        jsonGroup.put("state", group.getState());
+        jsonGroup.put("endingTimestamp", group.getEndingTimestamp());
+        jsonGroup.put("closingTimestamp", group.getClosingTimestamp());
+
+        return jsonGroup;
+    }
+
+    private Map<String, User> usersCache = new HashMap<String, User>();
+
+    public User getUser(String urlUser) throws AppException {
+        User user = null;
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL(urlUser);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoInput(true);
+
+            user = usersCache.get(urlUser);
+            String eTag = (user == null) ? null : user.getETag();
+            if (eTag != null)
+                urlConnection.setRequestProperty("If-None-Match", eTag);
+            urlConnection.connect();
+            if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED) { //Si el user no se ha modificado, se devuelve el de la URL
+                Log.d(TAG, "CACHE");
+                return usersCache.get(urlUser);
+            }
+            Log.d(TAG, "NOT IN CACHE"); //Si sí que se ha modificado, debemos obtenerlo
+            user = new User();
+            eTag = urlConnection.getHeaderField("ETag");
+            user.setETag(eTag);
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            JSONObject jsonUser = new JSONObject(sb.toString());
+
+            user.setUsername(jsonUser.getString("username"));
+            user.setEmail(jsonUser.getString("email"));
+            user.setName(jsonUser.getString("name"));
+            user.setAge(jsonUser.getInt("age"));
+            user.setGroupid(jsonUser.getInt("groupid"));
+            user.setPoints(jsonUser.getInt("points"));
+            user.setPoints_max(jsonUser.getInt("points_max"));
+            user.setTroll(jsonUser.getBoolean("troll"));
+
+            JSONArray jsonLinks = jsonUser.getJSONArray("links");
+            parseLinks(jsonLinks, user.getLinks());
+
+            usersCache.put(urlUser, user); //Esta línea se pone al final por si hay error antes
+        } catch (MalformedURLException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Bad user url");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Exception when getting the user");
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Exception parsing response");
+        }
+
+        return user;
     }
 
     public UserCollection getUsersInGroup(String urlGetUsers) throws AppException {
@@ -491,9 +722,8 @@ public class uTrollAPI {
         return users;
     }
 
-    public Boolean checkLogin(String username, String password) throws AppException {
+    public User checkLogin(String username, String password) throws AppException {
         Log.d(TAG, "checkLogin()");
-        Boolean loginOK = false;
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
@@ -527,7 +757,10 @@ public class uTrollAPI {
 
             user.setGroupid(jsonUser.getInt("groupid"));
             user.setLoginSuccessful(jsonUser.getBoolean("loginSuccessful"));
-            loginOK = user.isLoginSuccessful();
+            user.setTroll(jsonUser.getBoolean("troll"));
+
+            JSONArray jsonLinks = jsonUser.getJSONArray("links");
+            parseLinks(jsonLinks, user.getLinks());
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage(), e);
             throw new AppException("Error parsing response");
@@ -539,7 +772,7 @@ public class uTrollAPI {
                 urlConnection.disconnect();
         }
 
-        return loginOK;
+        return user;
     }
 
     // Crear JSON de un Usuario
@@ -553,7 +786,7 @@ public class uTrollAPI {
         jsonUser.put("points", user.getPoints());
         jsonUser.put("points_max", user.getPoints_max());
         jsonUser.put("groupid", user.getGroupid());
-        jsonUser.put("isTroll", user.isTroll());
+        jsonUser.put("troll", user.isTroll());
 
         return jsonUser;
     }

@@ -84,6 +84,9 @@
 	<security-role>
 		<role-name>registered</role-name>
 	</security-role>
+	<security-role>
+		<role-name>troll</role-name>
+	</security-role>
 
 	<security-constraint>
 		<web-resource-collection>

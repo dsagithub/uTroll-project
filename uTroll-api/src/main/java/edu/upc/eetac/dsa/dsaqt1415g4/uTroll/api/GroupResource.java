@@ -46,7 +46,7 @@ public class GroupResource {
 
 	private final static String GET_GROUP_BY_GROUPID_QUERY = "select * from groups where groupid=?";
 	private final static String GET_GROUPS_QUERY = "select * from groups";
-	private final static String CREATE_GROUP_QUERY = "insert into groups (groupname, price, ending_timestamp, creator, troll, state) values(?, ?, ?, ?, ?, ?)";
+	private final static String CREATE_GROUP_QUERY = "insert into groups (groupname, price, ending_timestamp, closing_timestamp, creator, troll, state) values(?, ?, ?, ?, ?, ?, ?)";
 	private final static String UPDATE_GROUP_QUERY = "update groups set state = ? where groupid = ?";
 	private final static String VALIDATE_CREATOR = "select groupid from users where username = ?";
 	private final static String UPDATE_USER_GROUP_QUERY = "update users set groupid = ? where username = ?";
@@ -54,6 +54,10 @@ public class GroupResource {
 	private final static String GET_USERS_IN_A_GROUP_QUERY = "select username from users where groupid = ?";
 	private final static String UPDATE_USER_TROLL_QUERY = "update users set isTroll = ? where username = ?";
 	private final static String UPDATE_GROUP_TROLL_QUERY = "update groups set troll = ? where groupid = ?";
+	private final static String UPDATE_USER_ON_GROUP_CLOSURE_QUERY = "update users set isTroll = false, groupid = 0  where username = ?";
+	private final static String CREATE_EVENT = "create event evento? on schedule at ? do update groups set state = ? where groupid = ?";
+	private final static String CREATE_EVENT_CLOSURE = "create event eventocierre? on schedule at ? do update groups set state = ? where groupid = ?";
+
 
 	// Obtener lista de grupos
 	@GET
@@ -77,7 +81,7 @@ public class GroupResource {
 			while (rs.next()) {
 				Group group = new Group();
 				group.setCreationTimestamp(rs.getLong("creation_timestamp"));
-				group.setEndingTimestamp(rs.getLong("ending_timestamp"));
+				// group.setEndingTimestamp(rs.getLong("ending_timestamp"));
 				group.setGroupid(rs.getInt("groupid"));
 				group.setGroupname(rs.getString("groupname"));
 				group.setPrice(rs.getInt("price"));
@@ -124,7 +128,7 @@ public class GroupResource {
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
 				group.setCreationTimestamp(rs.getLong("creation_timestamp"));
-				group.setEndingTimestamp(rs.getLong("ending_timestamp"));
+				// group.setEndingTimestamp(rs.getLong("ending_timestamp"));
 				group.setGroupid(rs.getInt("groupid"));
 				group.setGroupname(rs.getString("groupname"));
 				group.setPrice(rs.getInt("price"));
@@ -160,7 +164,11 @@ public class GroupResource {
 					Response.Status.SERVICE_UNAVAILABLE);
 		}
 
+		String fecha = group.getEndingTimestamp();
+		String fechacierre = group.getClosingTimestamp();
 		PreparedStatement stmt = null;
+		PreparedStatement stmt1 = null;
+		PreparedStatement stmt2 = null;
 		try {
 			stmt = conn.prepareStatement(CREATE_GROUP_QUERY,
 					Statement.RETURN_GENERATED_KEYS);
@@ -168,10 +176,12 @@ public class GroupResource {
 			stmt.setString(1, group.getGroupname());
 			stmt.setInt(2, group.getPrice());
 			// stmt.setLong(3, group.getCreationTimestamp());
-			stmt.setLong(3, group.getEndingTimestamp());
-			stmt.setString(4, security.getUserPrincipal().getName());
-			stmt.setString(5, "No Troll");
-			stmt.setString(6, "open");
+			// stmt.setLong(3, group.getEndingTimestamp());
+			stmt.setString(3, group.getEndingTimestamp());
+			stmt.setString(4, group.getClosingTimestamp());
+			stmt.setString(5, security.getUserPrincipal().getName());
+			stmt.setString(6, "No Troll");
+			stmt.setString(7, "open");
 
 			stmt.executeUpdate();
 			ResultSet rs = stmt.getGeneratedKeys();
@@ -182,13 +192,33 @@ public class GroupResource {
 			} else {
 				// Something has failed...
 			}
+
+			// Crear eventos para cambiar el estado del grupo
+			stmt1 = conn.prepareStatement(CREATE_EVENT);
+			stmt1.setInt(1, group.getGroupid());
+			stmt1.setString(2, fecha);
+			stmt1.setString(3, "active");
+			stmt1.setInt(4, group.getGroupid());
+			stmt1.executeUpdate();
+			
+			stmt2 = conn.prepareStatement(CREATE_EVENT_CLOSURE);
+			stmt2.setInt(1, group.getGroupid());
+			stmt2.setString(2, fechacierre);
+			stmt2.setString(3, "closed");
+			stmt2.setInt(4, group.getGroupid());
+			stmt2.executeUpdate();
 		} catch (SQLException e) {
+			System.out.println(e.getMessage());
 			throw new ServerErrorException(e.getMessage(),
 					Response.Status.INTERNAL_SERVER_ERROR);
 		} finally {
 			try {
 				if (stmt != null)
 					stmt.close();
+				if (stmt1 != null)
+					stmt1.close();
+				if (stmt2 != null)
+					stmt2.close();
 				conn.close();
 			} catch (SQLException e) {
 			}
@@ -264,7 +294,7 @@ public class GroupResource {
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
 				group.setCreationTimestamp(rs.getLong("creation_timestamp"));
-				group.setEndingTimestamp(rs.getLong("ending_timestamp"));
+				// group.setEndingTimestamp(rs.getLong("ending_timestamp"));
 				group.setGroupid(rs.getInt("groupid"));
 				group.setGroupname(rs.getString("groupname"));
 				group.setPrice(rs.getInt("price"));
@@ -398,13 +428,71 @@ public class GroupResource {
 		if (group.getState().equals("open")) {
 
 		} else if (group.getState().equals("closed")) {
-
+			// Se saca a los usuarios del grupo
+			usersOutOfGroup(groupid);
 		} else if (group.getState().equals("active")) {
-			// LLAMAR A UNA FUNCIÓN QUE HAGA EL SORTEO DE QUIÉN ES EL TROLL DEL
-			// GRUPO
+			// Sorteo de Troll
 			getTheTrollInAGroup(groupid);
 		} else {
 			throw new BadRequestException("The state is not valid");
+		}
+	}
+
+	private void usersOutOfGroup(int groupid) {
+		UserCollection users = new UserCollection();
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(GET_USERS_IN_A_GROUP_QUERY);
+
+			stmt.setInt(1, groupid);
+
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				User user = new User();
+				user.setUsername(rs.getString("username"));
+
+				users.addUser(user);
+			}
+
+			// Ponemos el groupid de cada usuario del grupo a 0
+			for (User user : users.getUsers()) {
+				PreparedStatement stmt1 = null;
+
+				stmt1 = conn
+						.prepareStatement(UPDATE_USER_ON_GROUP_CLOSURE_QUERY);
+				stmt1.setString(1, user.getUsername());
+				stmt1.executeUpdate();
+
+				if (stmt1 != null) {
+					stmt1.close();
+				}
+			}
+
+		} catch (SQLException e) {
+			if (conn != null)
+				try {
+					conn.rollback();
+				} catch (SQLException e1) {
+				}
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null) {
+					stmt.close();
+				}
+				conn.close();
+			} catch (SQLException e) {
+			}
 		}
 	}
 
@@ -422,7 +510,7 @@ public class GroupResource {
 		PreparedStatement stmt = null;
 		PreparedStatement stmt1 = null;
 		PreparedStatement stmt2 = null;
-		try {			
+		try {
 			stmt = conn.prepareStatement(GET_USERS_IN_A_GROUP_QUERY);
 
 			stmt.setInt(1, groupid);
@@ -434,12 +522,12 @@ public class GroupResource {
 
 				users.addUser(user);
 			}
-			
+
 			// Obtenemos el Troll de forma aleatoria
 			int N = users.getUsers().size();
 			Random r = new Random();
 			int TrollIndex = r.nextInt(N);
-			
+
 			conn.setAutoCommit(false);
 
 			User troll = users.getUsers().get(TrollIndex);
@@ -447,12 +535,12 @@ public class GroupResource {
 			stmt1.setBoolean(1, true);
 			stmt1.setString(2, troll.getUsername());
 			stmt1.executeUpdate();
-			
+
 			stmt2 = conn.prepareStatement(UPDATE_GROUP_TROLL_QUERY);
 			stmt2.setString(1, troll.getUsername());
 			stmt2.setInt(2, groupid);
 			stmt2.executeUpdate();
-			
+
 			conn.commit();
 		} catch (SQLException e) {
 			if (conn != null)

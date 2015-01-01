@@ -26,7 +26,7 @@ public class WriteCommentActivity extends Activity {
         protected Comment doInBackground(String... params) {
             Comment comment = null;
             try {
-                comment = uTrollAPI.getInstance(WriteCommentActivity.this).createComment(params[0]);
+                comment = uTrollAPI.getInstance(WriteCommentActivity.this).createComment(params[0], null);
 
             } catch (AppException e) {
                 Log.e(TAG, e.getMessage(), e);

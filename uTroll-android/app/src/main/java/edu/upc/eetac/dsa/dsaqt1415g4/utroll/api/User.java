@@ -17,6 +17,11 @@ public class User {
     private Map<String, Link> links = new HashMap<String, Link>();
     private String eTag;
 
+    @Override //ESTO SE INCLUYE PARA EL SPINNER
+    public String toString() {
+        return this.name;
+    }
+
     public String getUsername() {
         return username;
     }

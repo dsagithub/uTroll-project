@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.gson.Gson;
@@ -22,18 +23,23 @@ import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollAPI;
 
 public class GroupDetailActivity extends ListActivity {
     private final static String TAG = GroupDetailActivity.class.getName();
-    String urlGroup = null;
+    String urlJoinGroup = null;
     String contentType = null;
+    String urlUpdateGroup = null;
+    String contentTypeUpdate = null;
+    String urlGroup = null;
     String urlGetUsers = null;
+    String urlUser = null;
+    User user = null;
+    Group group = null;
 
     private class joinGroupTask extends AsyncTask<String, Void, String> {
         private ProgressDialog pd;
-        Group group = null;
 
         @Override
         protected String doInBackground(String... params) {
             try {
-                uTrollAPI.getInstance(GroupDetailActivity.this).joinGroup(urlGroup, contentType);
+                uTrollAPI.getInstance(GroupDetailActivity.this).joinGroup(urlJoinGroup, contentType);
             } catch (AppException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
@@ -66,6 +72,8 @@ public class GroupDetailActivity extends ListActivity {
         protected UserCollection doInBackground(String... params) {
             UserCollection users = null;
             try {
+                group = uTrollAPI.getInstance(GroupDetailActivity.this).getGroupByGroupid(params[2]);
+                user = uTrollAPI.getInstance(GroupDetailActivity.this).getUser(params[1]);
                 users = uTrollAPI.getInstance(GroupDetailActivity.this).getUsersInGroup(params[0]);
             } catch (AppException e) {
                 e.printStackTrace();
@@ -75,6 +83,21 @@ public class GroupDetailActivity extends ListActivity {
 
         @Override
         protected void onPostExecute(UserCollection result) {
+            if ((user.getGroupid() == 0) && (group.getState().equals("open"))) {
+                Button btn = (Button) findViewById(R.id.joinGroupBtn);
+                btn.setEnabled(true);
+            }
+
+            if (user.getUsername().equals(group.getCreator())) { //Si es el creador del grupo
+                if (group.getState().equals("open")) {
+                    Button btn1 = (Button) findViewById(R.id.activateGroupBtn);
+                    btn1.setEnabled(true);
+                } else if (group.getState().equals("active")) {
+                    Button btn1 = (Button) findViewById(R.id.closeGroupBtn);
+                    btn1.setEnabled(true);
+                }
+            }
+
             addUsers(result);
             if (pd != null) {
                 pd.dismiss();
@@ -91,31 +114,82 @@ public class GroupDetailActivity extends ListActivity {
         }
 
     }
-    
+
+
+    private class changeGroupStateTask extends AsyncTask<String, Void, String> {
+        private ProgressDialog pd;
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                uTrollAPI.getInstance(GroupDetailActivity.this).changeGroupState(params[0], params[1], params[2]);
+            } catch (AppException e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            finish();
+            if (pd != null) {
+                pd.dismiss();
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            pd = new ProgressDialog(GroupDetailActivity.this);
+
+            pd.setCancelable(false);
+            pd.setIndeterminate(true);
+            pd.show();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_detail);
 
-        urlGroup = (String) getIntent().getExtras().get("url");
+        urlJoinGroup = (String) getIntent().getExtras().get("url");
         contentType = (String) getIntent().getExtras().get("type");
+        urlUpdateGroup = (String) getIntent().getExtras().get("url-update");
+        contentTypeUpdate = (String) getIntent().getExtras().get("type-update");
         urlGetUsers = (String) getIntent().getExtras().get("url-users");
+        urlGroup = (String) getIntent().getExtras().get("url-group");
+        urlUser = (String) getIntent().getExtras().get("user");
 
         usersList = new ArrayList<User>();
         adapter = new GroupDetailAdapter(this, usersList);
         setListAdapter(adapter);
 
-        (new FetchUsersTask()).execute(urlGetUsers);
+        Button btn = (Button) findViewById(R.id.joinGroupBtn);
+        btn.setEnabled(false);
+        Button btn1 = (Button) findViewById(R.id.activateGroupBtn);
+        btn1.setEnabled(false);
+        Button btn2 = (Button) findViewById(R.id.closeGroupBtn);
+        btn2.setEnabled(false);
+
+        (new FetchUsersTask()).execute(urlGetUsers, urlUser, urlGroup);
     }
 
     public void joinGroup(View v) {
-        (new joinGroupTask()).execute(urlGroup, contentType);
+        (new joinGroupTask()).execute(urlJoinGroup, contentType);
+    }
+
+    public void activateGroup(View v) {
+        (new changeGroupStateTask()).execute(urlUpdateGroup, contentTypeUpdate, "active");
+    }
+
+    public void closeGroup(View v) {
+        (new changeGroupStateTask()).execute(urlUpdateGroup, contentTypeUpdate, "closed");
     }
 
     private GroupDetailAdapter adapter;
     private ArrayList<User> usersList;
 
-    private void addUsers(UserCollection users){
+    private void addUsers(UserCollection users) {
         usersList.addAll(users.getUsers());
         adapter.notifyDataSetChanged();
     }

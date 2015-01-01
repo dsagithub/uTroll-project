@@ -6,11 +6,37 @@
     android:layout_margin="20dip">
 
     <Button
+        android:id="@+id/joinGroupBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dip"
+        android:layout_margin="10dip"
         android:text="@string/group_detail_btn"
         android:onClick="joinGroup"/>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/activateGroupBtn"
+            android:layout_width="0dip"
+            android:layout_weight="0.5"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:text="@string/group_detail_btn_activate"
+            android:onClick="activateGroup"/>
+
+        <Button
+            android:id="@+id/closeGroupBtn"
+            android:layout_width="0dip"
+            android:layout_weight="0.5"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:text="@string/group_detail_btn_close"
+            android:onClick="closeGroup"/>
+
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"

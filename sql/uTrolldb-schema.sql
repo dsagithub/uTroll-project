@@ -9,6 +9,7 @@ create table groups (
 	price					int not null,
 	creation_timestamp		datetime not null default current_timestamp,
 	ending_timestamp		timestamp not null,
+	closing_timestamp		timestamp not null,
 	creator					varchar(20) not null,
 	troll					varchar(20) not null,
 	state					varchar(50) not null

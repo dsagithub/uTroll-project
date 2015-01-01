@@ -167,8 +167,11 @@ public class CommentResource {
 			stmt = conn.prepareStatement(INSERT_COMMENT_QUERY,
 					Statement.RETURN_GENERATED_KEYS);
 
-			stmt.setString(1, security.getUserPrincipal().getName());
-			stmt.setString(2, security.getUserPrincipal().getName()); //MODIFICAR ESTO PARA EL TROLL
+			if (comment.getUsername() == null)
+				stmt.setString(1, security.getUserPrincipal().getName());
+			else
+				stmt.setString(1, comment.getUsername());
+			stmt.setString(2, security.getUserPrincipal().getName());
 			stmt.setString(3, comment.getContent());
 			stmt.setInt(4, 0);
 			stmt.setInt(5, 0);
@@ -253,7 +256,8 @@ public class CommentResource {
 	@Consumes(MediaType.UTROLL_API_COMMENT)
 	@Produces(MediaType.UTROLL_API_COMMENT)
 	public Comment likeComment(@PathParam("commentid") int commentid) {
-		int previousLike = checkPreviousLike(commentid, security.getUserPrincipal().getName());
+		int previousLike = checkPreviousLike(commentid, security
+				.getUserPrincipal().getName());
 
 		Comment comment = null;
 
@@ -265,9 +269,9 @@ public class CommentResource {
 					Response.Status.SERVICE_UNAVAILABLE);
 		}
 
-		PreparedStatement stmt = null; //Tabla comentarios
-		PreparedStatement stmt1 = null; //Tabla likes
-		PreparedStatement stmt2 = null; //Crear entrada en tabla likes
+		PreparedStatement stmt = null; // Tabla comentarios
+		PreparedStatement stmt1 = null; // Tabla likes
+		PreparedStatement stmt2 = null; // Crear entrada en tabla likes
 		try {
 			comment = getCommentFromDatabase(commentid);
 
@@ -282,12 +286,11 @@ public class CommentResource {
 			} else if (previousLike == 3) {
 				stmt.setInt(1, (comment.getLikes() + 1));
 				stmt.setInt(2, (comment.getDislikes() - 1));
-			}
-			else if (previousLike == 4) {
+			} else if (previousLike == 4) {
 				stmt.setInt(1, (comment.getLikes() + 1));
 				stmt.setString(2, null);
 			}
-			
+
 			stmt.setInt(3, commentid);
 
 			int rows = stmt.executeUpdate();
@@ -296,7 +299,7 @@ public class CommentResource {
 			else {
 				throw new NotFoundException("Comment not found");
 			}
-			
+
 			// Actualizar la tabla que mapea likes, usuarios y comentarios
 			stmt1 = conn.prepareStatement(UPDATE_LIKE_DISLIKE_QUERY);
 			stmt2 = conn.prepareStatement(CREATE_LIKE_DISLIKE_QUERY);
@@ -318,8 +321,7 @@ public class CommentResource {
 				stmt1.setInt(3, commentid);
 				stmt1.setString(4, security.getUserPrincipal().getName());
 				stmt1.executeUpdate();
-			}
-			else if (previousLike == 4){
+			} else if (previousLike == 4) {
 				stmt2.setBoolean(3, true);
 				stmt2.setBoolean(4, false);
 				stmt2.setInt(1, commentid);
@@ -351,7 +353,8 @@ public class CommentResource {
 	@Consumes(MediaType.UTROLL_API_COMMENT)
 	@Produces(MediaType.UTROLL_API_COMMENT)
 	public Comment dislikeComment(@PathParam("commentid") int commentid) {
-		int previousLike = checkPreviousLike(commentid, security.getUserPrincipal().getName());
+		int previousLike = checkPreviousLike(commentid, security
+				.getUserPrincipal().getName());
 
 		Comment comment = null;
 		Comment comment1 = null;
@@ -364,9 +367,9 @@ public class CommentResource {
 					Response.Status.SERVICE_UNAVAILABLE);
 		}
 
-		PreparedStatement stmt = null; //Tabla comentarios
-		PreparedStatement stmt1 = null; //Tabla likes
-		PreparedStatement stmt2 = null; //Crear entrada en tabla likes
+		PreparedStatement stmt = null; // Tabla comentarios
+		PreparedStatement stmt1 = null; // Tabla likes
+		PreparedStatement stmt2 = null; // Crear entrada en tabla likes
 		try {
 			comment = getCommentFromDatabase(commentid);
 
@@ -385,7 +388,7 @@ public class CommentResource {
 				stmt.setInt(2, (comment.getDislikes() + 1));
 				stmt.setString(1, null);
 			}
-			
+
 			stmt.setInt(3, commentid);
 
 			int rows = stmt.executeUpdate();
@@ -394,7 +397,7 @@ public class CommentResource {
 			else {
 				throw new NotFoundException("Comment not found");
 			}
-			
+
 			// Actualizar la tabla que mapea likes, usuarios y comentarios
 			stmt1 = conn.prepareStatement(UPDATE_LIKE_DISLIKE_QUERY);
 			stmt2 = conn.prepareStatement(CREATE_LIKE_DISLIKE_QUERY);
@@ -416,8 +419,7 @@ public class CommentResource {
 				stmt1.setInt(3, commentid);
 				stmt1.setString(4, security.getUserPrincipal().getName());
 				stmt1.executeUpdate();
-			}
-			else if (previousLike == 4){
+			} else if (previousLike == 4) {
 				stmt2.setBoolean(4, true);
 				stmt2.setBoolean(3, false);
 				stmt2.setInt(1, commentid);
@@ -512,7 +514,7 @@ public class CommentResource {
 			if (rs.next()) {
 				boolean liked = rs.getBoolean("likeComment");
 				boolean disliked = rs.getBoolean("dislikeComment");
-				
+
 				if (!liked && !disliked)
 					return 1;
 				else if (liked)
@@ -532,7 +534,7 @@ public class CommentResource {
 			} catch (SQLException e) {
 			}
 		}
-		
+
 		return 0;
 	}
 

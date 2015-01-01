@@ -7,7 +7,9 @@ public class Group {
     private int groupid;
     private String groupname;
     private int price;
-    private long endingTimestamp;
+    //    private long endingTimestamp;
+    private String endingTimestamp;
+    private String closingTimestamp;
     private long creationTimestamp;
     private String creator;
     private String troll;
@@ -39,13 +41,13 @@ public class Group {
         this.price = price;
     }
 
-    public long getEndingTimestamp() {
-        return endingTimestamp;
-    }
-
-    public void setEndingTimestamp(long endingTimestamp) {
-        this.endingTimestamp = endingTimestamp;
-    }
+//    public long getEndingTimestamp() {
+//        return endingTimestamp;
+//    }
+//
+//    public void setEndingTimestamp(long endingTimestamp) {
+//        this.endingTimestamp = endingTimestamp;
+//    }
 
     public long getCreationTimestamp() {
         return creationTimestamp;
@@ -93,5 +95,21 @@ public class Group {
 
     public void setETag(String eTag) {
         this.eTag = eTag;
+    }
+
+    public String getEndingTimestamp() {
+        return endingTimestamp;
+    }
+
+    public void setEndingTimestamp(String endingTimestamp) {
+        this.endingTimestamp = endingTimestamp;
+    }
+
+    public String getClosingTimestamp() {
+        return closingTimestamp;
+    }
+
+    public void setClosingTimestamp(String closingTimestamp) {
+        this.closingTimestamp = closingTimestamp;
     }
 }

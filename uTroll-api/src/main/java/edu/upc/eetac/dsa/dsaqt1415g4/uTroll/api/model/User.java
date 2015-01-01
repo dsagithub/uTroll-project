@@ -4,10 +4,12 @@ import java.util.List;
 
 import javax.ws.rs.core.Link;
 
+import org.glassfish.jersey.linking.Binding;
 import org.glassfish.jersey.linking.InjectLink;
 import org.glassfish.jersey.linking.InjectLinks;
 import org.glassfish.jersey.linking.InjectLink.Style;
 
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.GroupResource;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.MediaType;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.UserResource;
 
@@ -23,7 +25,12 @@ public class User {
 	private boolean isTroll;
 	private boolean loginSuccessful;
 	
-	@InjectLinks({ @InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "create-user", title = "Create user", type = MediaType.UTROLL_API_USER) })
+	@InjectLinks({
+		@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "create-user", title = "Create user", type = MediaType.UTROLL_API_USER),
+		@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "self", title = "Get user", type = MediaType.UTROLL_API_USER, method = "getUser", bindings = @Binding(name = "username", value = "${instance.username}")),
+		@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "group-info", title = "Group to which belongs", type = MediaType.UTROLL_API_GROUP, method = "getGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}")),
+		@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "group-users", title = "Users in the group to which belongs", type = MediaType.UTROLL_API_USER_COLLECTION, method = "getUsersInGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}"))
+		})
 	private List<Link> links;
 	
 	public String getUsername() {

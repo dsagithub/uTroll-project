@@ -23,6 +23,8 @@
         <activity android:name=".GroupDetailActivity" />
         <activity android:name=".CommentDetailActivity" />
         <activity android:name=".WriteCommentActivity" />
+        <activity android:name=".WriteCommentTrollActivity" />
+        <activity android:name=".CreateGroupActivity" />
     </application>
 
 </manifest>

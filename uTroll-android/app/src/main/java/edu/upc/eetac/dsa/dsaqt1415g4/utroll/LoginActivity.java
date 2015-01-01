@@ -19,10 +19,12 @@ import java.net.PasswordAuthentication;
 
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.AppException;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.CommentCollection;
+import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.User;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollAPI;
 
 public class LoginActivity extends Activity {
     private final static String TAG = LoginActivity.class.getName();
+    User user = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +69,10 @@ public class LoginActivity extends Activity {
     }
 
     private void startuTrollActivity() {
+        String urlUser = user.getLinks().get("self").getTarget();
+
         Intent intent = new Intent(this, uTrollMainActivity.class);
+        intent.putExtra("url", urlUser);
         startActivity(intent);
         finish(); //Si no acabamos la actividad de Login, al darle al botón "back" en el móvil volvería a ella
     }
@@ -111,8 +116,9 @@ public class LoginActivity extends Activity {
         protected Boolean doInBackground(String... params) {
             Boolean correctLogin = false;
             try {
-                correctLogin = uTrollAPI.getInstance(LoginActivity.this)
+                user = uTrollAPI.getInstance(LoginActivity.this)
                         .checkLogin(params[0], params[1]);
+                correctLogin = user.isLoginSuccessful();
             } catch (AppException e) {
                 e.printStackTrace();
             }

@@ -5,7 +5,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="action_logout">Cerrar Sesión</string>
-    <string name="action_joinGroup">Unirse a un grupo</string>
+    <string name="action_joinGroup">Mostrar grupos</string>
 
     <string name="like">Like</string>
     <string name="like_count">0</string>
@@ -19,8 +19,11 @@
 
     <string name="group_user_list">Users in this group:</string>
     <string name="group_detail_btn">Join group</string>
+    <string name="group_detail_btn_activate">Activate</string>
+    <string name="group_detail_btn_close">Close</string>
 
     <string name="write_comment_tv">Content:</string>
+    <string name="write_comment_choose_user_tv">Choose a user:</string>
     <string name="write_comment_hint">Escriba sus inquietudes aquí</string>
     <string name="write_comment_send_btn">Send</string>
     <string name="write_comment_cancel_btn">Cancel</string>
