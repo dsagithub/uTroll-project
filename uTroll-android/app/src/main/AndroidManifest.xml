@@ -25,6 +25,8 @@
         <activity android:name=".WriteCommentActivity" />
         <activity android:name=".WriteCommentTrollActivity" />
         <activity android:name=".CreateGroupActivity" />
+        <activity android:name=".UserSearchActivity" />
+        <activity android:name=".UserDetailActivity" />
     </application>
 
 </manifest>

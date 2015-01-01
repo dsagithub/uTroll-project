@@ -45,7 +45,8 @@ public class GroupResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 
 	private final static String GET_GROUP_BY_GROUPID_QUERY = "select * from groups where groupid=?";
-	private final static String GET_GROUPS_QUERY = "select * from groups";
+	//private final static String GET_GROUPS_QUERY = "select * from groups";
+	private final static String GET_GROUPS_QUERY = "select * from groups where creator in (select friend2 from friend_list where (friend1=? or friend2=?) and state = 'accepted')";
 	private final static String CREATE_GROUP_QUERY = "insert into groups (groupname, price, ending_timestamp, closing_timestamp, creator, troll, state) values(?, ?, ?, ?, ?, ?, ?)";
 	private final static String UPDATE_GROUP_QUERY = "update groups set state = ? where groupid = ?";
 	private final static String VALIDATE_CREATOR = "select groupid from users where username = ?";
@@ -76,6 +77,9 @@ public class GroupResource {
 		PreparedStatement stmt = null;
 		try {
 			stmt = conn.prepareStatement(GET_GROUPS_QUERY);
+			
+			stmt.setString(1, security.getUserPrincipal().getName());
+			stmt.setString(2, security.getUserPrincipal().getName());
 
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {

@@ -5,6 +5,7 @@ public class FriendList {
 	private String friend1;
 	private String friend2;
 	private String state;
+	private boolean request;
 
 	public int getFriendshipid() {
 		return friendshipid;
@@ -36,5 +37,13 @@ public class FriendList {
 
 	public void setState(String state) {
 		this.state = state;
+	}
+
+	public boolean isRequest() {
+		return request;
+	}
+
+	public void setRequest(boolean request) {
+		this.request = request;
 	}
 }

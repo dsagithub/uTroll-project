@@ -33,6 +33,8 @@ import com.mysql.jdbc.Statement;
 
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.FriendList;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.FriendListCollection;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.User;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.UserCollection;
 
 @Path("/friends")
 public class FriendListResource {
@@ -42,17 +44,16 @@ public class FriendListResource {
 	private final static String GET_FRIENDS_BY_USER_QUERY = "select * from friend_list where (friend1=? or friend2=?) and state = 'accepted'";
 	private final static String GET_FRIENDS_PENDING_BY_USER_QUERY = "select * from friend_list where (friend1=? or friend2=?) and state = 'pending'";
 	private final static String GET_FRIEND_BY_FRIENDSHIPID_QUERY = "select * from friend_list where friendshipid=?";
+	private final static String GET_FRIEND_STATE = "select state, request from friend_list where friend1 = ? and friend2 = ?";
 	private final static String INSERT_FRIENDS_PENDING = "insert into friend_list values(NULL, ?, ?, 'pending')";
 	private final static String UPDATE_FRIENDS_TO_ACCEPT = "update friend_list set state ='accepted' where friendshipid = ?";
 
-	// devuelve todos los amigos aceptados
+	// Devuelve todos los amigos aceptados
 	@GET
-	@Path("/{username}")
-	@Produces(MediaType.UTROLL_API_FRIENDLIST_COLLECTION)
-	public FriendListCollection getFriends(
-			@PathParam("username") String username, @Context Request request) {
+	@Produces(MediaType.UTROLL_API_USER_COLLECTION)
+	public UserCollection getFriends() {
+		UserCollection users = new UserCollection();
 
-		FriendListCollection friends = new FriendListCollection();
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -64,20 +65,20 @@ public class FriendListResource {
 		PreparedStatement stmt = null;
 		try {
 			stmt = conn.prepareStatement(GET_FRIENDS_BY_USER_QUERY);
-			stmt.setString(1, username);
-			stmt.setString(2, username);
+			stmt.setString(1, security.getUserPrincipal().getName());
+			stmt.setString(2, security.getUserPrincipal().getName());
 
 			ResultSet rs = stmt.executeQuery();
+
 			while (rs.next()) {
-				FriendList friendlist = new FriendList();
-				friendlist.setFriendshipid(rs.getInt("friendshipid"));
-				if (rs.getString("friend1").equals(username)) {
-					friendlist.setFriend2(rs.getString("friend2"));
+				User user = new User();
+				if (rs.getString("friend1").equals(
+						security.getUserPrincipal().getName())) {
+					user.setUsername(rs.getString("friend2"));
 				} else {
-					friendlist.setFriend2(rs.getString("friend1"));
+					user.setUsername(rs.getString("friend1"));
 				}
-				friendlist.setState(rs.getString("state"));
-				friends.addFriend(friendlist);
+				users.addUser(user);
 			}
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
@@ -90,7 +91,51 @@ public class FriendListResource {
 			} catch (SQLException e) {
 			}
 		}
-		return friends;
+		return users;
+	}
+
+	// Devuelve el estado de la amistad del usuario de "security" con otro
+	@GET
+	@Path("/{username}")
+	@Produces(MediaType.UTROLL_API_FRIENDLIST)
+	public FriendList getFriendState(@PathParam("username") String username) {
+		FriendList friend = new FriendList();
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(GET_FRIEND_STATE);
+			stmt.setString(1, security.getUserPrincipal().getName());
+			stmt.setString(2, username);
+
+			ResultSet rs = stmt.executeQuery();
+
+			if (rs.next()) {
+				friend.setState(rs.getString("state"));
+				friend.setRequest(rs.getBoolean("request"));
+			} else {
+				friend.setState("none");
+				friend.setRequest(false);
+			}
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+		return friend;
 	}
 
 	// devuelve las peticiones de amigo que tiene el "username" que debe aceptar
@@ -189,12 +234,12 @@ public class FriendListResource {
 
 	// poner estado de amistad en aceptado
 	@PUT
-	@Path("/{friendshipid")
+	@Path("/accept/{friendshipid}")
 	@Consumes(MediaType.UTROLL_API_FRIENDLIST)
 	@Produces(MediaType.UTROLL_API_FRIENDLIST)
 	public FriendList updateFriendList(
 			@PathParam("friendshipid") int friendshipid, FriendList friendlist) {
-		
+
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -265,9 +310,7 @@ public class FriendListResource {
 		return friendlist;
 	}
 
-	
 	// Para trabajar con parámetros de seguridad
 	@Context
 	private SecurityContext security;
-
 }

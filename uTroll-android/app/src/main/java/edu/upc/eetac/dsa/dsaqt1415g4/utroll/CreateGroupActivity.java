@@ -161,7 +161,7 @@ public class CreateGroupActivity extends FragmentActivity {
             date.setTime(date.getTime() - 1000);
             dialog.getDatePicker().setMinDate(date.getTime());
             Date date1 = new Date();
-            date1.setTime(date.getTime() + 172800000);
+            date1.setTime(date.getTime() + 604800000);
             dialog.getDatePicker().setMaxDate(date1.getTime());
 
             return dialog;

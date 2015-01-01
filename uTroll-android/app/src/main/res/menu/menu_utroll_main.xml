@@ -19,4 +19,8 @@
         android:title="@string/action_joinGroup"
         android:orderInCategory="100"
         app:showAsAction="never"/>
+    <item android:id="@+id/action_searchUsers"
+        android:title="@string/action_searchUsers"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
 </menu>

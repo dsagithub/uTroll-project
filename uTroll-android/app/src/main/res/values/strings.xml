@@ -6,6 +6,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_logout">Cerrar Sesión</string>
     <string name="action_joinGroup">Mostrar grupos</string>
+    <string name="action_searchUsers">Buscar usuarios</string>
 
     <string name="like">Like</string>
     <string name="like_count">0</string>

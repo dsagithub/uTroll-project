@@ -175,6 +175,10 @@ public class uTrollMainActivity extends ListActivity {
                     e.printStackTrace();
                 }
                 return true;
+            case R.id.action_searchUsers:
+                Intent intent_searchUsers = new Intent(this, UserSearchActivity.class);
+                startActivity(intent_searchUsers);
+                return true;
 
             default:
                 return super.onOptionsItemSelected(item);

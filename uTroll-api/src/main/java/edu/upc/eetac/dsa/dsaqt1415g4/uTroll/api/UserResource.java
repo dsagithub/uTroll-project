@@ -17,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.POST;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.CacheControl;
@@ -49,6 +50,7 @@ public class UserResource {
 	private final static String VALIDATE_GROUP_IS_OPEN_QUERY = "select state from groups where groupid = ?";
 	private final static String UPDATE_USER_GROUP_QUERY = "update users set groupid = ? where username = ?";
 	private final static String GET_USERS_IN_A_GROUP_QUERY = "select * from users where groupid = ?";
+	private final static String GET_USERS_BY_USERNAME_QUERY = "select * from users where username like ?";
 
 	// Método obtención usuario - cacheable
 	@GET
@@ -78,7 +80,7 @@ public class UserResource {
 
 	// Obtener usuarios de un grupo
 	@GET
-	@Path("/{groupid}")
+	@Path("/usersInGroup/{groupid}")
 	@Produces(MediaType.UTROLL_API_USER_COLLECTION)
 	public UserCollection getUsersInGroup(@PathParam("groupid") int groupid) {
 		UserCollection users = new UserCollection();
@@ -96,6 +98,56 @@ public class UserResource {
 			stmt = conn.prepareStatement(GET_USERS_IN_A_GROUP_QUERY);
 
 			stmt.setInt(1, groupid);
+
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				User user = new User();
+				user.setUsername(rs.getString("username"));
+				user.setEmail(rs.getString("email"));
+				user.setName(rs.getString("name"));
+				user.setAge(rs.getInt("age"));
+				user.setGroupid(rs.getInt("groupid"));
+				user.setPoints(rs.getInt("points"));
+				user.setPoints_max(rs.getInt("points_max"));
+				user.setTroll(rs.getBoolean("isTroll"));
+
+				users.addUser(user);
+			}
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null) {
+					stmt.close();
+				}
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+
+		return users;
+	}
+
+	// Obtener usuarios de un grupo
+	@GET
+	@Produces(MediaType.UTROLL_API_USER_COLLECTION)
+	public UserCollection getUsersByUsername(@QueryParam("username") String username) {
+		UserCollection users = new UserCollection();
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(GET_USERS_BY_USERNAME_QUERY);
+
+			stmt.setString(1, "%" + username + "%");
 
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {

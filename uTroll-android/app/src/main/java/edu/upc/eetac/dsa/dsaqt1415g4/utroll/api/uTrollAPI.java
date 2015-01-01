@@ -405,7 +405,7 @@ public class uTrollAPI {
     public Group getGroupByGroupid(String urlGroup) throws AppException {
         Log.d(TAG, "getGroupByGroupid()");
         Group group = new Group();
-        
+
         HttpURLConnection urlConnection = null;
         try {
             URL url = new URL(urlGroup);
@@ -662,6 +662,108 @@ public class uTrollAPI {
         }
 
         return user;
+    }
+
+    public FriendList getFriend(String urlFriend) throws AppException {
+        HttpURLConnection urlConnection = null;
+        FriendList friend = new FriendList();
+        friend.setState("none");
+        friend.setRequest(false);
+        try {
+            URL url = new URL(urlFriend);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoInput(true);
+            urlConnection.connect();
+        } catch (IOException e) {
+            throw new AppException(
+                    "Can't connect to Libreria API Web Service");
+        }
+
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+
+            JSONObject jsonFriend = new JSONObject(sb.toString());
+
+            friend.setState(jsonFriend.getString("state"));
+            friend.setRequest(jsonFriend.getBoolean("request"));
+        } catch (MalformedURLException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Bad user url");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Exception when getting the user");
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Exception parsing response");
+        }
+
+        return friend;
+    }
+
+    public UserCollection getUsersByUsername(String username) throws AppException {
+        Log.d(TAG, "getUsersByUsername()");
+        UserCollection users = new UserCollection(); //Modelo de la colección
+
+        HttpURLConnection urlConnection = null;
+        try {
+            urlConnection = (HttpURLConnection) new URL(rootAPI.getLinks()
+                    .get("users").getTarget() + "?username=" + username).openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoInput(true);
+            urlConnection.connect();
+        } catch (IOException e) {
+            throw new AppException(
+                    "Can't connect to Libreria API Web Service");
+        }
+
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+
+            JSONObject jsonObject = new JSONObject(sb.toString());
+            JSONArray jsonLinks = jsonObject.getJSONArray("links");
+            parseLinks(jsonLinks, users.getLinks());
+
+            JSONArray jsonUsers = jsonObject.getJSONArray("users");
+            for (int i = 0; i < jsonUsers.length(); i++) {
+                User user = new User();
+                JSONObject jsonUser = jsonUsers.getJSONObject(i);
+
+                user.setUsername(jsonUser.getString("username"));
+                user.setEmail(jsonUser.getString("email"));
+                user.setName(jsonUser.getString("name"));
+                user.setAge(jsonUser.getInt("age"));
+                user.setGroupid(jsonUser.getInt("groupid"));
+                user.setPoints(jsonUser.getInt("points"));
+                user.setPoints_max(jsonUser.getInt("points_max"));
+                user.setTroll(jsonUser.getBoolean("troll"));
+
+                jsonLinks = jsonUser.getJSONArray("links");
+                parseLinks(jsonLinks, user.getLinks());
+                users.getUsers().add(user);
+            }
+        } catch (IOException e) {
+            throw new AppException(
+                    "Can't get response from uTroll API Web Service");
+        } catch (JSONException e) {
+            throw new AppException("Error parsing uTroll Root API");
+        }
+
+        return users;
     }
 
     public UserCollection getUsersInGroup(String urlGetUsers) throws AppException {

@@ -40,6 +40,7 @@ create table friend_list (
 	friend1 				varchar(20) not null,
 	friend2					varchar(20) not null,
 	state					varchar(50) not null,
+	request					boolean not null,
 	foreign key(friend1)	references users(username),
 	foreign key(friend2)	references users(username) on delete cascade
 );
