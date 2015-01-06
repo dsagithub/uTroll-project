@@ -67,6 +67,51 @@ public class UserDetailActivity extends Activity {
         }
     }
 
+    public void doFriend(View v) {
+        Button friendBtn = (Button) findViewById(R.id.friendBtn);
+        TextView tvDetailUsername = (TextView) findViewById(R.id.tvDetailUsername);
+        String doFriend = friendBtn.getText().toString();
+        String usernameString = tvDetailUsername.getText().toString().substring((tvDetailUsername.getText().toString().indexOf(":") + 2), (tvDetailUsername.getText().toString().length()));
+        (new doFriendTask()).execute(usernameString, doFriend);
+    }
+
+    private class doFriendTask extends AsyncTask<String, Void, User> {
+        private ProgressDialog pd;
+
+        @Override
+        protected User doInBackground(String... params) {
+            User user = null;
+            friend = new FriendList();
+            try {
+                if (params[1].equals("Add friend"))
+                    uTrollAPI.getInstance(UserDetailActivity.this).addFriend(params[0]);
+                else if (params[1].equals("Accept friend"))
+                    uTrollAPI.getInstance(UserDetailActivity.this).acceptFriend(params[0]);
+            } catch (AppException e) {
+                Log.d(TAG, e.getMessage(), e);
+            }
+            return user;
+        }
+
+        @Override
+        protected void onPostExecute(User result) {
+            finish();
+            if (pd != null) {
+                pd.dismiss();
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            pd = new ProgressDialog(UserDetailActivity.this);
+            pd.setTitle("Loading...");
+            pd.setCancelable(false);
+            pd.setIndeterminate(true);
+            pd.show();
+        }
+
+    }
+
     private class FetchUserTask extends AsyncTask<String, Void, User> {
         private ProgressDialog pd;
 

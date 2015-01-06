@@ -5,6 +5,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +32,7 @@ import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.AppException;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.Comment;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.CommentCollection;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.User;
+import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.UserCollection;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollAPI;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollRootAPI;
 
@@ -69,6 +74,7 @@ public class uTrollMainActivity extends ListActivity {
 //        });
         (new GetUserTask()).execute(username, password);
         (new FetchCommentsTask()).execute();
+        (new CheckPendingFriendsTask()).execute();
     }
 
     private class FetchCommentsTask extends
@@ -90,6 +96,52 @@ public class uTrollMainActivity extends ListActivity {
         @Override
         protected void onPostExecute(CommentCollection result) {
             addComments(result);
+            if (pd != null) {
+                pd.dismiss();
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            pd = new ProgressDialog(uTrollMainActivity.this);
+            pd.setTitle("Searching...");
+            pd.setCancelable(false);
+            pd.setIndeterminate(true);
+            pd.show();
+        }
+
+    }
+
+    private class CheckPendingFriendsTask extends
+            AsyncTask<Void, Void, Boolean> {
+        private ProgressDialog pd;
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            Boolean pending = false;
+            UserCollection users = new UserCollection();
+            try {
+                users = uTrollAPI.getInstance(uTrollMainActivity.this).getPendingFriends();
+                if (users.getUsers().size() > 0)
+                    pending = true;
+            } catch (AppException e) {
+                e.printStackTrace();
+            }
+            return pending;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean pending) {
+            if (pending) {
+                Drawable mDrawable = getResources().getDrawable(R.drawable.ic_action_person);
+                mDrawable.setColorFilter(new PorterDuffColorFilter(Color.rgb(255, 0, 0), PorterDuff.Mode.MULTIPLY));
+                invalidateOptionsMenu();
+            } else {
+                Drawable mDrawable = getResources().getDrawable(R.drawable.ic_action_person);
+                mDrawable.setColorFilter(new PorterDuffColorFilter(Color.rgb(255, 255, 255), PorterDuff.Mode.MULTIPLY));
+                invalidateOptionsMenu();
+            }
+
             if (pd != null) {
                 pd.dismiss();
             }
@@ -178,6 +230,10 @@ public class uTrollMainActivity extends ListActivity {
             case R.id.action_searchUsers:
                 Intent intent_searchUsers = new Intent(this, UserSearchActivity.class);
                 startActivity(intent_searchUsers);
+                return true;
+            case R.id.friendshipNotificationsMenuItem:
+                Intent intent_friendshipNotifications = new Intent(this, PendingFriendsActivity.class);
+                startActivity(intent_friendshipNotifications);
                 return true;
 
             default:

@@ -125,6 +125,9 @@ public class GroupListActivity extends ListActivity {
             if (result.getGroupid() != 0)
                     invalidateOptionsMenu();
 
+            TextView tvPoints = (TextView) findViewById(R.id.tvGroupListPoints);
+            tvPoints.setText(Integer.toString(result.getPoints()));
+
             if (pd != null) {
                 pd.dismiss();
             }
@@ -166,6 +169,7 @@ public class GroupListActivity extends ListActivity {
                 return true;
             case R.id.createGroupMenuItem:
                 Intent intent = new Intent(this, CreateGroupActivity.class);
+                intent.putExtra("user", (String) getIntent().getExtras().get("user"));
                 startActivityForResult(intent, WRITE_ACTIVITY);
                 return true;
 

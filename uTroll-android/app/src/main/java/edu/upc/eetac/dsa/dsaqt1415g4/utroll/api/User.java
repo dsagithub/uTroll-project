@@ -14,6 +14,8 @@ public class User {
     private int groupid;
     private boolean isTroll;
     private boolean loginSuccessful;
+    private int votedBy;
+    private String vote;
     private Map<String, Link> links = new HashMap<String, Link>();
     private String eTag;
 
@@ -100,6 +102,22 @@ public class User {
 
     public void setLoginSuccessful(boolean loginSuccessful) {
         this.loginSuccessful = loginSuccessful;
+    }
+
+    public int getVotedBy() {
+        return votedBy;
+    }
+
+    public void setVotedBy(int votedBy) {
+        this.votedBy = votedBy;
+    }
+
+    public String getVote() {
+        return vote;
+    }
+
+    public void setVote(String vote) {
+        this.vote = vote;
     }
 
     public Map<String, Link> getLinks() {

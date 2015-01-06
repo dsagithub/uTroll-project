@@ -42,10 +42,12 @@ public class FriendListResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 
 	private final static String GET_FRIENDS_BY_USER_QUERY = "select * from friend_list where (friend1=? or friend2=?) and state = 'accepted'";
+	private final static String GET_PENDING_FRIENDS_QUERY = "select * from friend_list where friend2=? and state = 'pending' and request = true";
 	private final static String GET_FRIENDS_PENDING_BY_USER_QUERY = "select * from friend_list where (friend1=? or friend2=?) and state = 'pending'";
 	private final static String GET_FRIEND_BY_FRIENDSHIPID_QUERY = "select * from friend_list where friendshipid=?";
 	private final static String GET_FRIEND_STATE = "select state, request from friend_list where friend1 = ? and friend2 = ?";
-	private final static String INSERT_FRIENDS_PENDING = "insert into friend_list values(NULL, ?, ?, 'pending')";
+	private final static String INSERT_FRIENDSHIP = "insert into friend_list (friend1, friend2, state, request) values(?, ?, ?, ?)";
+	private final static String UPDATE_FRIENDSHIP = "update friend_list set state = ? where friend1 = ? and friend2 = ?";
 	private final static String UPDATE_FRIENDS_TO_ACCEPT = "update friend_list set state ='accepted' where friendshipid = ?";
 
 	// Devuelve todos los amigos aceptados
@@ -78,6 +80,47 @@ public class FriendListResource {
 				} else {
 					user.setUsername(rs.getString("friend1"));
 				}
+				users.addUser(user);
+			}
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+		return users;
+	}
+
+	// Devuelve las solicitudes de amistad entrantes pendientes
+	@GET
+	@Path("/getPendingFriends")
+	@Produces(MediaType.UTROLL_API_USER_COLLECTION)
+	public UserCollection getPendingFriends() {
+		UserCollection users = new UserCollection();
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(GET_PENDING_FRIENDS_QUERY);
+			stmt.setString(1, security.getUserPrincipal().getName());
+
+			ResultSet rs = stmt.executeQuery();
+
+			while (rs.next()) {
+				User user = new User();
+				user.setUsername(rs.getString("friend1"));
 				users.addUser(user);
 			}
 		} catch (SQLException e) {
@@ -138,6 +181,110 @@ public class FriendListResource {
 		return friend;
 	}
 
+	// Hacer una petición de amistad y ponerla en "pending"
+	@POST
+	@Path("/addFriend/{username}")
+	@Consumes(MediaType.UTROLL_API_FRIENDLIST)
+	@Produces(MediaType.UTROLL_API_FRIENDLIST)
+	public FriendList addFriend(@PathParam("username") String username) {
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		FriendList friend = new FriendList();
+		PreparedStatement stmt = null;
+		PreparedStatement stmt1 = null; // Entrada revertida en la BD
+		try {
+			stmt = conn.prepareStatement(INSERT_FRIENDSHIP,
+					Statement.RETURN_GENERATED_KEYS);
+			stmt1 = conn.prepareStatement(INSERT_FRIENDSHIP);
+
+			stmt.setString(1, security.getUserPrincipal().getName());
+			stmt.setString(2, username);
+			stmt.setString(3, "pending");
+			stmt.setBoolean(4, true);
+			stmt.executeUpdate();
+
+			stmt1.setString(1, username);
+			stmt1.setString(2, security.getUserPrincipal().getName());
+			stmt1.setString(3, "pending");
+			stmt1.setBoolean(4, false);
+			stmt1.executeUpdate();
+
+			ResultSet rs = stmt.getGeneratedKeys();
+			if (rs.next()) {
+				int friendshipid = rs.getInt("friendshipid");
+				friend = getFriendFromDatabase(friendshipid);
+			} else {
+				// Something has failed...
+			}
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				if (stmt1 != null)
+					stmt1.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+		return friend;
+	}
+
+	// Aceptar una petición de amistad
+	@PUT
+	@Path("/acceptFriend/{username}")
+	@Consumes(MediaType.UTROLL_API_FRIENDLIST)
+	@Produces(MediaType.UTROLL_API_FRIENDLIST)
+	public FriendList acceptFriend(@PathParam("username") String username,
+			FriendList friend) {
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		PreparedStatement stmt1 = null;
+		try {
+			stmt = conn.prepareStatement(UPDATE_FRIENDSHIP);
+			stmt1 = conn.prepareStatement(UPDATE_FRIENDSHIP);
+
+			stmt.setString(1, "accepted");
+			stmt.setString(2, security.getUserPrincipal().getName());
+			stmt.setString(3, username);
+
+			stmt1.setString(1, "accepted");
+			stmt1.setString(3, security.getUserPrincipal().getName());
+			stmt1.setString(2, username);
+
+			stmt.executeUpdate();
+			stmt1.executeUpdate();
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				if (stmt1 != null)
+					stmt1.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+		return friend;
+	}
+
 	// devuelve las peticiones de amigo que tiene el "username" que debe aceptar
 	// o no
 	@GET
@@ -185,51 +332,6 @@ public class FriendListResource {
 			}
 		}
 		return friends;
-	}
-
-	// hacer una peticion de amistad y ponerla en "pending"
-	@POST
-	@Consumes(MediaType.UTROLL_API_FRIENDLIST)
-	@Produces(MediaType.UTROLL_API_FRIENDLIST)
-	public FriendList createFriendPending(FriendList friendlist) {
-		Connection conn = null;
-		try {
-			conn = ds.getConnection();
-		} catch (SQLException e) {
-			throw new ServerErrorException("Could not connect to the database",
-					Response.Status.SERVICE_UNAVAILABLE);
-		}
-		PreparedStatement stmt = null;
-		try {
-			stmt = conn.prepareStatement(INSERT_FRIENDS_PENDING,
-					Statement.RETURN_GENERATED_KEYS);
-
-			// stmt.setString(1, security.getUserPrincipal().getName());
-			stmt.setString(1, friendlist.getFriend1());
-			stmt.setString(2, friendlist.getFriend2());
-
-			stmt.executeUpdate();
-			ResultSet rs = stmt.getGeneratedKeys();
-			if (rs.next()) {
-				int friendshipid = rs.getInt("friendshipid");
-				friendlist = getFriendFromDatabase(friendshipid);
-			} else {
-				// Something has failed...
-			}
-		} catch (SQLException e) {
-			throw new ServerErrorException(e.getMessage(),
-					Response.Status.INTERNAL_SERVER_ERROR);
-		} finally {
-			try {
-				if (stmt != null)
-					stmt.close();
-				conn.close();
-			} catch (SQLException e) {
-			}
-		}
-
-		return friendlist;
-
 	}
 
 	// poner estado de amistad en aceptado

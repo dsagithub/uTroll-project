@@ -645,6 +645,8 @@ public class uTrollAPI {
             user.setPoints(jsonUser.getInt("points"));
             user.setPoints_max(jsonUser.getInt("points_max"));
             user.setTroll(jsonUser.getBoolean("troll"));
+            user.setVotedBy(jsonUser.getInt("votedBy"));
+            user.setVote(jsonUser.getString("vote"));
 
             JSONArray jsonLinks = jsonUser.getJSONArray("links");
             parseLinks(jsonLinks, user.getLinks());
@@ -662,6 +664,43 @@ public class uTrollAPI {
         }
 
         return user;
+    }
+
+    public void voteTroll(String username) throws AppException {
+        HttpURLConnection urlConnection = null;
+
+        try {
+            urlConnection = (HttpURLConnection) new URL(rootAPI.getLinks()
+                    .get("vote").getTarget() + "/vote/" + username).openConnection();
+            String mediaType = rootAPI.getLinks().get("vote").getParameters().get("type");
+            urlConnection.setRequestProperty("Accept",
+                    mediaType); //Esto estaba mal en los gists
+            urlConnection.setRequestProperty("Content-Type",
+                    mediaType);
+            urlConnection.setRequestMethod("PUT");
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+            urlConnection.connect();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            JSONObject jsonUser = new JSONObject(sb.toString());
+
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error parsing response");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error getting response");
+        } finally {
+            if (urlConnection != null)
+                urlConnection.disconnect();
+        }
     }
 
     public FriendList getFriend(String urlFriend) throws AppException {
@@ -708,6 +747,153 @@ public class uTrollAPI {
         return friend;
     }
 
+    public UserCollection getPendingFriends() throws AppException {
+        Log.d(TAG, "getPendingFriends()");
+        UserCollection users = new UserCollection(); //Modelo de la colección
+
+        HttpURLConnection urlConnection = null;
+        try {
+            urlConnection = (HttpURLConnection) new URL(rootAPI.getLinks()
+                    .get("pending-friends").getTarget()).openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoInput(true);
+            urlConnection.connect();
+        } catch (IOException e) {
+            throw new AppException(
+                    "Can't connect to Libreria API Web Service");
+        }
+
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+
+            JSONObject jsonObject = new JSONObject(sb.toString());
+            JSONArray jsonLinks = jsonObject.getJSONArray("links");
+            parseLinks(jsonLinks, users.getLinks());
+
+            JSONArray jsonUsers = jsonObject.getJSONArray("users");
+            for (int i = 0; i < jsonUsers.length(); i++) {
+                User user = new User();
+                JSONObject jsonUser = jsonUsers.getJSONObject(i);
+
+                user.setUsername(jsonUser.getString("username"));
+
+                jsonLinks = jsonUser.getJSONArray("links");
+                parseLinks(jsonLinks, user.getLinks());
+                users.getUsers().add(user);
+            }
+        } catch (IOException e) {
+            throw new AppException(
+                    "Can't get response from uTroll API Web Service");
+        } catch (JSONException e) {
+            throw new AppException("Error parsing uTroll Root API");
+        }
+
+        return users;
+    }
+
+    public void addFriend (String username) throws AppException {
+        Log.d(TAG, "addFriend()");
+        FriendList friend = new FriendList();
+        friend.setFriend1(username);
+
+        HttpURLConnection urlConnection = null;
+        try {
+            JSONObject jsonFriend = createJsonFriend(friend);
+            URL urladdFriend = new URL(rootAPI.getLinks().get("friend").getTarget() + "/addFriend/" + username);
+            urlConnection = (HttpURLConnection) urladdFriend.openConnection();
+            String mediaType = rootAPI.getLinks().get("friend").getParameters().get("type"); //Esta línea no estaba en el gist
+            urlConnection.setRequestProperty("Accept",
+                    mediaType); //Esto estaba mal en los gists
+            urlConnection.setRequestProperty("Content-Type",
+                    mediaType);
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+            urlConnection.connect();
+            PrintWriter writer = new PrintWriter(
+                    urlConnection.getOutputStream());
+            writer.println(jsonFriend.toString());
+            writer.close();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error parsing response");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error getting response");
+        } finally {
+            if (urlConnection != null)
+                urlConnection.disconnect();
+        }
+    }
+
+    public void acceptFriend (String username) throws AppException {
+        Log.d(TAG, "acceptFriend()");
+        FriendList friend = new FriendList();
+        friend.setFriend1(username);
+
+        HttpURLConnection urlConnection = null;
+        try {
+            JSONObject jsonFriend = createJsonFriend(friend);
+            URL urladdFriend = new URL(rootAPI.getLinks().get("friend").getTarget() + "/acceptFriend/" + username);
+            urlConnection = (HttpURLConnection) urladdFriend.openConnection();
+            String mediaType = rootAPI.getLinks().get("friend").getParameters().get("type"); //Esta línea no estaba en el gist
+            urlConnection.setRequestProperty("Accept",
+                    mediaType); //Esto estaba mal en los gists
+            urlConnection.setRequestProperty("Content-Type",
+                    mediaType);
+            urlConnection.setRequestMethod("PUT");
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+            urlConnection.connect();
+            PrintWriter writer = new PrintWriter(
+                    urlConnection.getOutputStream());
+            writer.println(jsonFriend.toString());
+            writer.close();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error parsing response");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error getting response");
+        } finally {
+            if (urlConnection != null)
+                urlConnection.disconnect();
+        }
+    }
+
+    // Crear JSON de un FriendList
+    private JSONObject createJsonFriend(FriendList friend) throws JSONException {
+        JSONObject jsonFriend = new JSONObject();
+        jsonFriend.put("friend1", friend.getFriend1());
+        jsonFriend.put("friend2", friend.getFriend2());
+        jsonFriend.put("state", friend.getState());
+        jsonFriend.put("request", friend.getRequest());
+        jsonFriend.put("friendshipd", friend.getFriendshipid());
+
+        return jsonFriend;
+    }
+
     public UserCollection getUsersByUsername(String username) throws AppException {
         Log.d(TAG, "getUsersByUsername()");
         UserCollection users = new UserCollection(); //Modelo de la colección
@@ -751,6 +937,8 @@ public class uTrollAPI {
                 user.setPoints(jsonUser.getInt("points"));
                 user.setPoints_max(jsonUser.getInt("points_max"));
                 user.setTroll(jsonUser.getBoolean("troll"));
+                user.setVotedBy(jsonUser.getInt("votedBy"));
+                user.setVote(jsonUser.getString("vote"));
 
                 jsonLinks = jsonUser.getJSONArray("links");
                 parseLinks(jsonLinks, user.getLinks());
@@ -809,6 +997,8 @@ public class uTrollAPI {
                 user.setPoints(jsonUser.getInt("points"));
                 user.setPoints_max(jsonUser.getInt("points_max"));
                 user.setTroll(jsonUser.getBoolean("troll"));
+                user.setVotedBy(jsonUser.getInt("votedBy"));
+                user.setVote(jsonUser.getString("vote"));
 
                 jsonLinks = jsonUser.getJSONArray("links");
                 parseLinks(jsonLinks, user.getLinks());

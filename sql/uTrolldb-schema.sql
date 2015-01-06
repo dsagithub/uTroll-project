@@ -25,6 +25,8 @@ create table users (
 	points_max	int not null,
 	isTroll		boolean not null,
 	groupid		int not null,
+	votedBy		int not null,
+	vote		varchar(20) not null,
 	foreign key(groupid)	references groups(groupid)
 );
 

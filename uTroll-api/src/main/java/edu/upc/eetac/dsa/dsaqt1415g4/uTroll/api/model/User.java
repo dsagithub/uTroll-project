@@ -25,12 +25,15 @@ public class User {
 	private int groupid;
 	private boolean isTroll;
 	private boolean loginSuccessful;
+	private int votedBy;
+	private String vote;
 	
 	@InjectLinks({
 		@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "create-user", title = "Create user", type = MediaType.UTROLL_API_USER),
 		@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "self", title = "Get user", type = MediaType.UTROLL_API_USER, method = "getUser", bindings = @Binding(name = "username", value = "${instance.username}")),
 		@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "group-info", title = "Group to which belongs", type = MediaType.UTROLL_API_GROUP, method = "getGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}")),
 		@InjectLink(resource = FriendListResource.class, style = Style.ABSOLUTE, rel = "friend", title = "We are friends", type = MediaType.UTROLL_API_FRIENDLIST, method = "getFriendState", bindings = @Binding(name = "username", value = "${instance.username}")),
+		@InjectLink(resource = FriendListResource.class, style = Style.ABSOLUTE, rel = "add-friend", title = "Add friend", type = MediaType.UTROLL_API_FRIENDLIST, method = "addFriend", bindings = @Binding(name = "username", value = "${instance.username}")),
 		@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "group-users", title = "Users in the group to which belongs", type = MediaType.UTROLL_API_USER_COLLECTION, method = "getUsersInGroup", bindings = @Binding(name = "groupid", value = "${instance.groupid}"))
 		})
 	private List<Link> links;
@@ -121,6 +124,22 @@ public class User {
 
 	public void setLinks(List<Link> links) {
 		this.links = links;
+	}
+
+	public int getVotedBy() {
+		return votedBy;
+	}
+
+	public void setVotedBy(int votedBy) {
+		this.votedBy = votedBy;
+	}
+
+	public String getVote() {
+		return vote;
+	}
+
+	public void setVote(String vote) {
+		this.vote = vote;
 	}
 	
 }

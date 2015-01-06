@@ -13,30 +13,28 @@
         android:text="@string/group_detail_btn"
         android:onClick="joinGroup"/>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="horizontal"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dip" >
 
         <Button
-            android:id="@+id/activateGroupBtn"
-            android:layout_width="0dip"
-            android:layout_weight="0.5"
+            android:id="@+id/voteTrollBtn"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dip"
-            android:text="@string/group_detail_btn_activate"
-            android:onClick="activateGroup"/>
+            android:text="@string/group_detail_btn_vote"
+            android:onClick="voteTroll"/>
 
-        <Button
-            android:id="@+id/closeGroupBtn"
-            android:layout_width="0dip"
-            android:layout_weight="0.5"
+        <Spinner
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dip"
-            android:text="@string/group_detail_btn_close"
-            android:onClick="closeGroup"/>
+            android:id="@+id/SpinnerVoteTroll"
+            android:spinnerMode="dropdown"
+            android:layout_toRightOf="@+id/voteTrollBtn"/>
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <TextView
         android:layout_width="wrap_content"

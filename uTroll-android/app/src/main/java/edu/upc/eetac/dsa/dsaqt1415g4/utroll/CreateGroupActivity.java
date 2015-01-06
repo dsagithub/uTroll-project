@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,11 +13,13 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -27,6 +30,7 @@ import java.util.Date;
 
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.AppException;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.Group;
+import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.User;
 import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollAPI;
 
 public class CreateGroupActivity extends FragmentActivity {
@@ -35,6 +39,7 @@ public class CreateGroupActivity extends FragmentActivity {
     private static TextView tvTime = null;
     private static TextView tvDateClosing = null;
     private static TextView tvTimeClosing = null;
+    User user = null;
 
     private class CreateGroupTask extends AsyncTask<String, Void, Group> {
         private ProgressDialog pd;
@@ -46,11 +51,12 @@ public class CreateGroupActivity extends FragmentActivity {
                 String groupname = params[0];
                 int price = Integer.parseInt(params[1]);
 
-                String date = params[2]; //"2014-12-31 21:27:00";
+                String date = params[2];
                 String dateClosing = params[3];
 
-                group = uTrollAPI.getInstance(CreateGroupActivity.this).createGroup(groupname, price, date, dateClosing);
+                user = uTrollAPI.getInstance(CreateGroupActivity.this).getUser(params[4]);
 
+                group = uTrollAPI.getInstance(CreateGroupActivity.this).createGroup(groupname, price, date, dateClosing);
             } catch (AppException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
@@ -59,7 +65,16 @@ public class CreateGroupActivity extends FragmentActivity {
 
         @Override
         protected void onPostExecute(Group result) {
-            showGroups(result);
+            if (user.getPoints() >= result.getPrice())
+                showGroups(result);
+            else {
+                Context context = getApplicationContext();
+                int duration = Toast.LENGTH_LONG;
+                CharSequence text = "El grupo cuesta más de lo que tienes";
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
             if (pd != null) {
                 pd.dismiss();
             }
@@ -107,9 +122,9 @@ public class CreateGroupActivity extends FragmentActivity {
             tvDate = (TextView) findViewById(R.id.tvCreateGroupDate);
 
             tvDate.setText(new StringBuilder()
-                     // Month is 0 based, just add 1
-                     .append(year).append("-").append(month + 1).append("-")
-                     .append(day));
+                    // Month is 0 based, just add 1
+                    .append(year).append("-").append(month + 1).append("-")
+                    .append(day));
         }
     }
 
@@ -227,7 +242,46 @@ public class CreateGroupActivity extends FragmentActivity {
         String endingTimestamp = tvDate.getText().toString() + " " + tvTime.getText().toString();
         String closingTimestamp = tvDateClosing.getText().toString() + " " + tvTimeClosing.getText().toString();
 
-        (new CreateGroupTask()).execute(groupname, price, endingTimestamp, closingTimestamp);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:00");
+        Date fechaEnding = null;
+        Date fechaClosing = null;
+        Date ahora = null;
+        Calendar cal = Calendar.getInstance();
+        try {
+            fechaEnding = format.parse(endingTimestamp);
+            fechaClosing = format.parse(closingTimestamp);
+            ahora = cal.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        Context context = getApplicationContext();
+        int duration = Toast.LENGTH_LONG;
+
+        if (groupname.equals("")) {
+            CharSequence text = "No has escrito el nombre del grupo";
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        } else if (price.equals("")) {
+            CharSequence text = "No has escrito el precio de entrada";
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        } else if (fechaClosing.before(fechaEnding)) {
+            CharSequence text = "La fecha de cierre debe ser posterior a la de fin";
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        } else if (fechaEnding.before(ahora)) {
+            CharSequence text = "Las fechas deben ser posteriores a este momento";
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+        }else {
+            String userURL = (String) getIntent().getExtras().get("user");
+            (new CreateGroupTask()).execute(groupname, price, endingTimestamp, closingTimestamp, userURL);
+        }
     }
 
     private void showGroups(Group result) {

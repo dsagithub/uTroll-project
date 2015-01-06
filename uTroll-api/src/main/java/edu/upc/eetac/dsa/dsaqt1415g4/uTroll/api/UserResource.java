@@ -43,14 +43,21 @@ public class UserResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 
 	private final static String GET_USER_BY_USERNAME_QUERY = "select * from users where username=?";
-	private final static String CREATE_USER_QUERY = "insert into users values (?, MD5(?), ?, ?, ?, 0, 0, false, 0)";
+	private final static String CREATE_USER_QUERY = "insert into users values (?, MD5(?), ?, ?, ?, 0, 0, false, 0, 0, 'none')";
 	private final static String CREATE_USER_ROLE_QUERY = "insert into user_roles values (?, 'registered')";
 	private final static String VALIDATE_USERNAME_QUERY = "select username from users where username=?";
 	private final static String VALIDATE_GROUP_BELONGING_QUERY = "select groupid from users where username = ?";
 	private final static String VALIDATE_GROUP_IS_OPEN_QUERY = "select state from groups where groupid = ?";
 	private final static String UPDATE_USER_GROUP_QUERY = "update users set groupid = ? where username = ?";
+	private final static String UPDATE_USER_POINTS_QUERY = "update users set points = ? where username = ?";
 	private final static String GET_USERS_IN_A_GROUP_QUERY = "select * from users where groupid = ?";
 	private final static String GET_USERS_BY_USERNAME_QUERY = "select * from users where username like ?";
+	private final static String GET_POINTS_GROUP_QUERY = "select price from groups where groupid = ?";
+	private final static String UPDATE_VOTED_USER_QUERY = "update users set votedBy = (votedBy + 1) where username = ?";
+	private final static String UPDATE_VOTER_USER_QUERY = "update users set vote = ? where username = ?";
+
+	// private final static String GET_POINTS_USER_QUERY =
+	// "select points from users where username = ?";
 
 	// Método obtención usuario - cacheable
 	@GET
@@ -110,6 +117,8 @@ public class UserResource {
 				user.setPoints(rs.getInt("points"));
 				user.setPoints_max(rs.getInt("points_max"));
 				user.setTroll(rs.getBoolean("isTroll"));
+				user.setVotedBy(rs.getInt("votedBy"));
+				user.setVote(rs.getString("vote"));
 
 				users.addUser(user);
 			}
@@ -132,7 +141,8 @@ public class UserResource {
 	// Obtener usuarios de un grupo
 	@GET
 	@Produces(MediaType.UTROLL_API_USER_COLLECTION)
-	public UserCollection getUsersByUsername(@QueryParam("username") String username) {
+	public UserCollection getUsersByUsername(
+			@QueryParam("username") String username) {
 		UserCollection users = new UserCollection();
 
 		Connection conn = null;
@@ -160,6 +170,8 @@ public class UserResource {
 				user.setPoints(rs.getInt("points"));
 				user.setPoints_max(rs.getInt("points_max"));
 				user.setTroll(rs.getBoolean("isTroll"));
+				user.setVotedBy(rs.getInt("votedBy"));
+				user.setVote(rs.getString("vote"));
 
 				users.addUser(user);
 			}
@@ -268,6 +280,8 @@ public class UserResource {
 		}
 
 		PreparedStatement stmt = null;
+		PreparedStatement stmt1 = null;
+		PreparedStatement stmt2 = null;
 		try {
 			stmt = conn.prepareStatement(UPDATE_USER_GROUP_QUERY);
 			stmt.setInt(1, groupid);
@@ -277,9 +291,24 @@ public class UserResource {
 			if (rows == 1)
 				user = getUserFromDatabase(security.getUserPrincipal()
 						.getName(), false);
-			else {
-				throw new NotFoundException("Group not found");
-			}
+
+			int points_group = 0;
+			stmt1 = conn.prepareStatement(GET_POINTS_GROUP_QUERY);
+			stmt1.setInt(1, groupid);
+
+			ResultSet rs = stmt1.executeQuery();
+			if (rs.next())
+				points_group = rs.getInt("price");
+
+			int points_user = user.getPoints() - points_group;
+			stmt2 = conn.prepareStatement(UPDATE_USER_POINTS_QUERY);
+			stmt2.setInt(1, points_user);
+			stmt2.setString(2, security.getUserPrincipal().getName());
+
+			int rows2 = stmt2.executeUpdate();
+			if (rows2 == 1)
+				user = getUserFromDatabase(security.getUserPrincipal()
+						.getName(), false);
 
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
@@ -288,6 +317,53 @@ public class UserResource {
 			try {
 				if (stmt != null)
 					stmt.close();
+				if (stmt1 != null)
+					stmt1.close();
+				if (stmt2 != null)
+					stmt2.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+
+		return user;
+	}
+
+	// Unirse a un grupo
+	@PUT
+	@Path("/vote/{username}")
+	@Produces(MediaType.UTROLL_API_USER)
+	public User voteUser(@PathParam("username") String username) {
+		User user = new User();
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		PreparedStatement stmt1 = null;
+		try {
+			stmt = conn.prepareStatement(UPDATE_VOTED_USER_QUERY);
+			stmt.setString(1, username);
+			stmt.executeUpdate();
+			
+			stmt1 = conn.prepareStatement(UPDATE_VOTER_USER_QUERY);
+			stmt1.setString(1, username);
+			stmt1.setString(2, security.getUserPrincipal().getName());
+			stmt1.executeUpdate();
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				if (stmt1 != null)
+					stmt1.close();
 				conn.close();
 			} catch (SQLException e) {
 			}
@@ -343,6 +419,8 @@ public class UserResource {
 				user.setPoints(rs.getInt("points"));
 				user.setPoints_max(rs.getInt("points_max"));
 				user.setTroll(rs.getBoolean("isTroll"));
+				user.setVotedBy(rs.getInt("votedBy"));
+				user.setVote(rs.getString("vote"));
 			} else
 				throw new NotFoundException(username + " not found.");
 		} catch (SQLException e) {
@@ -471,6 +549,55 @@ public class UserResource {
 			}
 		}
 	}
+
+	// // Método para validar que tienes suficientes puntos para entrar en el
+	// grupo
+	// private boolean validateHaveEnoughPoints(int groupid, String username) {
+	// Connection conn = null;
+	// try {
+	// conn = ds.getConnection();
+	// } catch (SQLException e) {
+	// throw new ServerErrorException("Could not connect to the database",
+	// Response.Status.SERVICE_UNAVAILABLE);
+	// }
+	//
+	// PreparedStatement stmt = null;
+	// PreparedStatement stmt1 = null;
+	// try {
+	// int points_group = 0;
+	// int points_user = 0;
+	// stmt = conn.prepareStatement(GET_POINTS_GROUP_QUERY);
+	// stmt.setInt(1, groupid);
+	// stmt1 = conn.prepareStatement(GET_POINTS_USER_QUERY);
+	// stmt1.setInt(1, groupid);
+	//
+	// ResultSet rs = stmt.executeQuery();
+	// if (rs.next()) {
+	// points_group = rs.getInt("price");
+	// }
+	//
+	// ResultSet rs1 = stmt1.executeQuery();
+	// if (rs1.next()) {
+	// points_user = rs1.getInt("points");
+	// }
+	//
+	// if (points_user >= points_group)
+	// return true;
+	// else
+	// return false;
+	//
+	// } catch (SQLException e) {
+	// throw new ServerErrorException(e.getMessage(),
+	// Response.Status.INTERNAL_SERVER_ERROR);
+	// } finally {
+	// try {
+	// if (stmt != null)
+	// stmt.close();
+	// conn.close();
+	// } catch (SQLException e) {
+	// }
+	// }
+	// }
 
 	// Para trabajar con parámetros de seguridad
 	@Context

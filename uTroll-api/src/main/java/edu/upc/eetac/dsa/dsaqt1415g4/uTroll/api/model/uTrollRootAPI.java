@@ -10,6 +10,7 @@ import org.glassfish.jersey.linking.InjectLink.Style;
 import org.glassfish.jersey.linking.InjectLinks;
 
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.CommentResource;
+import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.FriendListResource;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.GroupResource;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.MediaType;
 import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.UserResource;
@@ -22,7 +23,10 @@ public class uTrollRootAPI {
 			@InjectLink(resource = CommentResource.class, style = Style.ABSOLUTE, rel = "comments", title = "Latest comments", type = MediaType.UTROLL_API_COMMENT_COLLECTION),
 			@InjectLink(resource = CommentResource.class, style = Style.ABSOLUTE, rel = "post-comment", title = "Post comment", type = MediaType.UTROLL_API_COMMENT, method = "createComment"),
 			@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "login", title = "Check login", type = MediaType.UTROLL_API_USER, method = "checkLogin"),
+			@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "vote", title = "Vote Troll", type = MediaType.UTROLL_API_USER),
 			@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "users", title = "Get users by username", type = MediaType.UTROLL_API_USER_COLLECTION),
+			@InjectLink(resource = FriendListResource.class, style = Style.ABSOLUTE, rel = "friend", title = "FriendList resource", type = MediaType.UTROLL_API_FRIENDLIST),
+			@InjectLink(resource = FriendListResource.class, style = Style.ABSOLUTE, rel = "pending-friends", title = "Pending friends", type = MediaType.UTROLL_API_USER_COLLECTION, method = "getPendingFriends"),
 			@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "create-group", title = "Create group", type = MediaType.UTROLL_API_GROUP, method = "createGroup"),
 			@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "groups", title = "Latest groups", type = MediaType.UTROLL_API_GROUP_COLLECTION) })
 	private List<Link> links;

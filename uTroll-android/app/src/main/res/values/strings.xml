@@ -22,6 +22,7 @@
     <string name="group_detail_btn">Join group</string>
     <string name="group_detail_btn_activate">Activate</string>
     <string name="group_detail_btn_close">Close</string>
+    <string name="group_detail_btn_vote">Vote</string>
 
     <string name="write_comment_tv">Content:</string>
     <string name="write_comment_choose_user_tv">Choose a user:</string>
