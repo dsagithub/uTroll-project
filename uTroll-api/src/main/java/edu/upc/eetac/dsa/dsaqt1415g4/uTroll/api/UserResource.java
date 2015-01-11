@@ -41,7 +41,7 @@ import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.UserCollection;
 @Path("/users")
 public class UserResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
-	private final static String GET_USERS_RANKING_QUERY = "select username, points from users order by points desc";
+	
 	private final static String GET_USER_BY_USERNAME_QUERY = "select * from users where username=?";
 	private final static String CREATE_USER_QUERY = "insert into users values (?, MD5(?), ?, ?, ?, 30, 30, false, 0, 0, 'none')";
 	private final static String CREATE_USER_ROLE_QUERY = "insert into user_roles values (?, 'registered')";
@@ -55,6 +55,7 @@ public class UserResource {
 	private final static String GET_POINTS_GROUP_QUERY = "select price from groups where groupid = ?";
 	private final static String UPDATE_VOTED_USER_QUERY = "update users set votedBy = (votedBy + 1) where username = ?";
 	private final static String UPDATE_VOTER_USER_QUERY = "update users set vote = ? where username = ?";
+	private final static String GET_USERS_RANKING_QUERY = "select username, points from users order by points desc";
 
 	// private final static String GET_POINTS_USER_QUERY =
 	// "select points from users where username = ?";
@@ -155,15 +156,13 @@ public class UserResource {
 		PreparedStatement stmt = null;
 		try {
 			stmt = conn.prepareStatement(GET_USERS_RANKING_QUERY);
-			
+
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				User user = new User();
 				user.setUsername(rs.getString("username"));
 				user.setPoints(rs.getInt("points"));
-				
-				
-				
+
 				users.addUser(user);
 			}
 		} catch (SQLException e) {
@@ -178,11 +177,9 @@ public class UserResource {
 			} catch (SQLException e) {
 			}
 		}
-		
+
 		return users;
 	}
-	
-	
 
 	// Obtener usuarios de un grupo
 	@GET
