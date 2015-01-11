@@ -51,7 +51,7 @@ public class GroupResource {
 	private final static String UPDATE_GROUP_QUERY = "update groups set state = ? where groupid = ?";
 	private final static String VALIDATE_CREATOR = "select groupid from users where username = ?";
 	private final static String UPDATE_USER_GROUP_QUERY = "update users set groupid = ? where username = ?";
-	private final static String UPDATE_USER_POINTS_QUERY = "update users set points = ? where username = ?";
+	private final static String UPDATE_USER_POINTS_QUERY = "update users set points = ?, points_max = greatest(points_max, ?) where username = ?";
 	private final static String VALIDATE_USER = "select groupname from groups where groupid = ? and creator = ?";
 	private final static String GET_USERS_IN_A_GROUP_QUERY = "select username from users where groupid = ?";
 	private final static String UPDATE_USER_TROLL_QUERY = "update users set isTroll = ? where username = ?";
@@ -71,8 +71,8 @@ public class GroupResource {
 	private final static String CREATE_EVENT_POINTS_D = "create event eventopuntosD? on schedule at ? do insert into usersOK select username from users where groupid = ? and vote = (select troll from grouptemp)";
 	private final static String CREATE_EVENT_POINTS_E = "create event eventopuntosE? on schedule at ? do create table usersFail ( username varchar (20) not null)";
 	private final static String CREATE_EVENT_POINTS_F = "create event eventopuntosF? on schedule at ? do insert into usersFail select username from users where groupid = ? and vote != (select troll from grouptemp)";
-	private final static String CREATE_EVENT_POINTS_G = "create event eventopuntosG? on schedule at ? do update users set points = (points + 2*(select price from grouptemp)) where username in (select username from usersOK)";
-	private final static String CREATE_EVENT_POINTS_H = "create event eventopuntosH? on schedule at ? do update users set points = (points + (select COUNT(username) from usersFail)*(select price from grouptemp)) where username = (select troll from grouptemp)";
+	private final static String CREATE_EVENT_POINTS_G = "create event eventopuntosG? on schedule at ? do update users set points = (points + 2*(select price from grouptemp)), points_max = greatest(points_max, (points + 2*(select price from grouptemp))) where username in (select username from usersOK)";
+	private final static String CREATE_EVENT_POINTS_H = "create event eventopuntosH? on schedule at ? do update users set points = (points + (select COUNT(username) from usersFail)*(select price from grouptemp)), points_max = greatest(points_max, (points + (select COUNT(username) from usersFail)*(select price from grouptemp))) where username = (select troll from grouptemp)";
 	private final static String CREATE_EVENT_POINTS_I = "create event eventopuntosI? on schedule at ? do update users set isTroll = false, groupid = 0, votedBy = 0, vote = 'none' where username in (select username from usersOK)";
 	private final static String CREATE_EVENT_POINTS_J = "create event eventopuntosJ? on schedule at ? do update users set isTroll = false, groupid = 0, votedBy = 0, vote = 'none' where username in (select username from usersFail)";
 	private final static String CREATE_EVENT_POINTS_K = "create event eventopuntosK? on schedule at ? do drop table grouptemp";
@@ -489,7 +489,8 @@ public class GroupResource {
 			int points_user = user.getPoints() - price;
 			stmt2 = conn.prepareStatement(UPDATE_USER_POINTS_QUERY);
 			stmt2.setInt(1, points_user);
-			stmt2.setString(2, security.getUserPrincipal().getName());
+			stmt2.setInt(2, points_user);
+			stmt2.setString(3, security.getUserPrincipal().getName());
 			stmt2.executeUpdate();
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
@@ -657,7 +658,8 @@ public class GroupResource {
 
 				stmt1 = conn.prepareStatement(UPDATE_USER_POINTS_QUERY);
 				stmt1.setInt(1, user.getPoints() + 2 * group.getPrice());
-				stmt1.setString(2, user.getUsername());
+				stmt1.setInt(2, user.getPoints() + 2 * group.getPrice());
+				stmt1.setString(3, user.getUsername());
 				stmt1.executeUpdate();
 
 				if (stmt1 != null) {
@@ -681,7 +683,9 @@ public class GroupResource {
 				stmt1 = conn.prepareStatement(UPDATE_USER_POINTS_QUERY);
 				stmt1.setInt(1, troll.getPoints() + usersFail.getUsers().size()
 						* group.getPrice());
-				stmt1.setString(2, troll.getUsername());
+				stmt1.setInt(2, troll.getPoints() + usersFail.getUsers().size()
+						* group.getPrice());
+				stmt1.setString(3, troll.getUsername());
 				stmt1.executeUpdate();
 
 				if (stmt1 != null) {

@@ -94,7 +94,7 @@ public class GroupDetailActivity extends ListActivity {
                 btn.setEnabled(true);
             }
 
-            if (user.getVote().equals("none")) {
+            if ((user.getVote().equals("none")) && (group.getState().equals("active")) && (user.getGroupid() == group.getGroupid())) {
                 Button btn = (Button) findViewById(R.id.voteTrollBtn);
                 btn.setEnabled(true);
             }

@@ -28,6 +28,7 @@
         <activity android:name=".UserSearchActivity" />
         <activity android:name=".UserDetailActivity" />
         <activity android:name=".PendingFriendsActivity" />
+        <activity android:name=".CreateUserActivity" />
     </application>
 
 </manifest>

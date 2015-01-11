@@ -25,6 +25,7 @@ public class uTrollRootAPI {
 			@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "login", title = "Check login", type = MediaType.UTROLL_API_USER, method = "checkLogin"),
 			@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "vote", title = "Vote Troll", type = MediaType.UTROLL_API_USER),
 			@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "users", title = "Get users by username", type = MediaType.UTROLL_API_USER_COLLECTION),
+			@InjectLink(resource = UserResource.class, style = Style.ABSOLUTE, rel = "create-user", title = "Create user", type = MediaType.UTROLL_API_USER, method = "createUser"),
 			@InjectLink(resource = FriendListResource.class, style = Style.ABSOLUTE, rel = "friend", title = "FriendList resource", type = MediaType.UTROLL_API_FRIENDLIST),
 			@InjectLink(resource = FriendListResource.class, style = Style.ABSOLUTE, rel = "pending-friends", title = "Pending friends", type = MediaType.UTROLL_API_USER_COLLECTION, method = "getPendingFriends"),
 			@InjectLink(resource = GroupResource.class, style = Style.ABSOLUTE, rel = "create-group", title = "Create group", type = MediaType.UTROLL_API_GROUP, method = "createGroup"),

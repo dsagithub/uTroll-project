@@ -68,6 +68,11 @@ public class LoginActivity extends Activity {
 // I'll suppose that u/p are correct:
     }
 
+    public void register(View v) {
+        Intent intent = new Intent(this, CreateUserActivity.class);
+        startActivity(intent);
+    }
+
     private void startuTrollActivity() {
         String urlUser = user.getLinks().get("self").getTarget();
 

@@ -43,13 +43,13 @@ public class UserResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 
 	private final static String GET_USER_BY_USERNAME_QUERY = "select * from users where username=?";
-	private final static String CREATE_USER_QUERY = "insert into users values (?, MD5(?), ?, ?, ?, 0, 0, false, 0, 0, 'none')";
+	private final static String CREATE_USER_QUERY = "insert into users values (?, MD5(?), ?, ?, ?, 30, 30, false, 0, 0, 'none')";
 	private final static String CREATE_USER_ROLE_QUERY = "insert into user_roles values (?, 'registered')";
 	private final static String VALIDATE_USERNAME_QUERY = "select username from users where username=?";
 	private final static String VALIDATE_GROUP_BELONGING_QUERY = "select groupid from users where username = ?";
 	private final static String VALIDATE_GROUP_IS_OPEN_QUERY = "select state from groups where groupid = ?";
 	private final static String UPDATE_USER_GROUP_QUERY = "update users set groupid = ? where username = ?";
-	private final static String UPDATE_USER_POINTS_QUERY = "update users set points = ? where username = ?";
+	private final static String UPDATE_USER_POINTS_QUERY = "update users set points = ?, points_max = greatest(points_max, ?) where username = ?";
 	private final static String GET_USERS_IN_A_GROUP_QUERY = "select * from users where groupid = ?";
 	private final static String GET_USERS_BY_USERNAME_QUERY = "select * from users where username like ?";
 	private final static String GET_POINTS_GROUP_QUERY = "select price from groups where groupid = ?";
@@ -303,7 +303,8 @@ public class UserResource {
 			int points_user = user.getPoints() - points_group;
 			stmt2 = conn.prepareStatement(UPDATE_USER_POINTS_QUERY);
 			stmt2.setInt(1, points_user);
-			stmt2.setString(2, security.getUserPrincipal().getName());
+			stmt2.setInt(2, points_user);
+			stmt2.setString(3, security.getUserPrincipal().getName());
 
 			int rows2 = stmt2.executeUpdate();
 			if (rows2 == 1)

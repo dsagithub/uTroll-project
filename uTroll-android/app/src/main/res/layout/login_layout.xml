@@ -79,6 +79,7 @@
                 android:layout_marginBottom="40dip"
                 android:layout_marginTop="40dip"
                 android:clickable="true"
+                android:onClick="register"
                 android:gravity="center"
                 android:text="@string/login_l_register"
                 android:textAppearance="?android:attr/textAppearanceMedium"

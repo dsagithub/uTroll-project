@@ -1067,6 +1067,61 @@ public class uTrollAPI {
         return user;
     }
 
+    public User createUser(String username, String name, int age, String email, String password) throws AppException {
+        Log.d(TAG, "createUser()");
+        User user = new User();
+        user.setUsername(username);
+        user.setName(name);
+        user.setAge(age);
+        user.setEmail(email);
+        user.setPassword(password);
+
+        HttpURLConnection urlConnection = null;
+        try {
+            JSONObject jsonUser = createJsonUser(user);
+            URL urlPostUsers = new URL(rootAPI.getLinks().get("create-user")
+                    .getTarget());
+            urlConnection = (HttpURLConnection) urlPostUsers.openConnection();
+            String mediaType = rootAPI.getLinks().get("create-user").getParameters().get("type"); //Esta línea no estaba en el gist
+            urlConnection.setRequestProperty("Accept",
+                    mediaType); //Esto estaba mal en los gists
+            urlConnection.setRequestProperty("Content-Type",
+                    mediaType);
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+            urlConnection.connect();
+            PrintWriter writer = new PrintWriter(
+                    urlConnection.getOutputStream());
+            writer.println(jsonUser.toString());
+            writer.close();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            jsonUser = new JSONObject(sb.toString());
+
+            user.setUsername(jsonUser.getString("username"));
+
+            JSONArray jsonLinks = jsonUser.getJSONArray("links");
+            parseLinks(jsonLinks, user.getLinks());
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error parsing response");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error getting response");
+        } finally {
+            if (urlConnection != null)
+                urlConnection.disconnect();
+        }
+
+        return user;
+    }
+
     // Crear JSON de un Usuario
     private JSONObject createJsonUser(User user) throws JSONException {
         JSONObject jsonUser = new JSONObject();

@@ -30,4 +30,16 @@
     <string name="write_comment_send_btn">Send</string>
     <string name="write_comment_cancel_btn">Cancel</string>
 
+    <string name="create_user_username_tv">Username:</string>
+    <string name="create_user_username_hint">Max 20 characters</string>
+    <string name="create_user_age_tv">Age:</string>
+    <string name="create_user_name_tv">Name:</string>
+    <string name="create_user_name_hint">Real name</string>
+    <string name="create_user_email_tv">Email:</string>
+    <string name="create_user_email_hint">Write your email</string>
+    <string name="create_user_password_tv">Password:</string>
+    <string name="create_user_password2_tv">Repeat password:</string>
+    <string name="create_user_password_hint">**********</string>
+    <string name="create_user_btn">Create user</string>
+
 </resources>
