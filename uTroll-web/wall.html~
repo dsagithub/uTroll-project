@@ -14,7 +14,7 @@
       <link rel="stylesheet" href="bootstrap.css">
       
     </head>
-    <body onload="getComments(); getRanking();">
+    <body onload="getComments(); getFriends(); getRanking();">
 	    
     
     <!-- Barra de navegacion -->
