@@ -51,7 +51,7 @@ function getComments() {
 			function(data, status, jqxhr) {
 				var comments = data;
 
-				$.each(comments, function(i, v) {
+				$.each(comment, function(i, v) {
 					var comment = v;
 					
 					$('<h3> Username: ' + '<strong>'+ comment.username + '</strong>'+'</h3>').appendTo($('#comments_space'));
