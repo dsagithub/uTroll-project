@@ -41,7 +41,7 @@ import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.UserCollection;
 @Path("/users")
 public class UserResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
-
+	private final static String GET_USERS_RANKING_QUERY = "select username, points from users order by points desc";
 	private final static String GET_USER_BY_USERNAME_QUERY = "select * from users where username=?";
 	private final static String CREATE_USER_QUERY = "insert into users values (?, MD5(?), ?, ?, ?, 30, 30, false, 0, 0, 'none')";
 	private final static String CREATE_USER_ROLE_QUERY = "insert into user_roles values (?, 'registered')";
@@ -137,6 +137,52 @@ public class UserResource {
 
 		return users;
 	}
+
+	@GET
+	@Path("/ranking")
+	@Produces(MediaType.UTROLL_API_USER_COLLECTION)
+	public UserCollection getUsersRanking() {
+		UserCollection users = new UserCollection();
+
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(GET_USERS_RANKING_QUERY);
+			
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				User user = new User();
+				user.setUsername(rs.getString("username"));
+				user.setPoints(rs.getInt("points"));
+				
+				
+				
+				users.addUser(user);
+			}
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null) {
+					stmt.close();
+				}
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+		
+		return users;
+	}
+	
+	
 
 	// Obtener usuarios de un grupo
 	@GET
@@ -351,7 +397,7 @@ public class UserResource {
 			stmt = conn.prepareStatement(UPDATE_VOTED_USER_QUERY);
 			stmt.setString(1, username);
 			stmt.executeUpdate();
-			
+
 			stmt1 = conn.prepareStatement(UPDATE_VOTER_USER_QUERY);
 			stmt1.setString(1, username);
 			stmt1.setString(2, security.getUserPrincipal().getName());
