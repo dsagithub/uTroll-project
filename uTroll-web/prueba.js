@@ -5,15 +5,15 @@ var PASSWORD = "";
 $("#button_create_user").click(function(e) {
 	e.preventDefault();
 	var user = new Object();
+	var password_again = "NaN";
 	user.username = $("#username").val();
-	user.password = $("#password").val();
-	user.password_again = $("#password_again").val();
 	user.name = $("#name").val();
+	user.password = $("#password").val();
+	password_again = $("#password_again").val();
 	user.email = $("#email").val();
-	user.age = $("#age").val();
+	user.age = parseInt($("#age").val());
 	
-	window.alert(user.password);
-	window.alert(user.password_again);
+		
 	if ((user.password == user.password_again)!=null){
 			window.alert("coinciden");
 			postUser(user);
@@ -31,7 +31,9 @@ function postUser(user) {
 	var url = API_BASE_URL + '/users';
 	var data = JSON.stringify(user);
 	window.alert(url);
-	window.alert(user.username);
+
+	window.alert(data);
+	
 	$.ajax(
 					{
 						url : url,
