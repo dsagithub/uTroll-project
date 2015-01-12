@@ -239,10 +239,11 @@ public class UserResource {
 	@Consumes(MediaType.UTROLL_API_USER)
 	@Produces(MediaType.UTROLL_API_USER)
 	public User createUser(User user) {
+		System.out.println("111111111111111");
 		int valid = validateUser(user.getUsername());
 		if (valid == 0)
 			throw new BadRequestException("Este username ya está en uso");
-
+		System.out.println("ooooooooooooooooo");
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -270,7 +271,9 @@ public class UserResource {
 
 			stmtInsertUserIntoUserRoles.setString(1, user.getUsername());
 			stmtInsertUserIntoUserRoles.executeUpdate();
-
+			
+			System.out.println(user);
+			
 			// Hasta aquí está ejecutado pero no sobre la BD
 			// El commit escribe los dos registros definitivamente en la BD
 			conn.commit();
