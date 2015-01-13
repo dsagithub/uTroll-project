@@ -239,11 +239,13 @@ public class UserResource {
 	@Consumes(MediaType.UTROLL_API_USER)
 	@Produces(MediaType.UTROLL_API_USER)
 	public User createUser(User user) {
-		System.out.println("111111111111111");
 		int valid = validateUser(user.getUsername());
-		if (valid == 0)
-			throw new BadRequestException("Este username ya está en uso");
-		System.out.println("ooooooooooooooooo");
+		if (valid == 0){ //El usuario ya esta en uso
+			User user1= new User();
+			user1.setUsername("exists");
+			user1.setPoints(-1);
+			return user1;
+		}
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -251,7 +253,7 @@ public class UserResource {
 			throw new ServerErrorException("Could not connect to the database",
 					Response.Status.SERVICE_UNAVAILABLE);
 		}
-
+		//System.out.println("");
 		PreparedStatement stmtInsertUserIntoUsers = null;
 		PreparedStatement stmtInsertUserIntoUserRoles = null;
 		try {
@@ -272,7 +274,7 @@ public class UserResource {
 			stmtInsertUserIntoUserRoles.setString(1, user.getUsername());
 			stmtInsertUserIntoUserRoles.executeUpdate();
 			
-			System.out.println(user);
+			System.out.println(user.toString());
 			
 			// Hasta aquí está ejecutado pero no sobre la BD
 			// El commit escribe los dos registros definitivamente en la BD
