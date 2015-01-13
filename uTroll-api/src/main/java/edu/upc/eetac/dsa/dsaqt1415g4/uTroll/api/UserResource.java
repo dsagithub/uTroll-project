@@ -255,7 +255,7 @@ public class UserResource {
 			throw new ServerErrorException("Could not connect to the database",
 					Response.Status.SERVICE_UNAVAILABLE);
 		}
-
+		//System.out.println("");
 		PreparedStatement stmtInsertUserIntoUsers = null;
 		PreparedStatement stmtInsertUserIntoUserRoles = null;
 		try {
@@ -275,7 +275,7 @@ public class UserResource {
 			stmtInsertUserIntoUserRoles.setString(1, user.getUsername());
 			stmtInsertUserIntoUserRoles.executeUpdate();
 			
-			System.out.println(user);
+			System.out.println(user.toString());
 			
 			// Hasta aquí está ejecutado pero no sobre la BD
 			// El commit escribe los dos registros definitivamente en la BD
