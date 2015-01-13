@@ -240,14 +240,12 @@ public class UserResource {
 	@Produces(MediaType.UTROLL_API_USER)
 	public User createUser(User user) {
 		int valid = validateUser(user.getUsername());
-		
-		if (valid == 0) { //El usuario ya está en uso
-			User user1 = new User();
+		if (valid == 0){ //El usuario ya esta en uso
+			User user1= new User();
 			user1.setUsername("exists");
 			user1.setPoints(-1);
 			return user1;
 		}
-		
 		Connection conn = null;
 		try {
 			conn = ds.getConnection();
@@ -270,7 +268,8 @@ public class UserResource {
 			stmtInsertUserIntoUsers.setString(3, user.getName());
 			stmtInsertUserIntoUsers.setString(4, user.getEmail());
 			stmtInsertUserIntoUsers.setInt(5, user.getAge());
-			stmtInsertUserIntoUsers.executeUpdate();
+			stmtInsertUserIntoUsers.executeUpdate(); // MODIFICAR CON PUNTOS
+														// INICIALES USUARIO
 
 			stmtInsertUserIntoUserRoles.setString(1, user.getUsername());
 			stmtInsertUserIntoUserRoles.executeUpdate();
