@@ -28,29 +28,40 @@ import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollAPI;
 public class CreateUserActivity extends Activity {
     private final static String TAG = CreateUserActivity.class.getName();
 
-    private class createUserTask extends AsyncTask<String, Void, String> {
+    private class createUserTask extends AsyncTask<String, Void, User> {
         private ProgressDialog pd;
 
         @Override
-        protected String doInBackground(String... params) {
+        protected User doInBackground(String... params) {
+            User user = new User();
             try {
-                uTrollAPI.getInstance(CreateUserActivity.this).createUser(params[0], params[1], Integer.parseInt(params[2]), params[3], params[4]);
+                user = uTrollAPI.getInstance(CreateUserActivity.this).createUser(params[0], params[1], Integer.parseInt(params[2]), params[3], params[4]);
             } catch (AppException e) {
                 e.printStackTrace();
             }
-            return "";
+            return user;
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            Context context = getApplicationContext();
-            CharSequence text = "Usuario creado correcatmente\nPuedes iniciar sesión";
-            int duration = Toast.LENGTH_SHORT;
+        protected void onPostExecute(User result) {
+            if (result.getPoints() == -1){
+                Context context = getApplicationContext();
+                CharSequence text = "Ese username ya existe";
+                int duration = Toast.LENGTH_SHORT;
 
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
-            finish();
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            } else {
+                Context context = getApplicationContext();
+                CharSequence text = "Usuario creado correcatmente\nPuedes iniciar sesión";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+                finish();
+            }
             if (pd != null) {
                 pd.dismiss();
             }

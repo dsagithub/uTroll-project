@@ -4,4 +4,18 @@
     <style name="AppTheme" parent="android:Theme.Material.Light">
         <!-- Customize your theme here. -->
     </style>
+
+    <!--<style name="AppTheme" parent="android:Theme.Material.Light">-->
+    <!--<item name="android:actionBarStyle">@style/ActionBarLight</item>-->
+    <!--<item name="android:popupMenuStyle">@style/ListPopupWindowLight</item>-->
+    <!--</style>-->
+
+    <!--<style name="ActionBarLight" parent="android:style/Widget.Holo.Light.ActionBar">-->
+    <!--<item name="android:background">#9A1919</item>-->
+    <!--</style>-->
+
+
+    <!--<style name="ListPopupWindowLight" parent="@android:style/Widget.Holo.Light.ListPopupWindow">-->
+    <!--<item name="android:background">#9A1919</item>-->
+    <!--</style>-->
 </resources>

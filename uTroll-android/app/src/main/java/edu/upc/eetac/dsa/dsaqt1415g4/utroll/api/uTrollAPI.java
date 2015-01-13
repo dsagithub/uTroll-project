@@ -798,7 +798,7 @@ public class uTrollAPI {
         return users;
     }
 
-    public void addFriend (String username) throws AppException {
+    public void addFriend(String username) throws AppException {
         Log.d(TAG, "addFriend()");
         FriendList friend = new FriendList();
         friend.setFriend1(username);
@@ -840,7 +840,7 @@ public class uTrollAPI {
         }
     }
 
-    public void acceptFriend (String username) throws AppException {
+    public void acceptFriend(String username) throws AppException {
         Log.d(TAG, "acceptFriend()");
         FriendList friend = new FriendList();
         friend.setFriend1(username);
@@ -1105,9 +1105,8 @@ public class uTrollAPI {
             jsonUser = new JSONObject(sb.toString());
 
             user.setUsername(jsonUser.getString("username"));
+            user.setPoints(Integer.parseInt(jsonUser.getString("points")));
 
-            JSONArray jsonLinks = jsonUser.getJSONArray("links");
-            parseLinks(jsonLinks, user.getLinks());
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage(), e);
             throw new AppException("Error parsing response");
