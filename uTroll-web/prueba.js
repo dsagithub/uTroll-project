@@ -8,7 +8,7 @@ $("button_create_user").click(function(){
   });
 }); 
 
-$("#button_create_user0").click(function(e) {
+$("#button_create_user").click(function(e) {
 	e.preventDefault();
 	var user = new Object();
 	var password_again="*";
@@ -20,7 +20,7 @@ $("#button_create_user0").click(function(e) {
 	user.age = parseInt($("#age").val(),10);
 	if (user.password == password_again){
 			window.alert("coinciden");
-			//postUser2(user);
+			postUser(user);
 			
 			}
 			
@@ -30,6 +30,30 @@ $("#button_create_user0").click(function(e) {
 });
 
 function postUser(user) {
+	var url = API_BASE_URL + '/users';
+	var data = JSON.stringify(user);
+
+	window.alert(data);
+	window.alert(url);
+	
+	$.ajax({
+//		headers : {
+//			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
+//		},
+		url : url,
+		type : 'POST',
+		crossDomain : true,
+		dataType : 'json',
+		contentType : 'application/vnd.uTroll.api.user+json',
+		data : data,
+	}).done(function(data, status, jqxhr) {
+		window.alert("OK");
+	}).fail(function() {
+		window.alert("FAIL");
+	});
+}
+
+function postUser55(user) {
 	window.alert("He entrado en el post");
 	
 	var url = API_BASE_URL + '/users';
