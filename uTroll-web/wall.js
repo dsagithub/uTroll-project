@@ -5,6 +5,17 @@ var PASSWORD = "angel";
 var GID = -198;
 var TROLL = false;
 
+function storeCookies() {
+	var user = USERNAME;
+	var pass = PASSWORD;
+
+	document.cookie="user="+user;
+	document.cookie="pass="+pass;
+	
+	//MÍRATE ESTA WEB: http://www.w3schools.com/js/js_cookies.asp
+	//HABRÁ QUE HACERLOS EXPIRAR AL HACER LOGOUT
+}
+
 function getRanking() {
 
 	var url = API_BASE_URL + '/users/ranking';

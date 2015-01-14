@@ -12,7 +12,8 @@
 <!-- CSS -->
 <link rel="stylesheet" href="/css/*.css">
 </head>
-<body onload="getComments(); getRanking(); getOwnGroup();">
+<body
+	onload="getComments(); getRanking(); getOwnGroup(); storeCookies();">
 	<!-- Barra de navegacion -->
 	<nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">
 		<div class="container">
@@ -24,7 +25,10 @@
 					<li class="active"><a href="/wall.html">Muro</a></li>
 					<li><a href="/group.html">Crear Grupo</a></li>
 					<li><a href="/user.html">Ver Prefil</a></li>
-					<li><a href="/friend.html">Amigos</a></li>
+					<!-- 					He tocado aquí lo del Friend -->
+					<!-- 					<li><a href="/friend.html">Amigos</a></li>  -->
+					<li><a
+						href="/home/yandrak/dsa-final-project/uTroll-project/uTroll-web/friends.html">Amigos</a></li>
 					<li><a href="#">Log Out</a></li>
 				</ul>
 			</div>
@@ -36,8 +40,8 @@
 	<div class="jumbotron" style="background-color: #D24726; height: 11px">
 
 	</div>
-	
-	
+
+
 	<div class="container theme-showcase" role="main">
 		<div class="row">
 			<p></p>
@@ -59,59 +63,60 @@
 					<div class="panel-heading">
 						<h3 class="panel-title">Escribe un nuevo comentario</h3>
 					</div>
-					
 
-					
-					<div class="panel-body" id="space2" style="weight:100%">
-					<p></p>
-					<select class="form-control" id="troll_sign" style="display:none">
-  						<option>1</option>
-  						<option>2</option>
-  						<option>3</option>
-					</select>
-                 <p></p>
-                 <textarea class="form-control" rows="4" id="new_comment"></textarea>
-                 <p></p>
-					  <button type="button" class="btn btn-primary btn-warning btn-block" id="btn_new_comment" onclick="postComment()">Publicar</button>
+
+
+					<div class="panel-body" id="space2" style="weight: 100%">
+						<p></p>
+						<select class="form-control" id="troll_sign" style="display: none">
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+						</select>
+						<p></p>
+						<textarea class="form-control" rows="4" id="new_comment"></textarea>
+						<p></p>
+						<button type="button"
+							class="btn btn-primary btn-warning btn-block"
+							id="btn_new_comment" onclick="postComment()">Publicar</button>
 					</div>
-					
-					
-					
+
+
+
 				</div>
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title">Estas jugando con:</h3>
 					</div>
 					<ul class="list-group" id="">
-  						<li class="list-group-item">
-    						<span class="badge">14</span>Cras justo odio
-    					</li>
+						<li class="list-group-item"><span class="badge">14</span>Cras
+							justo odio</li>
 					</ul>
 
 
-					
+
 					<div class="panel-body" id="group_space"></div>
-					<div class="panel-body" id="group_btn_space" style="display:none">
-						<button type="button" class="btn btn-primary btn-warning btn-block">Crea uno ahora!</button>
+					<div class="panel-body" id="group_btn_space" style="display: none">
+						<button type="button"
+							class="btn btn-primary btn-warning btn-block">Crea uno
+							ahora!</button>
 					</div>
 				</div>
-				
+
 				<div class="panel panel-default" id="user_data">
 					<div class="panel-heading">
 						<h3 class="panel-title">Ranking!</h3>
 					</div>
 					<div class="panel-body" id="ranking_space">
-					   <ul class="list-group">
-  							<li class="list-group-item">
-    							<span class="badge">14</span>
-    								Cras justo odio
-  							</li>
+						<ul class="list-group">
+							<li class="list-group-item"><span class="badge">14</span>
+								Cras justo odio</li>
 						</ul>
 
 
 					</div>
 				</div>
-			
+
 			</div>
 		</div>
 	</div>
