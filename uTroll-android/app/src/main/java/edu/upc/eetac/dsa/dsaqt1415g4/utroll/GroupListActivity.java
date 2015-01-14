@@ -121,7 +121,12 @@ public class GroupListActivity extends ListActivity {
         @Override
         protected void onPostExecute(User result) {
             TextView tv = (TextView) findViewById(R.id.tvGroupListGroupid);
-            tv.setText(Integer.toString(result.getGroupid()));
+            if (result.getGroupid() == 0)
+                tv.setText("No estás en ningún grupo");
+            else
+                tv.setText(Integer.toString(result.getGroupid()));
+
+
             if (result.getGroupid() != 0)
                     invalidateOptionsMenu();
 

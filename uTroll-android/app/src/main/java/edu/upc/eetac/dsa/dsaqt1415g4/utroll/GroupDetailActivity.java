@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -89,6 +90,11 @@ public class GroupDetailActivity extends ListActivity {
 
         @Override
         protected void onPostExecute(UserCollection result) {
+            TextView tvEnding = (TextView) findViewById(R.id.tvEndingTimestamp);
+            TextView tvClosing = (TextView) findViewById(R.id.tvClosingTimestamp);
+            tvEnding.setText("Activación: " + group.getEndingTimestamp());
+            tvClosing.setText("Cierre: " + group.getClosingTimestamp());
+
             if ((user.getGroupid() == 0) && (group.getState().equals("open")) && (user.getPoints() >= group.getPrice())) {
                 Button btn = (Button) findViewById(R.id.joinGroupBtn);
                 btn.setEnabled(true);

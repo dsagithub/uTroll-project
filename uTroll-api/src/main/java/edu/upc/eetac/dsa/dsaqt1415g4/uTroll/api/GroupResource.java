@@ -4,6 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 import javax.sql.DataSource;
@@ -45,7 +49,7 @@ public class GroupResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
 
 	private final static String GET_GROUP_BY_GROUPID_QUERY = "select * from groups where groupid=?";
-	//private final static String GET_GROUPS_QUERY = "select * from groups";
+	// private final static String GET_GROUPS_QUERY = "select * from groups";
 	private final static String GET_GROUPS_QUERY = "select * from groups where creator in (select friend2 from friend_list where (friend1=? or friend2=?) and state = 'accepted')";
 	private final static String CREATE_GROUP_QUERY = "insert into groups (groupname, price, ending_timestamp, closing_timestamp, creator, troll, state) values(?, ?, ?, ?, ?, ?, ?)";
 	private final static String UPDATE_GROUP_QUERY = "update groups set state = ? where groupid = ?";
@@ -106,17 +110,28 @@ public class GroupResource {
 
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				Group group = new Group();
-				group.setCreationTimestamp(rs.getLong("creation_timestamp"));
-				// group.setEndingTimestamp(rs.getLong("ending_timestamp"));
-				group.setGroupid(rs.getInt("groupid"));
-				group.setGroupname(rs.getString("groupname"));
-				group.setPrice(rs.getInt("price"));
-				group.setState(rs.getString("state"));
-				group.setCreator(rs.getString("creator"));
-				group.setTroll(rs.getString("troll"));
+				int i = rs.getInt("groupid");
+				if (i != 0) {
+					Group group = new Group();
+					
+					Long l = rs.getTimestamp("ending_timestamp").getTime();
+					SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+					Date dateEnding = new Date(l);
+					Long l2 = rs.getTimestamp("closing_timestamp").getTime();
+					Date dateClosing = new Date(l2);
+					
+					group.setCreationTimestamp(rs.getLong("creation_timestamp"));
+					group.setClosingTimestamp(simpleDateFormat.format(dateClosing));
+					group.setEndingTimestamp(simpleDateFormat.format(dateEnding));
+					group.setGroupid(rs.getInt("groupid"));
+					group.setGroupname(rs.getString("groupname"));
+					group.setPrice(rs.getInt("price"));
+					group.setState(rs.getString("state"));
+					group.setCreator(rs.getString("creator"));
+					group.setTroll(rs.getString("troll"));
 
-				groups.addGroup(group);
+					groups.addGroup(group);
+				}
 			}
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
@@ -154,8 +169,15 @@ public class GroupResource {
 			stmt.setInt(1, groupid);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
+				Long l = rs.getTimestamp("ending_timestamp").getTime();
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				Date dateEnding = new Date(l);
+				Long l2 = rs.getTimestamp("closing_timestamp").getTime();
+				Date dateClosing = new Date(l2);
+				
 				group.setCreationTimestamp(rs.getLong("creation_timestamp"));
-				// group.setEndingTimestamp(rs.getLong("ending_timestamp"));
+				group.setClosingTimestamp(simpleDateFormat.format(dateClosing));
+				group.setEndingTimestamp(simpleDateFormat.format(dateEnding));
 				group.setGroupid(rs.getInt("groupid"));
 				group.setGroupname(rs.getString("groupname"));
 				group.setPrice(rs.getInt("price"));
@@ -180,7 +202,7 @@ public class GroupResource {
 	@POST
 	@Consumes(MediaType.UTROLL_API_GROUP)
 	@Produces(MediaType.UTROLL_API_GROUP)
-	public Group createGroup(Group group) {
+	public Group createGroup(Group group) throws ParseException {
 		validateCreator(); // Comprobar que no pertenezco ya a un grupo
 
 		Connection conn = null;
@@ -206,15 +228,19 @@ public class GroupResource {
 		PreparedStatement stmtE = null;
 		PreparedStatement stmtA1 = null;
 		try {
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date dateEnding = simpleDateFormat.parse(group.getEndingTimestamp());
+			Timestamp tEnding = new Timestamp(dateEnding.getTime());
+			Date dateClosing = simpleDateFormat.parse(group.getClosingTimestamp());
+			Timestamp tClosing = new Timestamp(dateClosing.getTime());
+			
 			stmt = conn.prepareStatement(CREATE_GROUP_QUERY,
 					Statement.RETURN_GENERATED_KEYS);
 
 			stmt.setString(1, group.getGroupname());
 			stmt.setInt(2, group.getPrice());
-			// stmt.setLong(3, group.getCreationTimestamp());
-			// stmt.setLong(3, group.getEndingTimestamp());
-			stmt.setString(3, group.getEndingTimestamp());
-			stmt.setString(4, group.getClosingTimestamp());
+			stmt.setTimestamp(3, tEnding);
+			stmt.setTimestamp(4, tClosing);
 			stmt.setString(5, security.getUserPrincipal().getName());
 			stmt.setString(6, "No Troll");
 			stmt.setString(7, "open");
@@ -455,8 +481,15 @@ public class GroupResource {
 			stmt.setInt(1, groupid);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
+				Long l = rs.getTimestamp("ending_timestamp").getTime();
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				Date dateEnding = new Date(l);
+				Long l2 = rs.getTimestamp("closing_timestamp").getTime();
+				Date dateClosing = new Date(l2);
+				
 				group.setCreationTimestamp(rs.getLong("creation_timestamp"));
-				// group.setEndingTimestamp(rs.getLong("ending_timestamp"));
+				group.setClosingTimestamp(simpleDateFormat.format(dateClosing));
+				group.setEndingTimestamp(simpleDateFormat.format(dateEnding));
 				group.setGroupid(rs.getInt("groupid"));
 				group.setGroupname(rs.getString("groupname"));
 				group.setPrice(rs.getInt("price"));

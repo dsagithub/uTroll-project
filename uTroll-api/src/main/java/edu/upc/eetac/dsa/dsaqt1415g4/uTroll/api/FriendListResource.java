@@ -48,11 +48,12 @@ public class FriendListResource {
 	private final static String GET_FRIEND_STATE = "select state, request from friend_list where friend1 = ? and friend2 = ?";
 	private final static String INSERT_FRIENDSHIP = "insert into friend_list (friend1, friend2, state, request) values(?, ?, ?, ?)";
 	private final static String UPDATE_FRIENDSHIP = "update friend_list set state = ? where friend1 = ? and friend2 = ?";
+	private final static String DELETE_FRIENDSHIP = "delete from friend_list where friend1 = ? and friend2 = ?";
 	private final static String UPDATE_FRIENDS_TO_ACCEPT = "update friend_list set state ='accepted' where friendshipid = ?";
 
 	private final static String GET_FRIENDS_BY_USER_QUERY_SINGLE = "select * from friend_list where friend1=? and state = 'accepted'";
 	private final static String GET_FRIENDS_PENDING_BY_USER_QUERY_SINGLE = "select * from friend_list where friend1=? and state = 'pending'";
-	
+
 	// Devuelve todos los amigos aceptados
 	@GET
 	@Produces(MediaType.UTROLL_API_USER_COLLECTION)
@@ -99,8 +100,6 @@ public class FriendListResource {
 		return users;
 	}
 
-	
-
 	// Devuelve todos los amigos aceptados Sin REPETICION
 	@GET
 	@Path("/getUniqueFriends")
@@ -146,8 +145,7 @@ public class FriendListResource {
 		}
 		return users;
 	}
-	
-	
+
 	// Devuelve las solicitudes de amistad entrantes pendientes
 	@GET
 	@Path("/getPendingFriends")
@@ -337,6 +335,53 @@ public class FriendListResource {
 		return friend;
 	}
 
+	// Rechazar una petición de amistad
+	@PUT
+	@Path("/rejectFriend/{username}")
+	@Consumes(MediaType.UTROLL_API_FRIENDLIST)
+	@Produces(MediaType.UTROLL_API_FRIENDLIST)
+	public FriendList rejectFriend(@PathParam("username") String username,
+			FriendList friend) {
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		PreparedStatement stmt1 = null;
+		try {
+			stmt = conn.prepareStatement(DELETE_FRIENDSHIP);
+			stmt1 = conn.prepareStatement(DELETE_FRIENDSHIP);
+
+			stmt.setString(1, security.getUserPrincipal().getName());
+			stmt.setString(2, username);
+
+			stmt1.setString(2, security.getUserPrincipal().getName());
+			stmt1.setString(1, username);
+
+			stmt.executeUpdate();
+			stmt1.executeUpdate();
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				if (stmt1 != null)
+					stmt1.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+		FriendList friend1 = new FriendList();
+		friend1.setFriendshipid(1);
+		return friend1;
+	}
+
 	// devuelve las peticiones de amigo que tiene el "username" que debe aceptar
 	// o no
 	@GET
@@ -386,8 +431,6 @@ public class FriendListResource {
 		return friends;
 	}
 
-	
-
 	@GET
 	@Path("/pendingUnique/{username}/")
 	@Produces(MediaType.UTROLL_API_FRIENDLIST_COLLECTION)
@@ -405,9 +448,10 @@ public class FriendListResource {
 
 		PreparedStatement stmt = null;
 		try {
-			stmt = conn.prepareStatement(GET_FRIENDS_PENDING_BY_USER_QUERY_SINGLE);
+			stmt = conn
+					.prepareStatement(GET_FRIENDS_PENDING_BY_USER_QUERY_SINGLE);
 			stmt.setString(1, username);
-			//stmt.setString(2, username);
+			// stmt.setString(2, username);
 
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -434,7 +478,7 @@ public class FriendListResource {
 		}
 		return friends;
 	}
-	
+
 	// poner estado de amistad en aceptado
 	@PUT
 	@Path("/accept/{friendshipid}")

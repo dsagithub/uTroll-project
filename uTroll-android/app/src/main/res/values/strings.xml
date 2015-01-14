@@ -7,39 +7,47 @@
     <string name="action_logout">Cerrar Sesión</string>
     <string name="action_joinGroup">Mostrar grupos</string>
     <string name="action_searchUsers">Buscar usuarios</string>
+    <string name="action_updateUser">Actualizar perfil</string>
+
+    <string name="main_group">No estás en ningún grupo</string>
+    <string name="main_troll">No eres Troll</string>
 
     <string name="like">Like</string>
     <string name="like_count">0</string>
     <string name="dislike">Dislike</string>
     <string name="dislike_count">0</string>
 
-    <string name="login_l_username">Username</string>
-    <string name="login_l_password">Password</string>
-    <string name="login_l_signin">Sign in</string>
-    <string name="login_l_register">Register in uTroll</string>
+    <string name="login_l_username">Usuario</string>
+    <string name="login_l_password">Contraseña</string>
+    <string name="login_l_signin">Entrar</string>
+    <string name="login_l_register">Registro en uTroll</string>
 
-    <string name="group_user_list">Users in this group:</string>
-    <string name="group_detail_btn">Join group</string>
-    <string name="group_detail_btn_activate">Activate</string>
-    <string name="group_detail_btn_close">Close</string>
-    <string name="group_detail_btn_vote">Vote</string>
+    <string name="group_detail_ending">Activación:</string>
+    <string name="group_detail_closing">Cierre:</string>
+    <string name="group_user_list">Usuarios en este grupo:</string>
+    <string name="group_detail_btn">Unirse al grupo</string>
+    <string name="group_detail_btn_activate">Activar</string>
+    <string name="group_detail_btn_close">Cerrar</string>
+    <string name="group_detail_btn_vote">Votar</string>
 
-    <string name="write_comment_tv">Content:</string>
-    <string name="write_comment_choose_user_tv">Choose a user:</string>
-    <string name="write_comment_hint">Escriba sus inquietudes aquí</string>
-    <string name="write_comment_send_btn">Send</string>
-    <string name="write_comment_cancel_btn">Cancel</string>
+    <string name="write_comment_tv">Contenido:</string>
+    <string name="write_comment_choose_user_tv">Elige un usuario:</string>
+    <string name="write_comment_hint">Escribe tus inquietudes aquí</string>
+    <string name="write_comment_send_btn">Enviar</string>
+    <string name="write_comment_cancel_btn">Cancelar</string>
 
-    <string name="create_user_username_tv">Username:</string>
-    <string name="create_user_username_hint">Max 20 characters</string>
-    <string name="create_user_age_tv">Age:</string>
-    <string name="create_user_name_tv">Name:</string>
-    <string name="create_user_name_hint">Real name</string>
+    <string name="create_user_username_tv">Usuario:</string>
+    <string name="create_user_username_hint">Máx 20 caracteres</string>
+    <string name="create_user_age_tv">Edad:</string>
+    <string name="create_user_name_tv">Nombre:</string>
+    <string name="create_user_name_hint">Nombre real</string>
     <string name="create_user_email_tv">Email:</string>
-    <string name="create_user_email_hint">Write your email</string>
-    <string name="create_user_password_tv">Password:</string>
-    <string name="create_user_password2_tv">Repeat password:</string>
+    <string name="create_user_email_hint">Escribe tu email</string>
+    <string name="create_user_password_tv">Contraseña:</string>
+    <string name="create_user_password2_tv">Repite la contraseña:</string>
     <string name="create_user_password_hint">**********</string>
-    <string name="create_user_btn">Create user</string>
+    <string name="create_user_btn">Crear usuario</string>
+
+    <string name="update_user_btn">Actualizar perfil</string>
 
 </resources>

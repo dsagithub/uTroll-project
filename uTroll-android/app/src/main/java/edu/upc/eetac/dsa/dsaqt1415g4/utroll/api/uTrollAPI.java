@@ -491,7 +491,8 @@ public class uTrollAPI {
             group.setGroupid(jsonGroup.getInt("groupid"));
             group.setCreator(jsonGroup.getString("creator"));
             group.setCreationTimestamp(jsonGroup.getLong("creationTimestamp"));
-            //group.setEndingTimestamp(jsonGroup.getLong("endingTimestamp"));
+            group.setEndingTimestamp(jsonGroup.getString("endingTimestamp"));
+            group.setClosingTimestamp(jsonGroup.getString("closingTimestamp"));
             group.setGroupname(jsonGroup.getString("groupname"));
             group.setPrice(jsonGroup.getInt("price"));
             group.setState(jsonGroup.getString("state"));
@@ -941,6 +942,48 @@ public class uTrollAPI {
         }
     }
 
+    public void rejectFriend(String username) throws AppException {
+        Log.d(TAG, "rejectFriend()");
+        FriendList friend = new FriendList();
+        friend.setFriend1(username);
+
+        HttpURLConnection urlConnection = null;
+        try {
+            JSONObject jsonFriend = createJsonFriend(friend);
+            URL urladdFriend = new URL(rootAPI.getLinks().get("friend").getTarget() + "/rejectFriend/" + username);
+            urlConnection = (HttpURLConnection) urladdFriend.openConnection();
+            String mediaType = rootAPI.getLinks().get("friend").getParameters().get("type"); //Esta línea no estaba en el gist
+            urlConnection.setRequestProperty("Accept",
+                    mediaType); //Esto estaba mal en los gists
+            urlConnection.setRequestProperty("Content-Type",
+                    mediaType);
+            urlConnection.setRequestMethod("PUT");
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+            urlConnection.connect();
+            PrintWriter writer = new PrintWriter(
+                    urlConnection.getOutputStream());
+            writer.println(jsonFriend.toString());
+            writer.close();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error parsing response");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error getting response");
+        } finally {
+            if (urlConnection != null)
+                urlConnection.disconnect();
+        }
+    }
+
     // Crear JSON de un FriendList
     private JSONObject createJsonFriend(FriendList friend) throws JSONException {
         JSONObject jsonFriend = new JSONObject();
@@ -1166,6 +1209,65 @@ public class uTrollAPI {
             user.setUsername(jsonUser.getString("username"));
             user.setPoints(Integer.parseInt(jsonUser.getString("points")));
 
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error parsing response");
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            throw new AppException("Error getting response");
+        } finally {
+            if (urlConnection != null)
+                urlConnection.disconnect();
+        }
+
+        return user;
+    }
+
+    public User updateUser(String name, int age, String email) throws AppException {
+        Log.d(TAG, "updateUser()");
+        User user = new User();
+        user.setName(name);
+        user.setAge(age);
+        user.setEmail(email);
+
+        HttpURLConnection urlConnection = null;
+        try {
+            JSONObject jsonUser = createJsonUser(user);
+            URL urlPostUsers = new URL(rootAPI.getLinks().get("create-user")
+                    .getTarget());
+            urlConnection = (HttpURLConnection) urlPostUsers.openConnection();
+            String mediaType = rootAPI.getLinks().get("update-user").getParameters().get("type"); //Esta línea no estaba en el gist
+            urlConnection.setRequestProperty("Accept",
+                    mediaType); //Esto estaba mal en los gists
+            urlConnection.setRequestProperty("Content-Type",
+                    mediaType);
+            urlConnection.setRequestMethod("PUT");
+            urlConnection.setDoInput(true);
+            urlConnection.setDoOutput(true);
+            urlConnection.connect();
+            PrintWriter writer = new PrintWriter(
+                    urlConnection.getOutputStream());
+            writer.println(jsonUser.toString());
+            writer.close();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            jsonUser = new JSONObject(sb.toString());
+
+            user.setUsername(jsonUser.getString("username"));
+            user.setEmail(jsonUser.getString("email"));
+            user.setName(jsonUser.getString("name"));
+            user.setAge(jsonUser.getInt("age"));
+            user.setGroupid(jsonUser.getInt("groupid"));
+            user.setPoints(jsonUser.getInt("points"));
+            user.setPoints_max(jsonUser.getInt("points_max"));
+            user.setTroll(jsonUser.getBoolean("troll"));
+            user.setVotedBy(jsonUser.getInt("votedBy"));
+            user.setVote(jsonUser.getString("vote"));
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage(), e);
             throw new AppException("Error parsing response");
