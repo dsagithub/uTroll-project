@@ -36,16 +36,7 @@ function getRanking() {
 	});
 }
 
-function getGroup() {
-	// window.alert("aaa");
-	var gid = 0;
-
-	getOwnGroup(function(gid) {
-		window.alert("HOLA gid" + gid);
-	});
-
-	window.alert("getGroup " + gid);
-	gid=0;
+function getGroup(gid) {
 	if (gid == 0) {
 		$("#group_space").text("No estas en ningun grupo!");
 		window.alert("Sin grupo " + gid);
@@ -60,8 +51,7 @@ function getGroup() {
 	} else if (gid != 0) {
 		var url_group = API_BASE_URL + '/users/usersInGroup/' + gid;
 		var troll = getOwnTroll();
-		window.alert("if 2 " + gid);
-		// $("#group_space").text('');
+
 		$.ajax({
 			headers : {
 				'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
@@ -72,12 +62,10 @@ function getGroup() {
 			dataType : 'json',
 		}).done(function(data, status, jqxhr) {
 			var users = data;
-			// alert(valueOf(data));
 			$.each(users, function(i, v) {
 				var user = v;
 				$.each(user, function(i, v) {
 					var us = v;
-					// window.alert(us);
 					if (us.username != undefined) {
 						if (us.username != USERNAME) {
 							createGroup(us.username, troll);
@@ -110,16 +98,14 @@ function getGroupList() {
 		type : 'GET',
 		crossDomain : true,
 		dataType : 'json',
-		contentType:'application/vnd.uTroll.api.group.collection+json',
+		contentType : 'application/vnd.uTroll.api.group.collection+json',
 	}).done(
 			function(data, status, jqxhr) {
 				var groups = data;
-				window.alert(groups);
 				$.each(groups, function(i, v) {
 					var group = v;
 					$.each(group, function(i, v) {
 						var gr = v;
-						window.alert(gr);
 						if (gr.groupname != undefined) {
 							if (gr.groupid != 0) {
 								createGroupList(gr.groupname, gr.groupid,
@@ -140,7 +126,6 @@ function getOwnGroup() {
 	gid = -170;
 	var uProf = new Object();
 	var url = API_BASE_URL + '/users/byUsername/' + USERNAME;
-	var text = "HOLA";
 
 	$.ajax({
 		headers : {
@@ -153,23 +138,13 @@ function getOwnGroup() {
 	}).done(function(data, status, jqxhr) {
 		uProf = data;
 		GID = uProf.groupid;
-		text = "ADIOS";
+		getGroup(GID);
 	}).fail(function() {
 		window.alert("No se encuentra el grupo id");
 		return -10;
 	});
-	var i = "Hola";
-	i = "adios";
-	// window.alert(text);
-	// window.alert("GID" + GID);
-	var i = 2 * 1.0;
-	if (i == 1) {
-		window.alert(window.close());
-		window.alert(text);
-	} else {
-		callback(GID);
-		return GID;
-	}
+
+	return GID;
 }
 
 function getOwnTroll() {
@@ -264,19 +239,22 @@ function createComments(a, c, l, dl, cid) {
 	tdc.appendChild(document.createTextNode(c));
 	tdc.setAttribute('colSpan', '4');// modifica atributo de la celda
 
-
 	var tr3 = tbl.insertRow();// inserta fila en tabla
 
 	var tddlbtn = tr3.insertCell(0);// crea una celda y la inserta en la fila
 	tddlbtn.setAttribute('class', 'btn btn-primary btn-danger btn-xs');
 	tddlbtn.appendChild(document.createTextNode('NO me gusta +1'));
 
-	tddlbtn.setAttribute('onclick', 'postDislike('+cid+')');//modifica
+	tddlbtn.setAttribute('onclick', 'postDislike(' + cid + ')');// modifica
 	tddlbtn.setAttribute('style', 'float:left');// modifica atributo de la celda
 
 	var tddl = tr3.insertCell(1);// crea una celda y la inserta en la fila
-	tddl.appendChild(document.createTextNode('No me gusta: ' + dl));// crea un textnode y lo añade a la celda
-	
+	tddl.appendChild(document.createTextNode('No me gusta: ' + dl));// crea un
+	// textnode
+	// y lo
+	// añade a
+	// la celda
+
 	// tddl.setAttribute('style', 'float:left');//modifica atributo de la celda
 
 	var tdl = tr3.insertCell(2);// crea una celda y la inserta en la fila
@@ -386,8 +364,8 @@ function createGroupList(n, gid, p, s) {
 
 function createRanking(u, p, rnk) {
 
-	var space = document.getElementById("ranking_space"), 
-	tbl = document.createElement('table');
+	var space = document.getElementById("ranking_space"), tbl = document
+			.createElement('table');
 	tbl.style.width = '100%';
 	// tbl.style.border = "1px solid red";
 
@@ -428,7 +406,7 @@ function createRanking(u, p, rnk) {
 }
 
 function voteTroll(username) {
-	//getUserPass();
+	// getUserPass();
 	var url = API_BASE_URL + '/user/repos';
 	var data = JSON.stringify(repo);
 	$("#repos_result").text('');
@@ -514,19 +492,19 @@ function postDislike(cid) {
 
 function postComment() {
 	// getUserPass();
-	var comment=new Object();
-	comment.content=$("#new_comment").val();
+	var comment = new Object();
+	comment.content = $("#new_comment").val();
 
-	comment.creator=USERNAME;
-	//if (!getOwnTroll()) {
-	comment.username=USERNAME;
-	//}else if (getOwnTroll()) {
-	//comment.content=$("#troll_sign").val();
-	//}
-	
+	comment.creator = USERNAME;
+	// if (!getOwnTroll()) {
+	comment.username = USERNAME;
+	// }else if (getOwnTroll()) {
+	// comment.content=$("#troll_sign").val();
+	// }
+
 	var url = API_BASE_URL + '/comments';
 	var data = JSON.stringify(comment);
-		window.alert(data);
+	window.alert(data);
 	// $("#repos_result").text('');
 
 	$.ajax({
@@ -542,7 +520,7 @@ function postComment() {
 	}).done(function(data, status, jqxhr) {
 		window.alert("Post!");
 		getComments();
-		//checkCookie();
+		// checkCookie();
 	}).fail(function() {
 		window.alert("FAIL");
 	});

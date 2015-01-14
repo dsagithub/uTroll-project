@@ -1,7 +1,7 @@
 var API_BASE_URL = "http://localhost:8010/uTroll-api";
 var WEB_URL = "http://localhost" //server ip
-var USERNAME = "david";
-var PASSWORD = "david";
+var USERNAME = "angel";
+var PASSWORD = "angel";
 var GID=-1;
 var TROLL=false;
    
@@ -211,7 +211,7 @@ function searchUser() {
 	var url = API_BASE_URL + '/users?username='+ s;
 	var data = JSON.stringify("");
 
-		window.alert(url);
+//		window.alert(url);
 	
 	$.ajax({
 		headers : {
@@ -262,6 +262,11 @@ function createSearchedFriends(u,n){
         tdt.setAttribute('class', 'btn btn-primary btn-warning btn-xs');//modifica atributo de la celda
         tdt.appendChild(document.createTextNode('Enviar petición de amistad'));//crea un textnode y lo añade a la celda
         tdt.setAttribute('onclick', 'addFriend(' + u + ')');// modifica atributo de
+        
+        
+        tdt.onclick = function() {addFriend(u);}; //TIENES QUE AÑADIR ESTA LÍNEA PARA QUE FUNCIONEN
+        
+        
         tdt.setAttribute('style', 'float:right');//modifica atributo de la celda
 			//falta que responda algo como acceptFriend(u);
 }
@@ -269,6 +274,7 @@ function createSearchedFriends(u,n){
 function addFriend(u) {
 	// getUserPass();
 
+	window.alert("HOLA");
 	
 	var url = API_BASE_URL + '/friends/addFriend/'+u;
 	var data = JSON.stringify("");
