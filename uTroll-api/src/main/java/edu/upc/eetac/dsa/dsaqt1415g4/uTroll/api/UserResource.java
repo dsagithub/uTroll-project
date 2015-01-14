@@ -41,13 +41,14 @@ import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.model.UserCollection;
 @Path("/users")
 public class UserResource {
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
-	
+
 	private final static String GET_USER_BY_USERNAME_QUERY = "select * from users where username=?";
 	private final static String CREATE_USER_QUERY = "insert into users values (?, MD5(?), ?, ?, ?, 30, 30, false, 0, 0, 'none')";
 	private final static String CREATE_USER_ROLE_QUERY = "insert into user_roles values (?, 'registered')";
 	private final static String VALIDATE_USERNAME_QUERY = "select username from users where username=?";
 	private final static String VALIDATE_GROUP_BELONGING_QUERY = "select groupid from users where username = ?";
 	private final static String VALIDATE_GROUP_IS_OPEN_QUERY = "select state from groups where groupid = ?";
+	private final static String UPDATE_USER_QUERY = "update users set name = ifnull(?, name), email = ifnull(?, email), age = ifnull(?, age) where username = ?";
 	private final static String UPDATE_USER_GROUP_QUERY = "update users set groupid = ? where username = ?";
 	private final static String UPDATE_USER_POINTS_QUERY = "update users set points = ?, points_max = greatest(points_max, ?) where username = ?";
 	private final static String GET_USERS_IN_A_GROUP_QUERY = "select * from users where groupid = ?";
@@ -240,8 +241,8 @@ public class UserResource {
 	@Produces(MediaType.UTROLL_API_USER)
 	public User createUser(User user) {
 		int valid = validateUser(user.getUsername());
-		if (valid == 0){ //El usuario ya esta en uso
-			User user1= new User();
+		if (valid == 0) { // El usuario ya esta en uso
+			User user1 = new User();
 			user1.setUsername("exists");
 			user1.setPoints(-1);
 			return user1;
@@ -253,7 +254,7 @@ public class UserResource {
 			throw new ServerErrorException("Could not connect to the database",
 					Response.Status.SERVICE_UNAVAILABLE);
 		}
-		//System.out.println("");
+		// System.out.println("");
 		PreparedStatement stmtInsertUserIntoUsers = null;
 		PreparedStatement stmtInsertUserIntoUserRoles = null;
 		try {
@@ -273,9 +274,9 @@ public class UserResource {
 
 			stmtInsertUserIntoUserRoles.setString(1, user.getUsername());
 			stmtInsertUserIntoUserRoles.executeUpdate();
-			
+
 			System.out.println(user.toString());
-			
+
 			// Hasta aquí está ejecutado pero no sobre la BD
 			// El commit escribe los dos registros definitivamente en la BD
 			conn.commit();
@@ -298,6 +299,46 @@ public class UserResource {
 			}
 		}
 		user.setPassword(null);
+		return user;
+	}
+
+	// Modificar datos de usuario
+	@PUT
+	@Consumes(MediaType.UTROLL_API_USER)
+	@Produces(MediaType.UTROLL_API_USER)
+	public User updateUser(User user) {
+		Connection conn = null;
+		try {
+			conn = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServerErrorException("Could not connect to the database",
+					Response.Status.SERVICE_UNAVAILABLE);
+		}
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement(UPDATE_USER_QUERY);
+			stmt.setString(1, user.getName());
+			stmt.setString(2, user.getEmail());
+			stmt.setInt(3, user.getAge());
+			stmt.setString(4, security.getUserPrincipal().getName());
+
+			int rows = stmt.executeUpdate();
+			if (rows == 1)
+				user = getUserFromDatabase(security.getUserPrincipal()
+						.getName(), false);
+		} catch (SQLException e) {
+			throw new ServerErrorException(e.getMessage(),
+					Response.Status.INTERNAL_SERVER_ERROR);
+		} finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+			}
+		}
+
 		return user;
 	}
 
@@ -378,7 +419,7 @@ public class UserResource {
 		return user;
 	}
 
-	// Unirse a un grupo
+	// Votar a un usuario
 	@PUT
 	@Path("/vote/{username}")
 	@Produces(MediaType.UTROLL_API_USER)
@@ -598,55 +639,6 @@ public class UserResource {
 			}
 		}
 	}
-
-	// // Método para validar que tienes suficientes puntos para entrar en el
-	// grupo
-	// private boolean validateHaveEnoughPoints(int groupid, String username) {
-	// Connection conn = null;
-	// try {
-	// conn = ds.getConnection();
-	// } catch (SQLException e) {
-	// throw new ServerErrorException("Could not connect to the database",
-	// Response.Status.SERVICE_UNAVAILABLE);
-	// }
-	//
-	// PreparedStatement stmt = null;
-	// PreparedStatement stmt1 = null;
-	// try {
-	// int points_group = 0;
-	// int points_user = 0;
-	// stmt = conn.prepareStatement(GET_POINTS_GROUP_QUERY);
-	// stmt.setInt(1, groupid);
-	// stmt1 = conn.prepareStatement(GET_POINTS_USER_QUERY);
-	// stmt1.setInt(1, groupid);
-	//
-	// ResultSet rs = stmt.executeQuery();
-	// if (rs.next()) {
-	// points_group = rs.getInt("price");
-	// }
-	//
-	// ResultSet rs1 = stmt1.executeQuery();
-	// if (rs1.next()) {
-	// points_user = rs1.getInt("points");
-	// }
-	//
-	// if (points_user >= points_group)
-	// return true;
-	// else
-	// return false;
-	//
-	// } catch (SQLException e) {
-	// throw new ServerErrorException(e.getMessage(),
-	// Response.Status.INTERNAL_SERVER_ERROR);
-	// } finally {
-	// try {
-	// if (stmt != null)
-	// stmt.close();
-	// conn.close();
-	// } catch (SQLException e) {
-	// }
-	// }
-	// }
 
 	// Para trabajar con parámetros de seguridad
 	@Context

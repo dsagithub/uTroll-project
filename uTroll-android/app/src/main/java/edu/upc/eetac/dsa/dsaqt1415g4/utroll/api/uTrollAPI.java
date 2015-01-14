@@ -146,6 +146,65 @@ public class uTrollAPI {
         return comments;
     }
 
+    public CommentCollection getPrevNextComments(String urlPN) throws AppException {
+        Log.d(TAG, "getPrevNextComments()");
+        CommentCollection comments = new CommentCollection(); //Modelo de la colección
+
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL(urlPN);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoInput(true);
+            urlConnection.connect();
+        } catch (IOException e) {
+            throw new AppException(
+                    "Can't connect to uTroll API Web Service");
+        }
+
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new InputStreamReader(
+                    urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+
+            JSONObject jsonObject = new JSONObject(sb.toString());
+            JSONArray jsonLinks = jsonObject.getJSONArray("links");
+            parseLinks(jsonLinks, comments.getLinks());
+
+            JSONArray jsonComments = jsonObject.getJSONArray("comments");
+            for (int i = 0; i < jsonComments.length(); i++) {
+                Comment comment = new Comment();
+                JSONObject jsonComment = jsonComments.getJSONObject(i);
+
+                comment.setCommentid(jsonComment.getInt("commentid"));
+                comment.setContent(jsonComment.getString("content"));
+                comment.setCreation_timestamp(jsonComment.getLong("creation_timestamp"));
+                comment.setCreator(jsonComment.getString("creator"));
+                comment.setDislikes(jsonComment.getInt("dislikes"));
+                comment.setGroupid(jsonComment.getInt("groupid"));
+                comment.setLast_modified(jsonComment.getLong("last_modified"));
+                comment.setLikes(jsonComment.getInt("likes"));
+                comment.setUsername(jsonComment.getString("username"));
+
+                jsonLinks = jsonComment.getJSONArray("links");
+                parseLinks(jsonLinks, comment.getLinks());
+                comments.getComments().add(comment);
+            }
+        } catch (IOException e) {
+            throw new AppException(
+                    "Can't get response from uTroll API Web Service");
+        } catch (JSONException e) {
+            throw new AppException("Error parsing uTroll Root API");
+        }
+
+        return comments;
+    }
+
     private Map<String, Comment> commentsCache = new HashMap<String, Comment>();
 
     public Comment getComment(String urlComment) throws AppException {

@@ -38,7 +38,11 @@ function getRanking() {
 
 function getGroup() {
 	// window.alert("aaa");
-	var gid = getOwnGroup();
+	var gid = 0;
+
+	getOwnGroup(function(gid) {
+		window.alert("HOLA gid" + gid);
+	});
 
 	window.alert("getGroup " + gid);
 
@@ -135,6 +139,7 @@ function getOwnGroup() {
 	gid = -170;
 	var uProf = new Object();
 	var url = API_BASE_URL + '/users/byUsername/' + USERNAME;
+	var text = "HOLA";
 
 	$.ajax({
 		headers : {
@@ -146,16 +151,24 @@ function getOwnGroup() {
 		dataType : 'json',
 	}).done(function(data, status, jqxhr) {
 		uProf = data;
-		window.alert("uProf" + uProf.groupid);
 		GID = uProf.groupid;
-		window.alert("gid" + gid);
+		text = "ADIOS";
 	}).fail(function() {
 		window.alert("No se encuentra el grupo id");
 		return -10;
 	});
-
-	window.alert(GID);
-	return gid;
+	var i = "Hola";
+	i = "adios";
+	// window.alert(text);
+	// window.alert("GID" + GID);
+	var i = 2 * 1.0;
+	if (i == 1) {
+		window.alert(window.close());
+		window.alert(text);
+	} else {
+		callback(GID);
+		return GID;
+	}
 }
 function getOwnTroll() {
 

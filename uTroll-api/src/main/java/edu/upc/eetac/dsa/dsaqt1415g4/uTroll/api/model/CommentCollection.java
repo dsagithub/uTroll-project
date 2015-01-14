@@ -15,11 +15,14 @@ import edu.upc.eetac.dsa.dsaqt1415g4.uTroll.api.MediaType;
 
 public class CommentCollection {
 	@InjectLinks({
-			@InjectLink(resource = CommentResource.class, style = Style.ABSOLUTE, rel = "create-comment", title = "Create comment", type = MediaType.UTROLL_API_COMMENT) })
+			@InjectLink(resource = CommentResource.class, style = Style.ABSOLUTE, rel = "create-comment", title = "Create comment", type = MediaType.UTROLL_API_COMMENT),
+			@InjectLink(value = "/comments?before={before}", style = Style.ABSOLUTE, rel = "previous", title = "Previous comments", type = MediaType.UTROLL_API_COMMENT_COLLECTION, bindings = { @Binding(name = "before", value = "${instance.oldestTimestamp}") }),
+			@InjectLink(value = "/comments?after={after}", style = Style.ABSOLUTE, rel = "next", title = "Newest comments", type = MediaType.UTROLL_API_COMMENT_COLLECTION, bindings = { @Binding(name = "after", value = "${instance.newestTimestamp}") }) })
+	
 	private List<Link> links;
 	private List<Comment> comments;
-	//private long newestTimestamp;
-	//private long oldestTimestamp;
+	private long newestTimestamp;
+	private long oldestTimestamp;
 
 	public CommentCollection() {
 		super();
@@ -45,6 +48,21 @@ public class CommentCollection {
 	public void setComments(List<Comment> comments) {
 		this.comments = comments;
 	}
-	
+
+	public long getNewestTimestamp() {
+		return newestTimestamp;
+	}
+
+	public void setNewestTimestamp(long newestTimestamp) {
+		this.newestTimestamp = newestTimestamp;
+	}
+
+	public long getOldestTimestamp() {
+		return oldestTimestamp;
+	}
+
+	public void setOldestTimestamp(long oldestTimestamp) {
+		this.oldestTimestamp = oldestTimestamp;
+	}
 	
 }

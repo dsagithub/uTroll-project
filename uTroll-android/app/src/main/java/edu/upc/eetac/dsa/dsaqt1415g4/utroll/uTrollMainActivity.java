@@ -40,6 +40,8 @@ import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollRootAPI;
 public class uTrollMainActivity extends ListActivity {
     private final static String TAG = uTrollMainActivity.class.toString();
     User user = null;
+    String urlnext;
+    String urlprev;
 
     private CommentAdapter adapter;
     private ArrayList<Comment> commentsList;
@@ -87,6 +89,82 @@ public class uTrollMainActivity extends ListActivity {
             try {
                 comments = uTrollAPI.getInstance(uTrollMainActivity.this)
                         .getComments();
+                urlnext = comments.getLinks().get("next").getTarget();
+                urlprev = comments.getLinks().get("previous").getTarget();
+            } catch (AppException e) {
+                e.printStackTrace();
+            }
+            return comments;
+        }
+
+        @Override
+        protected void onPostExecute(CommentCollection result) {
+            addComments(result);
+            if (pd != null) {
+                pd.dismiss();
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            pd = new ProgressDialog(uTrollMainActivity.this);
+            pd.setTitle("Searching...");
+            pd.setCancelable(false);
+            pd.setIndeterminate(true);
+            pd.show();
+        }
+
+    }
+
+    private class FetchNextCommentsTask extends
+            AsyncTask<Void, Void, CommentCollection> {
+        private ProgressDialog pd;
+
+        @Override
+        protected CommentCollection doInBackground(Void... params) {
+            CommentCollection comments = null;
+            try {
+                comments = uTrollAPI.getInstance(uTrollMainActivity.this).getPrevNextComments(urlnext);
+
+                urlnext = comments.getLinks().get("next").getTarget();
+                urlprev = comments.getLinks().get("previous").getTarget();
+            } catch (AppException e) {
+                e.printStackTrace();
+            }
+            return comments;
+        }
+
+        @Override
+        protected void onPostExecute(CommentCollection result) {
+            addComments(result);
+            if (pd != null) {
+                pd.dismiss();
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            pd = new ProgressDialog(uTrollMainActivity.this);
+            pd.setTitle("Searching...");
+            pd.setCancelable(false);
+            pd.setIndeterminate(true);
+            pd.show();
+        }
+
+    }
+
+    private class FetchPreviousCommentsTask extends
+            AsyncTask<Void, Void, CommentCollection> {
+        private ProgressDialog pd;
+
+        @Override
+        protected CommentCollection doInBackground(Void... params) {
+            CommentCollection comments = null;
+            try {
+                comments = uTrollAPI.getInstance(uTrollMainActivity.this).getPrevNextComments(urlprev);
+
+                urlnext = comments.getLinks().get("next").getTarget();
+                urlprev = comments.getLinks().get("previous").getTarget();
             } catch (AppException e) {
                 e.printStackTrace();
             }
@@ -191,6 +269,14 @@ public class uTrollMainActivity extends ListActivity {
 
     }
 
+    public void previousComments(View v) {
+        (new FetchPreviousCommentsTask()).execute();
+    }
+
+    public void nextComments(View v) {
+        (new FetchNextCommentsTask()).execute();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -285,6 +371,7 @@ public class uTrollMainActivity extends ListActivity {
     }
 
     private void addComments(CommentCollection comments) {
+        commentsList.clear();
         commentsList.addAll(comments.getComments());
         adapter.notifyDataSetChanged();
     }

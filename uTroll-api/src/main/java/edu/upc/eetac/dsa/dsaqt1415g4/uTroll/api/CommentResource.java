@@ -43,8 +43,13 @@ public class CommentResource {
 
 	private final static String GET_COMMENT_BY_COMMENTID_QUERY = "select * from comment where commentid=?";
 	private final static String GET_COMMENTS_BY_GROUP_QUERY = "select * from comment where groupid=? order by creation_timestamp desc limit ?";
-	//private final static String GET_COMMENTS_QUERY = "select * from comment order by creation_timestamp desc limit ?";
-	private final static String GET_COMMENTS_QUERY = "select * from comment where username in (select friend2 from friend_list where (friend1=? or friend2=?) and state = 'accepted') order by creation_timestamp desc";
+	// private final static String GET_COMMENTS_QUERY =
+	// "select * from comment order by creation_timestamp desc limit ?";
+	// FUNCIONA SIN PAGINAR - private final static String GET_COMMENTS_QUERY =
+	// "select * from comment where username in (select friend2 from friend_list where (friend1=? or friend2=?) and state = 'accepted') order by creation_timestamp desc";
+	private final static String GET_COMMENTS_QUERY_AFTER = "select * from comment where username in (select friend2 from friend_list where (friend1=? or friend2=?) and state = 'accepted') and creation_timestamp > ? order by creation_timestamp asc limit ?";
+	private final static String GET_COMMENTS_QUERY_PREVIOUS = "select * from comment where username in (select friend2 from friend_list where (friend1=? or friend2=?) and state = 'accepted') and creation_timestamp < ifnull(?, now()) order by creation_timestamp desc limit ?";
+
 	private final static String INSERT_COMMENT_QUERY = "insert into comment (username, creator, content, likes, dislikes, groupid) values (?, ?, ?, ?, ?, ?)";
 	private final static String UPDATE_COMMENT_QUERY = "update comment set content=ifnull(?, content), likes=ifnull(?, likes), dislikes=ifnull(?, dislikes) where commentid=?";
 	private final static String UPDATE_LIKE_COMMENT_QUERY = "update comment set likes=ifnull(?, likes), dislikes=ifnull(?, dislikes) where commentid=?";
@@ -54,10 +59,11 @@ public class CommentResource {
 
 	private final static String GET_MYGROUP_QUERY = "select groupid from users where username=?";
 
-	// Obtener comentarios del grupo al que pertenezco
+	// Obtener comentarios de mis amigos - paginable
 	@GET
 	@Produces(MediaType.UTROLL_API_COMMENT_COLLECTION)
-	public CommentCollection getComments() {
+	public CommentCollection getComments(@QueryParam("length") int length,
+			@QueryParam("before") long before, @QueryParam("after") long after) {
 		CommentCollection comments = new CommentCollection();
 
 		Connection conn = null;
@@ -72,11 +78,28 @@ public class CommentResource {
 		try {
 			int mygroup = getMyGroup(security.getUserPrincipal().getName());
 
-			stmt = conn.prepareStatement(GET_COMMENTS_QUERY);
-			
-			stmt.setString(1, security.getUserPrincipal().getName());
-			stmt.setString(2, security.getUserPrincipal().getName());
+			boolean updateFromLast = after > 0;
+			if (updateFromLast) {
+				stmt = conn.prepareStatement(GET_COMMENTS_QUERY_AFTER);
+				stmt.setString(1, security.getUserPrincipal().getName());
+				stmt.setString(2, security.getUserPrincipal().getName());
+				stmt.setTimestamp(3, new Timestamp(after));
+				length = (length <= 0) ? 5 : length;
+				stmt.setInt(4, length);
+			} else {
+				stmt = conn.prepareStatement(GET_COMMENTS_QUERY_PREVIOUS);
+				stmt.setString(1, security.getUserPrincipal().getName());
+				stmt.setString(2, security.getUserPrincipal().getName());
+				if (before > 0)
+					stmt.setTimestamp(3, new Timestamp(before));
+				else
+					stmt.setTimestamp(3, null);
+				length = (length <= 0) ? 5 : length;
+				stmt.setInt(4, length);
+			}
 
+			boolean first = true;
+			long oldestTimestamp = 0;
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				Comment comment = new Comment();
@@ -92,8 +115,16 @@ public class CommentResource {
 				comment.setLikes(rs.getInt("likes"));
 				comment.setUsername(rs.getString("username"));
 
+				oldestTimestamp = rs.getTimestamp("creation_timestamp")
+						.getTime();
+				if (first) {
+					first = false;
+					comments.setNewestTimestamp(oldestTimestamp);
+				}
+
 				comments.addComment(comment);
 			}
+			comments.setOldestTimestamp(oldestTimestamp);
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
 					Response.Status.INTERNAL_SERVER_ERROR);

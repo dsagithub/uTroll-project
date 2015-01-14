@@ -56,7 +56,18 @@ public class CreateGroupActivity extends FragmentActivity {
 
                 user = uTrollAPI.getInstance(CreateGroupActivity.this).getUser(params[4]);
 
-                group = uTrollAPI.getInstance(CreateGroupActivity.this).createGroup(groupname, price, date, dateClosing);
+                if (user.getPoints() >= price)
+                    group = uTrollAPI.getInstance(CreateGroupActivity.this).createGroup(groupname, price, date, dateClosing);
+                else {
+                    Context context = getApplicationContext();
+                    int duration = Toast.LENGTH_LONG;
+                    CharSequence text = "El grupo cuesta más de lo que tienes";
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+
+                    group.setPrice(price);
+                }
             } catch (AppException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
@@ -67,14 +78,7 @@ public class CreateGroupActivity extends FragmentActivity {
         protected void onPostExecute(Group result) {
             if (user.getPoints() >= result.getPrice())
                 showGroups(result);
-            else {
-                Context context = getApplicationContext();
-                int duration = Toast.LENGTH_LONG;
-                CharSequence text = "El grupo cuesta más de lo que tienes";
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-            }
+
             if (pd != null) {
                 pd.dismiss();
             }
@@ -278,7 +282,7 @@ public class CreateGroupActivity extends FragmentActivity {
             Toast toast = Toast.makeText(context, text, duration);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
-        }else {
+        } else {
             String userURL = (String) getIntent().getExtras().get("user");
             (new CreateGroupTask()).execute(groupname, price, endingTimestamp, closingTimestamp, userURL);
         }
