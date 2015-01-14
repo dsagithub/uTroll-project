@@ -1,7 +1,7 @@
 var API_BASE_URL = "http://localhost:8010/uTroll-api";
 var WEB_URL = "http://localhost/" // server ip
-var USERNAME = "albert";
-var PASSWORD = "albert";
+var USERNAME = "angel";
+var PASSWORD = "angel";
 var GID = -198;
 var TROLL = false;
 
@@ -41,7 +41,7 @@ function getGroup() {
 	var gid = getOwnGroup();
 
 	window.alert("getGroup " + gid);
-
+	gid=0;
 	if (gid == 0) {
 		$("#group_space").text("No estas en ningun grupo!");
 		window.alert("Sin grupo " + gid);
@@ -92,7 +92,7 @@ function getGroup() {
 }
 
 function getGroupList() {
-	window.alert("a");
+	window.alert("group list 1");
 
 	var url = API_BASE_URL + '/groups';
 
@@ -102,10 +102,11 @@ function getGroupList() {
 		headers : {
 			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
 		},
-		url : url_group,
+		url : url,
 		type : 'GET',
 		crossDomain : true,
 		dataType : 'json',
+		contentType:'application/vnd.uTroll.api.group.collection+json',
 	}).done(
 			function(data, status, jqxhr) {
 				var groups = data;
@@ -157,6 +158,7 @@ function getOwnGroup() {
 	window.alert(GID);
 	return gid;
 }
+
 function getOwnTroll() {
 
 	var troll = false;
@@ -232,83 +234,46 @@ function createComments(a, c, l, dl, cid) {
 	var t = document.createTextNode(a + ' dice:');
 
 	ablock.appendChild(t);
-	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + a);// modificar
-	// para
-	// q
-	// pase
-	// como
-	// param
+	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + a);
 
-	tda.appendChild(ablock);// crea un textnode y lo añade a la celda
-
-	// tda.appendChild(document.createTextNode(a));//crea un textnode y lo añade
-	// a la celda
+	tda.appendChild(ablock);
 	tda.setAttribute('colSpan', '3');// modifica atributo de la celda
 
 	var tdt = tr.insertCell(1);// crea una celda y la inserta en la fila
-	tdt.setAttribute('class', 'btn btn-primary btn-warning btn-xs');// modifica
-	// atributo
-	// de la
-	// celda
-	tdt.appendChild(document.createTextNode('Vota al Troll'));// crea un
-	// textnode y lo
-	// añade a la
-	// celda
+	tdt.setAttribute('class', 'btn btn-primary btn-warning btn-xs');
+	tdt.appendChild(document.createTextNode('Vota al Troll'));
 	tdt.setAttribute('style', 'float:right');// modifica atributo de la celda
-	tdt.setAttribute('onclick', 'voteTroll(' + a + ')');// modifica atributo de
-	// la celda
-
+	tdt.setAttribute('onclick', 'voteTroll(' + a + ')');
 	// window.alert(c);
 
 	var tr2 = tbl.insertRow();// inserta fila en tabla
 	var tdc = tr2.insertCell();// crea una celda y la inserta en la fila
-	tdc.appendChild(document.createTextNode(c));// crea un textnode y lo añade a
-	// la celda
+	tdc.appendChild(document.createTextNode(c));
 	tdc.setAttribute('colSpan', '4');// modifica atributo de la celda
-	// tdc.style.border = "1px solid black";
+
 
 	var tr3 = tbl.insertRow();// inserta fila en tabla
 
 	var tddlbtn = tr3.insertCell(0);// crea una celda y la inserta en la fila
-	tddlbtn.setAttribute('class', 'btn btn-primary btn-danger btn-xs');// modifica
-	// atributo
-	// de la
-	// celda
-	tddlbtn.appendChild(document.createTextNode('NO me gusta +1'));// crea un
-	// textnode
-	// y lo
-	// añade a
-	// la celda
-	// tddlbtn.setAttribute('onclick', 'postDislike('+cid+')');//modifica
-	// atributo de la celda
+	tddlbtn.setAttribute('class', 'btn btn-primary btn-danger btn-xs');
+	tddlbtn.appendChild(document.createTextNode('NO me gusta +1'));
+
+	tddlbtn.setAttribute('onclick', 'postDislike('+cid+')');//modifica
 	tddlbtn.setAttribute('style', 'float:left');// modifica atributo de la celda
 
 	var tddl = tr3.insertCell(1);// crea una celda y la inserta en la fila
-	tddl.appendChild(document.createTextNode('No me gusta: ' + dl));// crea un
-	// textnode
-	// y lo
-	// añade a
-	// la celda
+	tddl.appendChild(document.createTextNode('No me gusta: ' + dl));// crea un textnode y lo añade a la celda
+	
 	// tddl.setAttribute('style', 'float:left');//modifica atributo de la celda
 
 	var tdl = tr3.insertCell(2);// crea una celda y la inserta en la fila
-	tdl.appendChild(document.createTextNode('Me gusta: ' + l));// crea un
-	// textnode y lo
-	// añade a la
-	// celda
+	tdl.appendChild(document.createTextNode('Me gusta: ' + l));
 	// tdl.setAttribute('style', 'float:right');//modifica atributo de la celda
 
 	var tdlbtn = tr3.insertCell(3);// crea una celda y la inserta en la fila
-	tdlbtn.setAttribute('class', 'btn btn-primary btn-success btn-xs');// modifica
-	// atributo
-	// de la
-	// celda
-	tdlbtn.appendChild(document.createTextNode('Me Gusta +1'));// crea un
-	// textnode y lo
-	// añade a la
-	// celda
-	tdlbtn.setAttribute('onclick', 'postLike(' + cid + ')');// modifica atributo
-	// de la celda
+	tdlbtn.setAttribute('class', 'btn btn-primary btn-success btn-xs');
+	tdlbtn.appendChild(document.createTextNode('Me Gusta +1'));
+	tdlbtn.setAttribute('onclick', 'postLike(' + cid + ')');
 	tdlbtn.setAttribute('style', 'float:right');// modifica atributo de la celda
 
 	space.appendChild(tbl);// añade la tabla al espacio
@@ -408,8 +373,8 @@ function createGroupList(n, gid, p, s) {
 
 function createRanking(u, p, rnk) {
 
-	var space = document.getElementById("ranking_space"), tbl = document
-			.createElement('table');
+	var space = document.getElementById("ranking_space"), 
+	tbl = document.createElement('table');
 	tbl.style.width = '100%';
 	// tbl.style.border = "1px solid red";
 
@@ -450,7 +415,7 @@ function createRanking(u, p, rnk) {
 }
 
 function voteTroll(username) {
-	getUserPass();
+	//getUserPass();
 	var url = API_BASE_URL + '/user/repos';
 	var data = JSON.stringify(repo);
 	$("#repos_result").text('');
@@ -501,7 +466,70 @@ function postLike(cid) {
 		contentType : 'application/vnd.uTroll.api.comment+json',
 		data : data,
 	}).done(function(data, status, jqxhr) {
-		window.alert("LIKE");
+		window.alert("LIKE!");
+		getComments();
+	}).fail(function() {
+		window.alert("FAIL");
+	});
+}
+
+function postDislike(cid) {
+	// getUserPass();
+
+	var url = API_BASE_URL + '/comments/dislike/' + cid;
+	var data = JSON.stringify("");
+
+	// $("#repos_result").text('');
+
+	$.ajax({
+		headers : {
+			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
+		},
+		url : url,
+		type : 'PUT',
+		crossDomain : true,
+		dataType : 'json',
+		contentType : 'application/vnd.uTroll.api.comment+json',
+		data : data,
+	}).done(function(data, status, jqxhr) {
+		window.alert("DISLIKE!");
+		getComments();
+	}).fail(function() {
+		window.alert("FAIL");
+	});
+}
+
+function postComment() {
+	// getUserPass();
+	var comment=new Object();
+	comment.content=$("#new_comment").val();
+
+	comment.creator=USERNAME;
+	//if (!getOwnTroll()) {
+	comment.username=USERNAME;
+	//}else if (getOwnTroll()) {
+	//comment.content=$("#troll_sign").val();
+	//}
+	
+	var url = API_BASE_URL + '/comments';
+	var data = JSON.stringify(comment);
+		window.alert(data);
+	// $("#repos_result").text('');
+
+	$.ajax({
+		headers : {
+			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
+		},
+		url : url,
+		type : 'POST',
+		crossDomain : true,
+		dataType : 'json',
+		contentType : 'application/vnd.uTroll.api.comment+json',
+		data : data,
+	}).done(function(data, status, jqxhr) {
+		window.alert("Post!");
+		getComments();
+		//checkCookie();
 	}).fail(function() {
 		window.alert("FAIL");
 	});
