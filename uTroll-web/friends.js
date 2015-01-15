@@ -332,6 +332,7 @@ function addFriend(u) {
 		getPendingFriends();
 		window.location.reload();
 	}).fail(function() {
-		window.alert("FAIL");
+		getPendingFriends();
+		window.location.reload();
 	});
 }
