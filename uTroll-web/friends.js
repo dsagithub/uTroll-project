@@ -226,7 +226,7 @@ function acceptFriend(username) {
 	}).done(function(data, status, jqxhr) {
 		window.location.reload();
 	}).fail(function() {
-		window.alert("FAIL");
+//		window.alert("FAIL");
 	});
 }
 
@@ -332,6 +332,7 @@ function addFriend(u) {
 		getPendingFriends();
 		window.location.reload();
 	}).fail(function() {
-		window.alert("FAIL");
+		getPendingFriends();
+		window.location.reload();
 	});
 }
