@@ -124,7 +124,7 @@ public class GroupDetailActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(GroupDetailActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();
@@ -190,7 +190,7 @@ public class GroupDetailActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(GroupDetailActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();
@@ -234,7 +234,7 @@ public class GroupDetailActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(GroupDetailActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();

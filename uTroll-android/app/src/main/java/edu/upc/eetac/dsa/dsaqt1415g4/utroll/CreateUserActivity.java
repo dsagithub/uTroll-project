@@ -70,7 +70,7 @@ public class CreateUserActivity extends Activity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(CreateUserActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();

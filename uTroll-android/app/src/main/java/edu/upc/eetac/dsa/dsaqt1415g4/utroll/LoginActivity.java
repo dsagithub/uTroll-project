@@ -141,7 +141,7 @@ public class LoginActivity extends Activity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(LoginActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();

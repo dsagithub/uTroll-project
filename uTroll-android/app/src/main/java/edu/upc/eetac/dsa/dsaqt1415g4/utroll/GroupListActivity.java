@@ -95,7 +95,7 @@ public class GroupListActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(GroupListActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();
@@ -121,14 +121,11 @@ public class GroupListActivity extends ListActivity {
         @Override
         protected void onPostExecute(User result) {
             TextView tv = (TextView) findViewById(R.id.tvGroupListGroupid);
-            if (result.getGroupid() == 0)
-                tv.setText("No estás en ningún grupo");
-            else
-                tv.setText(Integer.toString(result.getGroupid()));
+            tv.setText(Integer.toString(result.getGroupid()));
 
 
             if (result.getGroupid() != 0)
-                    invalidateOptionsMenu();
+                invalidateOptionsMenu();
 
             TextView tvPoints = (TextView) findViewById(R.id.tvGroupListPoints);
             tvPoints.setText(Integer.toString(result.getPoints()));
@@ -141,7 +138,7 @@ public class GroupListActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(GroupListActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();
@@ -150,14 +147,14 @@ public class GroupListActivity extends ListActivity {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu (Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
         TextView tv = (TextView) findViewById(R.id.tvGroupListGroupid);
         int n = Integer.parseInt(tv.getText().toString());
         if (n != 0)
             menu.getItem(1).setEnabled(false);
         return true;
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -185,6 +182,7 @@ public class GroupListActivity extends ListActivity {
 
     //Método para que se visualice el nuevo grupo
     private final static int WRITE_ACTIVITY = 0;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -215,7 +213,7 @@ public class GroupListActivity extends ListActivity {
         startActivity(intent);
     }
 
-    private void addGroups(GroupCollection groups){
+    private void addGroups(GroupCollection groups) {
         groupsList.addAll(groups.getGroups());
         adapter.notifyDataSetChanged();
     }
