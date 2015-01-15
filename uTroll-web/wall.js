@@ -1,5 +1,5 @@
 var API_BASE_URL = "http://147.83.7.156:8080/uTroll-api";
-var WEB_URL = "http://localhost/" // server ip
+var WEB_URL = "http://147.83.7.156/" // server ip
 
 $('select#troll_sign').on('change', function() {
 	var valor = $(this).val();
@@ -44,6 +44,9 @@ function getGroup() {
 	var u = getCookie('username');
 	var p = getCookie('password');
 	var gid = getCookie('groupid');
+	
+	var s1 = document.getElementById("troll_sign");
+	s1.options[s1.length] = new Option(u, u);
 
 	if (gid == 0) {
 		$("#group_space").text("No estas en ningun grupo!");
@@ -68,8 +71,6 @@ function getGroup() {
 			dataType : 'json',
 		}).done(function(data, status, jqxhr) {
 			var users = data;
-			var s1 = document.getElementById("troll_sign");
-			s1.options[s1.length] = new Option(u, u);
 			$.each(users, function(i, v) {
 				var user = v;
 				$.each(user, function(i, v) {
