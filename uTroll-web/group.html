@@ -14,7 +14,7 @@
       <link rel="stylesheet" href="css/bootstrap.css">
       
     </head>
-    <body onload="getProfile();">
+    <body onload="getGroup(); getGroupDetails();getTrollMode();">
 	    
     
     <!-- Barra de navegacion -->
@@ -30,7 +30,8 @@
             <li class="active"><a href="/user.html">Ver Prefil</a></li>
             <li><a href="/friends.html">Amigos</a></li>
             <li><a onclick="LogOut()">Log Out</a></li>
-         
+
+        
           </ul>
         </div><!-- /.nav-collapse -->
       </div><!-- /.container -->
@@ -38,83 +39,67 @@
     
     
       <div class="container theme-showcase" role="main">
-			<img class="img-responsive img-rounded" src="img/user.png" style="display: block;min-height: 200px;min-width: 867px;margin-top: 50px;">
-
+			<img class="img-responsive img-rounded" src="img/group.png" style="display: block;min-height: 200px;min-width: 867px;margin-top: 50px;">
 			
         <div class="row">
         <p></p>
-          <div class="col-sm-8">
-            <div class="panel panel-default" id="user_data">
+          <div class="col-sm-7">
+            <div class="panel panel-default" >
               <div class="panel-heading">
-                <h3 class="panel-title">Datos de Usuario</h3>
+                <h3 class="panel-title"id="group_title">Jugadores de tu Grupo</h3>
               </div>
               <div class="panel-body">
-                 <span id="user_profile"></span>
+                 <span id="group_profile"></span>
               			<p></p>            	  
-						<button type="button" class="btn btn-primary btn-warning" style="float:right" id="btn_mod_enable">Quieres modificar tus datos?</button>
+						<button type="button" class="btn btn-primary btn-warning" style="float:right; display:none" id="btn_mod_enable" >Quieres modificar tus datos?</button>
 
               </div>
             </div>
             
-            <div class="panel panel-default" id="mod_profile" style="display:none">
-              <div class="panel-heading">
-                <h3 class="panel-title">Modificar Datos de Usuario</h3>
-              </div>
-              <div class="panel-body">
-                 <span id="user_profile"></span>
-                 <div class="input-group">
-              			<span class="input-group-addon">Name</span> 
-              			<input type="text" class="form-control" id="name">
-
-            	  </div>
-            	      <p></p>
-                 <div class="input-group">
-              			<span class="input-group-addon">email</span> 
-              			<input type="text" class="form-control" id="email">
-            	  </div>
-               			<p></p>           	  
-					<div class="input-group">
-						<span class="input-group-addon"
-							style=" text-align: left;">Edad</span> <input
-							type="number" class="form-control" id="age">
-					</div>
-              			<p></p>            	  
-              <button type="submit" class="btn btn-primary btn-warning" style="float:right" id="button_mod" onclick="modifyUser()">Modificar Perfil</button>
-   			</div>
-            </div>
+            
             
             
           </div><!-- /.col-sm-8 -->
           
-          <div class="col-sm-4">
+          <div class="col-sm-5">
+
             <div class="panel panel-default">
                 <div class="panel-heading">
-                   <h3 class="panel-title">Puntuación</h3>
+                   <h3 class="panel-title">Datos del Grupo</h3>
                  </div>
                  <div class="panel-body">
-                   <span id="points"style="font-size: 20px;"></span>
-                   <img class="decoded" id="troll_img" height="150">
-            </div>          
-
-          </div>
-           <div class="panel panel-default">
+                 
+                 <div class="row">
+      					<div class="col-xs-8 col-sm-6">
+        						<div class="panel-body"id="group_details"style="font-size: 20px;"></div>
+      					</div>
+      			<div class="col-xs-4 col-sm-6">
+      			 <div class="panel panel-default">
                 <div class="panel-heading">
-                   <h3 class="panel-title">Grupo Actual</h3>
+                   <h3 class="panel-title">Premio</h3>
+                 </div>
+    					<div class="panel-body"id="group_details2"style="font-size: 50px;text-align: center;"></div></div>
+      </div>
+    </div>
+
+            	  </div>          
+          </div>
+          
+          <div class="panel panel-default">
+                <div class="panel-heading">
+                   <h3 class="panel-title">Estado</h3>
                  </div>
                  <div class="panel-body">
                  		<div>
                  	 <img class="decoded" id="troll_img" height="150">
-                   <span id="group"style="font-size: 20px;"></span>
+                   <span id="group_state"style="font-size: 20px;"></span>
                    </div><button type="button btn-block" class="btn btn-primary" id="button_v" style="display:none">Ver detalles</button>         
 
-            </div>           </div>
+            </div>
+         </div>
         </div>
+  		
   		</div>
-
-     
-
-
-
 
 
       <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -124,7 +109,7 @@
       <!-- Include all compiled plugins (below), or include individual files as needed -->
 
       <!-- Event and AJAX functions -->
-      <script type="text/javascript" src="user.js"></script>
-		<script type="text/javascript" src="logout.js"></script>
+      <script type="text/javascript" src="group.js"></script>
+	<script type="text/javascript" src="logout.js"></script>
     </body>
   </html>

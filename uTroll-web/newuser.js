@@ -1,7 +1,5 @@
 var API_BASE_URL = "http://localhost:8010/uTroll-api";
-var USERNAME = "";
-var PASSWORD_LENGTH = 2;
-
+PASSWORD_LENGTH=4;
 
 $("#button_create_user").click(function(e) {
 	e.preventDefault();
@@ -39,17 +37,14 @@ function validarEmail(email) {
         window.alert("Introduce una dirección de correo valida.");}
 }
 
-function postUser(user) {
+function postUser(uProf) {
 	var url = API_BASE_URL + '/users';
-	var data = JSON.stringify(user);
+	var data = JSON.stringify(uProf);
 
-	window.alert(data);
-	window.alert(url);
+	//window.alert(data);
+	//window.alert(url);
 	
 	$.ajax({
-//		headers : {
-//			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
-//		},
 		url : url,
 		type : 'POST',
 		crossDomain : true,
@@ -57,9 +52,21 @@ function postUser(user) {
 		contentType : 'application/vnd.uTroll.api.user+json',
 		data : data,
 	}).done(function(data, status, jqxhr) {
+
+				document.cookie="username="+uProf.username;
+				document.cookie="password="+uProf.password;
+				document.cookie="name="+uProf.name;
+				document.cookie="email="+uProf.email;
+				document.cookie="name="+uProf.name;
+				document.cookie="email="+uProf.email;
+				document.cookie="points="+uProf.points;
+				document.cookie="points_max="+uProf.points_max,
+				document.cookie="troll="+uProf.troll;
+				document.cookie="votedBy="+uProf.votedBy;
+				document.cookie="groupid="+uProf.groupid;
+				
 			window.alert("Usuario creado correctamente, ahora encuentra a tus amigos");
-			//guardar username y pwd en cookie antes de redireccionar
-			window.location="/friend.html";
+			window.location="/friends.html";
 	}).fail(function() {
 		window.alert("FAIL");
 	});

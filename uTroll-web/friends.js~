@@ -7,7 +7,7 @@ var TROLL = false;
 
 function readCookies() {
 	var user;
-	var userVar = "username=";
+	var userVar = "user=";
 	var ca = document.cookie.split(';');
 	for (var i = 0; i < ca.length; i++) {
 		var c = ca[i];
@@ -18,7 +18,7 @@ function readCookies() {
 	}
 	
 	var pass;
-	var passVar = "password=";
+	var passVar = "pass=";
 	var ca = document.cookie.split(';');
 	for (var i = 0; i < ca.length; i++) {
 		var c = ca[i];
@@ -81,16 +81,30 @@ function createFriends(u, vote) {
 	var t = document.createTextNode(u);
 
 	ablock.appendChild(t);
-	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u)
+	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);// modificar
+																			// para
+																			// q
+																			// pase
+																			// como
+																			// param
+
 	tda.appendChild(ablock);// crea un textnode y lo añade a la celda
 
 	if (!vote) {
 		var tdt = tr.insertCell(1);// crea una celda y la inserta en la fila
-		tdt.setAttribute('class', 'btn btn-primary btn-danger btn-xs');
-		tdt.appendChild(document.createTextNode('Vota al Troll'));
+		tdt.setAttribute('class', 'btn btn-primary btn-danger btn-xs');// modifica
+																		// atributo
+																		// de la
+																		// celda
+		tdt.appendChild(document.createTextNode('Vota al Troll'));// crea un
+																	// textnode
+																	// y lo
+																	// añade a
+																	// la celda
 		tdt.setAttribute('onclick', 'voteTroll(' + u + ')');// modifica atributo
-		tdt.onclick = function() {		voteTroll(u);	};	
-		tdt.setAttribute('style', 'float:right');
+															// de
+		tdt.setAttribute('style', 'float:right');// modifica atributo de la
+													// celda
 	}
 }
 
@@ -139,15 +153,26 @@ function createPendingFriends(u) {
 	var t = document.createTextNode(u);
 
 	ablock.appendChild(t);
-	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);
-	tda.appendChild(ablock);
+	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);// modificar
+																			// para
+																			// q
+																			// pase
+																			// como
+																			// param
+
+	tda.appendChild(ablock);// crea un textnode y lo añade a la celda
 
 	var tdt = tr.insertCell(1);// crea una celda y la inserta en la fila
-	tdt.setAttribute('class', 'btn btn-primary btn-success btn-xs');
-	tdt.appendChild(document.createTextNode('Acepta'));
+	tdt.setAttribute('class', 'btn btn-primary btn-success btn-xs');// modifica
+																	// atributo
+																	// de la
+																	// celda
+	tdt.appendChild(document.createTextNode('Acepta'));// crea un textnode y lo
+														// añade a la celda
 	tdt.setAttribute('onclick', 'acceptFriend(' + u + ')');// modifica atributo
-			tdt.onclick = function() {		acceptFriend(u);	};		
-	tdt.setAttribute('style', 'float:right');
+															// de
+	tdt.setAttribute('style', 'float:right');// modifica atributo de la celda
+	// falta que responda algo como acceptFriend(u);
 }
 
 function getSentFriends() {
@@ -194,7 +219,12 @@ function createSentFriends(u) {
 	var t = document.createTextNode(u);
 
 	ablock.appendChild(t);
-	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);
+	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);// modificar
+																			// para
+																			// q
+																			// pase
+																			// como
+																			// param
 
 	tda.appendChild(ablock);// crea un textnode y lo añade a la celda
 
@@ -282,13 +312,27 @@ function createSearchedFriends(u, n) {
 	var t = document.createTextNode(u);
 
 	ablock.appendChild(t);
-	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);
+	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);// modificar
+																			// para
+																			// q
+																			// pase
+																			// como
+																			// param
+
 	tda.appendChild(ablock);// crea un textnode y lo añade a la celda
 
 	var tdt = tr.insertCell(1);// crea una celda y la inserta en la fila
-	tdt.setAttribute('class', 'btn btn-primary btn-warning btn-xs');
-	tdt.appendChild(document.createTextNode('Enviar petición de amistad'));
-		tdt.onclick = function() {		addFriend(u);	};	
+	tdt.setAttribute('class', 'btn btn-primary btn-warning btn-xs');// modifica
+																	// atributo
+																	// de la
+																	// celda
+	tdt.appendChild(document.createTextNode('Enviar petición de amistad'));// crea
+																			// un
+																			// textnode
+																			// y lo
+																			// añade
+																			// a la
+																			// celda
 	tdt.setAttribute('onclick', 'addFriend(' + u + ')');// modifica atributo de
 
 	tdt.onclick = function() {

@@ -1,28 +1,21 @@
 var API_BASE_URL = "http://localhost:8010/uTroll-api";
 var WEB_URL = "http://localhost/" // server ip
-var USERNAME = "angel";
-var PASSWORD = "angel";
-var GID = -198;
-var TROLL = false;
 
-function storeCookies() {
-	var user = USERNAME;
-	var pass = PASSWORD;
-
-	document.cookie="user="+user;
-	document.cookie="pass="+pass;
-	
-	//MÍRATE ESTA WEB: http://www.w3schools.com/js/js_cookies.asp
-	//HABRÁ QUE HACERLOS EXPIRAR AL HACER LOGOUT
-}
+$('select#troll_sign').on('change',function () {
+	var valor = $(this).val();
+	alert(valor);
+});
 
 function getRanking() {
+	
+	var u=getCookie('username');
+	var p=getCookie('password');	
 
 	var url = API_BASE_URL + '/users/ranking';
 	$("#ranking_space").text('');
 	$.ajax({
 		headers : {
-			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
+			'Authorization' : "Basic " + btoa(u + ':' + p)
 		},
 		url : url,
 		type : 'GET',
@@ -47,7 +40,11 @@ function getRanking() {
 	});
 }
 
-function getGroup(gid) {
+function getGroup() {
+	var u=getCookie('username');
+	var p=getCookie('password');	
+	var gid=getCookie('groupid');
+	
 	if (gid == 0) {
 		$("#group_space").text("No estas en ningun grupo!");
 		window.alert("Sin grupo " + gid);
@@ -61,11 +58,11 @@ function getGroup(gid) {
 
 	} else if (gid != 0) {
 		var url_group = API_BASE_URL + '/users/usersInGroup/' + gid;
-		var troll = getOwnTroll();
+		var troll = getCookie('troll');
 
 		$.ajax({
 			headers : {
-				'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
+				'Authorization' : "Basic " + btoa(u + ':' + p)
 			},
 			url : url_group,
 			type : 'GET',
@@ -78,7 +75,7 @@ function getGroup(gid) {
 				$.each(user, function(i, v) {
 					var us = v;
 					if (us.username != undefined) {
-						if (us.username != USERNAME) {
+						if (us.username != u) {
 							createGroup(us.username, troll);
 						}
 
@@ -97,13 +94,17 @@ function getGroup(gid) {
 function getGroupList() {
 	window.alert("group list 1");
 
+		
+	var u=getCookie('username');
+	var p=getCookie('password');	
+
 	var url = API_BASE_URL + '/groups';
 
-	window.alert(url);
+	window.alert("grouplist "+url);
 
 	$.ajax({
 		headers : {
-			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
+			'Authorization' : "Basic " + btoa(u + ':' + p)
 		},
 		url : url,
 		type : 'GET',
@@ -132,68 +133,71 @@ function getGroupList() {
 
 }
 
-function getOwnGroup() {
+//por probar
+function getTrollMode() {
 
-	gid = -170;
-	var uProf = new Object();
-	var url = API_BASE_URL + '/users/byUsername/' + USERNAME;
+	var gid=getCookie('groupid');
+	var troll=getCookie('troll');	
+	
+	if(troll==true){
+		var troll_sign = document.getElementById("troll_sign");
 
-	$.ajax({
-		headers : {
-			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
-		},
-		url : url,
-		type : 'GET',
-		crossDomain : true,
-		dataType : 'json',
-	}).done(function(data, status, jqxhr) {
-		uProf = data;
-		GID = uProf.groupid;
-		getGroup(GID);
-	}).fail(function() {
-		window.alert("No se encuentra el grupo id");
-		return -10;
-	});
+		troll_sign.style.visibility = 'visible'; // visible
+		troll_sign.style.display = 'block'; // ocupa espacio
+	
+		var url_group = API_BASE_URL + '/users/usersInGroup/' + gid;
 
-	return GID;
+		$.ajax({
+			headers : {
+				'Authorization' : "Basic " + btoa(u + ':' + p)
+			},
+			url : url_group,
+			type : 'GET',
+			crossDomain : true,
+			dataType : 'json',
+		}).done(function(data, status, jqxhr) {
+			var users = data;
+			$.each(users, function(i, v) {
+				var user = v;
+				$.each(user, function(i, v) {
+					var us = v;
+					if (us.username != undefined) {
+						if (us.username != u) {
+							createSignList(us.username);
+						}
+
+					}
+
+				});
+			});
+		}).fail(function() {
+			window.alert("fail " + gid);
+		});
+	} 	
 }
 
-function getOwnTroll() {
+function createSignList(u) {
 
-	var troll = false;
-	var url = API_BASE_URL + '/users/byUsername/' + USERNAME;
+	var troll_sign = document.getElementById("troll_sign");
+	var ablock = document.createElement('OPTION');
+	var t = document.createTextNode(u);
 
-	$.ajax({
-		headers : {
-			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
-		},
-		url : url,
-		type : 'GET',
-		crossDomain : true,
-		dataType : 'json',
-	}).done(function(data, status, jqxhr) {
-		var uProf = data;
-		TROLL = uProf.troll;
-
-		return troll;
-	}).fail(function() {
-		window.alert("No se encuentra el grupo id");
-		return -10;
-	});
-
-	troll = TROLL;
-
-	return troll;
+	ablock.appendChild(t);
+	troll_sign.appendChild(ablock);
 
 }
 
 function getComments() {
+	
+	var u=getCookie('username');
+	var p=getCookie('password');	
+	
 	// falta añadir funcion de los motores quizas separar likes dislikes
 	var url = API_BASE_URL + '/comments';
 	$("#comments_space").text('');
 	$.ajax({
 		headers : {
-			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
+			'Authorization' : "Basic " + btoa(u + ':' + p)
 		},
 		url : url,
 		type : 'GET',
@@ -220,8 +224,8 @@ function getComments() {
 
 function createComments(a, c, l, dl, cid) {
 
-	var space = document.getElementById("comments_space"), tbl = document
-			.createElement('table');
+	var space = document.getElementById("comments_space");
+	tbl = document.createElement('table');
 	tbl.style.width = '100%';
 	// tbl.style.border = "1px solid red";
 
@@ -298,31 +302,14 @@ function createGroup(u, vote) {
 	var t = document.createTextNode(u);
 
 	ablock.appendChild(t);
-	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);// modificar
-	// para
-	// q
-	// pase
-	// como
-	// param
+	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);
 
-	tda.appendChild(ablock);// crea un textnode y lo añade a la celda
-
-	// tda.appendChild(document.createTextNode(a));//crea un textnode y lo añade
-	// a la celda
-	// tda.setAttribute('colSpan', '3');//modifica atributo de la celda
+	tda.appendChild(ablock);
 	if (!vote) {
 		var tdt = tr.insertCell(1);// crea una celda y la inserta en la fila
-		tdt.setAttribute('class', 'btn btn-primary btn-warning btn-xs');// modifica
-		// atributo
-		// de la
-		// celda
-		tdt.appendChild(document.createTextNode('Vota al Troll'));// crea un
-		// textnode
-		// y lo
-		// añade a
-		// la celda
-		tdt.setAttribute('style', 'float:right');// modifica atributo de la
-		// celda
+		tdt.setAttribute('class', 'btn btn-primary btn-warning btn-xs');
+		tdt.appendChild(document.createTextNode('Vota al Troll'));
+		tdt.setAttribute('style', 'float:right');
 		tdt.setAttribute('onclick', 'voteTroll(' + u + ')');// modifica atributo
 		// de la celda
 	}
@@ -334,8 +321,8 @@ function createGroup(u, vote) {
 
 function createGroupList(n, gid, p, s) {
 
-	var space = document.getElementById("group_space"), tbl = document
-			.createElement('table');
+	var space = document.getElementById("group_space");
+	tbl = document.createElement('table');
 	tbl.style.width = '100%';
 	// tbl.style.border = "1px solid red";
 
@@ -375,8 +362,8 @@ function createGroupList(n, gid, p, s) {
 
 function createRanking(u, p, rnk) {
 
-	var space = document.getElementById("ranking_space"), tbl = document
-			.createElement('table');
+	var space = document.getElementById("ranking_space");
+	tbl = document.createElement('table');
 	tbl.style.width = '100%';
 	// tbl.style.border = "1px solid red";
 
@@ -395,12 +382,7 @@ function createRanking(u, p, rnk) {
 	var t = document.createTextNode(u);
 
 	ablock.appendChild(t);
-	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);// modificar
-	// para
-	// q
-	// pase
-	// como
-	// param
+	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);
 
 	tda.appendChild(ablock);// crea un textnode y lo añade a la celda
 
@@ -415,9 +397,11 @@ function createRanking(u, p, rnk) {
 	space.appendChild(document.createElement('P'));
 
 }
-
+//por hacer
 function voteTroll(username) {
-	// getUserPass();
+	var u=getCookie('username');
+	var p=getCookie('password');	
+	
 	var url = API_BASE_URL + '/user/repos';
 	var data = JSON.stringify(repo);
 	$("#repos_result").text('');
@@ -450,16 +434,15 @@ function voteTroll(username) {
 }
 
 function postLike(cid) {
-	// getUserPass();
+	var u=getCookie('username');
+	var p=getCookie('password');	
 
 	var url = API_BASE_URL + '/comments/like/' + cid;
 	var data = JSON.stringify("");
 
-	// $("#repos_result").text('');
-
 	$.ajax({
 		headers : {
-			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
+			'Authorization' : "Basic " + btoa(u + ':' + p)
 		},
 		url : url,
 		type : 'PUT',
@@ -468,24 +451,23 @@ function postLike(cid) {
 		contentType : 'application/vnd.uTroll.api.comment+json',
 		data : data,
 	}).done(function(data, status, jqxhr) {
-		window.alert("LIKE!");
-		getComments();
+			window.alert("LIKE!");
+			getComments();
 	}).fail(function() {
-		window.alert("FAIL");
+			window.alert("FAIL");
 	});
 }
 
 function postDislike(cid) {
-	// getUserPass();
+	var u=getCookie('username');
+	var p=getCookie('password');	
 
 	var url = API_BASE_URL + '/comments/dislike/' + cid;
 	var data = JSON.stringify("");
-
-	// $("#repos_result").text('');
-
+	
 	$.ajax({
 		headers : {
-			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
+			'Authorization' : "Basic " + btoa(u + ':' + p)
 		},
 		url : url,
 		type : 'PUT',
@@ -502,25 +484,36 @@ function postDislike(cid) {
 }
 
 function postComment() {
-	// getUserPass();
+		
+	c= $("#new_comment").val();
+	if (c=='') {
+	 window.alert("Escribe algo a comentar!");	
+	}else {
+		
 	var comment = new Object();
-	comment.content = $("#new_comment").val();
+	comment.content= c;
+	var u=getCookie('username');
+	var p=getCookie('password');	
+	var t=getCookie('troll');
+	
+	comment.creator = u;
 
-	comment.creator = USERNAME;
-	// if (!getOwnTroll()) {
-	comment.username = USERNAME;
-	// }else if (getOwnTroll()) {
-	// comment.content=$("#troll_sign").val();
-	// }
+	 window.alert("troll? "+t);
+
+	if (t==false) {
+	 window.alert("troll? "+t);	
+	 comment.username = u;
+	}else if (t==true) {
+	 comment.username=$("#troll_sign").val();
+	}
 
 	var url = API_BASE_URL + '/comments';
 	var data = JSON.stringify(comment);
-	window.alert(data);
-	// $("#repos_result").text('');
-
+	
+	window.alert("troll? "+data);	
 	$.ajax({
 		headers : {
-			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
+			'Authorization' : "Basic " + btoa(u + ':' + p)
 		},
 		url : url,
 		type : 'POST',
@@ -530,9 +523,23 @@ function postComment() {
 		data : data,
 	}).done(function(data, status, jqxhr) {
 		window.alert("Post!");
+		$("#new_comment").val("");
+		
 		getComments();
-		// checkCookie();
+		//limpiar el new coments
+		
 	}).fail(function() {
 		window.alert("FAIL");
 	});
-}
+}}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);{
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);{}}
+    }
+    return "";
+} 

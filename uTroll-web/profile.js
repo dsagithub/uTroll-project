@@ -1,13 +1,4 @@
 var API_BASE_URL = "http://localhost:8010/uTroll-api";
-var USERNAME = "david";
-var PASSWORD = "david";
-var REPO_NAME = "";
-
-// $.ajaxSetup({
-// headers : {
-// 'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
-// }
-// });
 
 $("#btn_mod_enable").click(function(e) {
 	e.preventDefault();
@@ -46,19 +37,17 @@ var valores=getUserUrl();
  }
 
 function getProfile() {
-	//getUserPass();
-	//REPO_NAME = $("#repository_name").val();
+	var u=getCookie('username');
+	var p=getCookie('password');	
 
 	var url = API_BASE_URL + '/users/byUsername/'+getUserUrl();
-	
-	
 	var button_vote=document.getElementById("button_vote");
 	
 	$("#user_profile").text('');
 	
 	$.ajax({
 		headers : {
-			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
+			'Authorization' : "Basic " + btoa(u + ':' + p)
 		},
 		url : url,
 		type : 'GET',
@@ -70,7 +59,6 @@ function getProfile() {
 
 				$("#user_profile").text('');
 				$('<h3> <strong> Name: </strong>' + uProf.name + '</h3>').appendTo($('#user_profile'));
-				//$('<p>').appendTo($('#user_profile'));	
 				
 				$('<h4><strong> Username: </strong> ' + uProf.username + '<br> </h4>').appendTo($('#user_profile'));
 				
@@ -79,43 +67,31 @@ function getProfile() {
 				$('<strong> Points: </strong> ' + uProf.points + '<br>').appendTo($('#points'));
 				$('<strong> Max Point: </strong> ' + uProf.points_max + '<br>').appendTo($('#points'));
 				
-				$('<strong> GroupID: </strong> ' + uProf.groupid + '<br>').appendTo($('#group'));
+				if (uProf.groupid==0) {
+				$('<strong> No esta en ningun grupo! </strong><br>').appendTo($('#group'));
 				
-				$("#imagen").attr("src", repo.owner.avatar_url);
-					//$("#imagen").attr("height", 100);
+				
+				}else if (uProf.groupid==getCookie('groupid')) {
+					
+					$('<strong> Esta en tu grupo! </strong><br>').appendTo($('#group'));
+				}else {
+				$('<strong> GroupID: </strong> ' + uProf.groupid + '<br>').appendTo($('#group'));
+}
+				
+
 					
 			}).fail(function() {
-		$("#user_profile").text("Este repositorio no existe");
-	});
-	//getFriends();
-
-}
-
-function getFriends() {
-	//getUserPass();
-	var url = API_BASE_URL + '/friends/';
-	$("#friends").text('');
-
-	$.ajax({
-		//headers : {
-		//	'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
-		//},
-		url : url,
-		type : 'GET',
-		crossDomain : true,
-		dataType : 'json',
-	}).done(
-			function(data, status, jqxhr) {
-				var repos = data;
-
-				$.each(users, function(i, v) {
-					var repo = v;
-					
-					$('#friends').append('<li class="list-group-item">'+repo.name+'</li>');	
-
-				});
-
-			}).fail(function() {
-		$('<li class="list-group-item"></li>').text("No hay repositorios.");
+		$("#user_profile").text("??");
 	});
 }
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);{
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);{}}
+    }
+    return "";
+} 

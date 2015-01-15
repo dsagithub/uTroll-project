@@ -12,7 +12,6 @@
 
       <!-- CSS -->
       <link rel="stylesheet" href="css/styles.css">
-      <link rel="stylesheet" href="css/*.*">
     </head>
     <body onload="readCookies(); getFriends(); getPendingFriends(); getSentFriends();">
 	    
@@ -29,7 +28,7 @@
             <li><a href="/group.html">Grupo</a></li>
             <li ><a href="/user.html">Ver Prefil</a></li>
             <li class="active"><a href="/friends.html">Amigos</a></li>
-            <li><a href="#">Log Out</a></li>
+				<li><a onclick="LogOut()">Log Out</a></li>
           </ul>
         </div><!-- /.nav-collapse -->
       </div><!-- /.container -->
@@ -39,11 +38,6 @@
       <div class="container theme-showcase" role="main">
              <img class="img-responsive img-rounded" src="img/slider1.png" style="display: block;min-height: 200px;min-width: 867px;margin-top: -20px;">
 				<p></p>
-			<!--
-        <div class="page-header">
-          <h1>Perfil</h1>
-        </div>
-			-->
 			
         <div class="row">
         <p></p>
@@ -117,5 +111,6 @@
 
       <!-- Event and AJAX functions -->
       <script type="text/javascript" src="friends.js"></script>
+      	<script type="text/javascript" src="logout.js"></script>
     </body>
   </html>

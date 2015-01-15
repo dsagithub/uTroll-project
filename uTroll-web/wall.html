@@ -10,26 +10,23 @@
 <link rel="stylesheet"
 	href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
 <!-- CSS -->
-<link rel="stylesheet" href="/css/*.css">
+<link rel="stylesheet" href="/css/bootstrap.css">
 </head>
 <body
-	onload="getComments(); getRanking(); getOwnGroup(); storeCookies();">
+	onload="getComments(); getRanking(); getGroup(); getTrollMode();">
 	<!-- Barra de navegacion -->
 	<nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">
 		<div class="container">
 			<div class="navbar-header">
 				<a class="navbar-brand" href="/wall.html">uTroll</a>
 			</div>
-			<div id="navbar" class="collapse navbar-collapse">
+			<div id="navbar" class="collapse navbar-collapse" >
 				<ul class="nav navbar-nav">
 					<li class="active"><a href="/wall.html">Muro</a></li>
-					<li><a href="/group.html">Crear Grupo</a></li>
+					<li><a href="/group.html">Grupo</a></li>
 					<li><a href="/user.html">Ver Prefil</a></li>
-					<!-- 					He tocado aquí lo del Friend -->
-					<!-- 					<li><a href="/friend.html">Amigos</a></li>  -->
-					<li><a
-						href="/home/yandrak/dsa-final-project/uTroll-project/uTroll-web/friends.html">Amigos</a></li>
-					<li><a href="#">Log Out</a></li>
+					<li><a href="/friends.html">Amigos</a></li>
+					<li><a onclick="LogOut()">Log Out</a></li>
 				</ul>
 			</div>
 			<!-- /.nav-collapse -->
@@ -37,9 +34,7 @@
 		<!-- /.container -->
 	</nav>
 	<!-- /.navbar -->
-	<div class="jumbotron" style="background-color: #D24726; height: 11px">
-
-	</div>
+   <img class="img-responsive" src="img/wallbar2.png" style="display: block;min-height: 50px; min-width: 867px;margin-top: 50px;">
 
 
 	<div class="container theme-showcase" role="main">
@@ -69,9 +64,7 @@
 					<div class="panel-body" id="space2" style="weight: 100%">
 						<p></p>
 						<select class="form-control" id="troll_sign" style="display: none">
-							<option>1</option>
-							<option>2</option>
-							<option>3</option>
+							<option>hola</option>
 						</select>
 						<p></p>
 						<textarea class="form-control" rows="4" id="new_comment"></textarea>
@@ -128,8 +121,7 @@
 		src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->
 	<!-- Event and AJAX functions -->
-	<script type="text/javascript" src="tables.js"></script>
-	<script type="text/javascript" src="friends.js"></script>
+	<script type="text/javascript" src="logout.js"></script>
 	<script type="text/javascript" src="wall.js"></script>
 </body>
 </html>
