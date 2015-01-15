@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".uTrollMainActivity">
+    <item
+        android:id="@+id/refreshGroupsMenuItem"
+        android:title="Refrescar"
+        android:icon="@drawable/ic_action_refresh"
+        android:showAsAction="withText|always" />
+    <item
+        android:id="@+id/createGroupMenuItem"
+        android:title="Crear grupo"
+        android:icon="@drawable/ic_action_new"
+        android:showAsAction="withText|always" />
+</menu>
+<!-- From: file:/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/src/main/res/menu/menu_groups.xml -->

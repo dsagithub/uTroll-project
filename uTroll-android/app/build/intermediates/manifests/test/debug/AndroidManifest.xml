@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="edu.upc.eetac.dsa.dsaqt1415g4.utroll.test">
+
+    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="21" />
+
+    <application>
+        <uses-library android:name="android.test.runner" />
+    </application>
+
+    <instrumentation android:name="android.test.InstrumentationTestRunner"
+                     android:targetPackage="edu.upc.eetac.dsa.dsaqt1415g4.utroll"
+                     android:handleProfiling="false"
+                     android:functionalTest="false"
+                     android:label="Tests for edu.upc.eetac.dsa.dsaqt1415g4.utroll"/>
+</manifest>

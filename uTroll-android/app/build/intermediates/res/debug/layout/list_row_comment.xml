@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvUsername"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dip"
+            android:layout_weight="1"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <!--<TextView-->
+            <!--android:id="@+id/tvLike"-->
+            <!--android:layout_width="0dip"-->
+            <!--android:layout_weight="0.5"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_margin="4dip"-->
+            <!--android:paddingTop="10dip"-->
+            <!--android:textAppearance="?android:attr/textAppearanceLarge"-->
+            <!--android:text="@string/like"-->
+            <!--android:gravity="center"/>-->
+
+        <TextView
+            android:id="@+id/tvLikeCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dip"
+            android:paddingTop="10dip"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#33CC33"
+            android:text="@string/like_count"/>
+
+        <!--<ImageView-->
+            <!--android:id="@+id/imgWhiteDetail"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/like"-->
+            <!--android:layout_marginRight="8dip"/>-->
+
+        <!--<ImageView-->
+            <!--android:id="@+id/imgBlackDetail"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/dislike"-->
+            <!--android:layout_marginLeft="8dip"/>-->
+
+        <TextView
+            android:id="@+id/tvDislikeCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dip"
+            android:paddingTop="10dip"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#FF0000"
+            android:text="@string/dislike_count"/>
+
+        <!--<TextView-->
+            <!--android:id="@+id/tvDislike"-->
+            <!--android:layout_width="0dip"-->
+            <!--android:layout_weight="0.5"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_margin="4dip"-->
+            <!--android:textAppearance="?android:attr/textAppearanceLarge"-->
+            <!--android:text="@string/dislike"-->
+            <!--android:gravity="center"/>-->
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dip"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+</LinearLayout><!-- From: file:/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/src/main/res/layout/list_row_comment.xml -->

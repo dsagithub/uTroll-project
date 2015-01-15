@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/classes-2ce12c89d6fe475d4df2e04ebef854f1a939ad21.jar" />
+    </item>
+    <item
+        jar="/opt/android-sdk/extras/android/m2repository/com/android/support/support-annotations/21.0.3/support-annotations-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
+        <dex dex="/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.3-1cd1039154f1bb9cc0d4a9da3e8b7ec509fd8b06.jar" />
+    </item>
+    <item
+        jar="/home/yandrak/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.3.1/ecb6e1f8e4b0e84c4b886c2f14a1500caf309757/gson-2.3.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="ecb6e1f8e4b0e84c4b886c2f14a1500caf309757">
+        <dex dex="/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/gson-2.3.1-1167f1a6038c256cb73a83e9506ae4a0496d4582.jar" />
+    </item>
+    <item
+        jar="/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
+        <dex dex="/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/classes-c34811264d39053a42eed0a17b34ec2ef9e10beb.jar" />
+    </item>
+    <item
+        jar="/home/yandrak/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/20041127.091804/17b1ff59f0916ac7bcff704e712415a0d49d468d/commons-codec-20041127.091804.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="17b1ff59f0916ac7bcff704e712415a0d49d468d">
+        <dex dex="/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/commons-codec-20041127.091804-2a73d295d8e23c7866e0552e0e35209d16a3bf25.jar" />
+    </item>
+    <item
+        jar="/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/libs/internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.3-ca7d8fe62fe5117680375b327116e7c413e5edc6.jar" />
+    </item>
+
+</items>

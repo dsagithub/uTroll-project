@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dip" >
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dip" >
+
+        <TextView
+            android:id="@+id/tvTrollChooseUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/write_comment_choose_user_tv"
+            android:layout_marginLeft="2dip"
+            android:layout_marginTop="5dip"
+            android:layout_alignBaseline="@+id/SpinnerUsers"/>
+
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/SpinnerUsers"
+            android:spinnerMode="dropdown"
+            android:layout_toRightOf="@+id/tvTrollChooseUser"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/write_comment_tv"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="5dip"/>
+
+    <EditText
+        android:id="@+id/etTrollContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:layout_margin="10dip"
+        android:gravity="top|left"
+        android:inputType="text"
+        android:hint="@string/write_comment_hint"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btnTrollCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:onClick="cancel"
+            android:text="@string/write_comment_cancel_btn"
+            android:layout_marginRight="20dip"/>
+
+        <Button
+            android:id="@+id/btnTrollSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:onClick="post"
+            android:text="@string/write_comment_send_btn" />
+    </LinearLayout>
+
+</LinearLayout> <!-- From: file:/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/src/main/res/layout/write_comment_troll_layout.xml -->

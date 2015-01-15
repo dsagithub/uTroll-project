@@ -1,0 +1,7 @@
+/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/classes/debug
+/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.3-1cd1039154f1bb9cc0d4a9da3e8b7ec509fd8b06.jar
+/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/commons-codec-20041127.091804-2a73d295d8e23c7866e0552e0e35209d16a3bf25.jar
+/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.3-ca7d8fe62fe5117680375b327116e7c413e5edc6.jar
+/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/gson-2.3.1-1167f1a6038c256cb73a83e9506ae4a0496d4582.jar
+/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/classes-c34811264d39053a42eed0a17b34ec2ef9e10beb.jar
+/home/yandrak/dsa-final-project/uTroll-project/uTroll-android/app/build/intermediates/pre-dexed/debug/classes-2ce12c89d6fe475d4df2e04ebef854f1a939ad21.jar
