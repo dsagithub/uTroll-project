@@ -35,7 +35,7 @@ function getProfile() {
 				$('<strong> Max Points: ' + getCookie('points_max') + '</strong><br>').appendTo($('#points'));
 				
 				if (getCookie('groupid') ==0){
-				$('<strong> No </strong> estas en ningun grupo aun!').appendTo($('#group'));				
+				$('<strong> No </strong>'+ 'estas en ningun grupo aun!').appendTo($('#group'));				
 				$('<button type="button" class="btn btn-primary" style="float:right" id="button_group">Busca un grupo</button>').appendTo($('#group'));					
 				}			
 				else if(getCookie('groupid') !=0){
@@ -96,10 +96,11 @@ function modifyUser() {
 		
 		window.location.reload();
 	}).fail(function() {
-		window.alert("FAIL");
+		window.alert("FAIL Update User");
 	});
 }
 }
+
 function getCookie(cname) {
     var name = cname + "=";
     var ca = document.cookie.split(';');

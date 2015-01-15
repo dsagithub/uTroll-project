@@ -14,7 +14,7 @@
       <link rel="stylesheet" href="css/bootstrap.css">
       
     </head>
-    <body onload="getProfile();">
+    <body onload="reloadCookies(); getProfile();">
 	    
     
     <!-- Barra de navegacion -->
@@ -29,7 +29,7 @@
             <li><a href="/group.html">Grupo</a></li>
             <li class="active"><a href="/user.html">Ver Prefil</a></li>
             <li><a href="/friends.html">Amigos</a></li>
-            <li><a href="#">Log Out</a></li>
+            <li><a onclick="LogOut()">Log Out</a></li>
          
           </ul>
         </div><!-- /.nav-collapse -->

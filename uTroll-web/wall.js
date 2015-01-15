@@ -84,7 +84,7 @@ function getGroup() {
 				});
 			});
 		}).fail(function() {
-			window.alert("fail " + gid);
+			window.alert("FAIL getGroup " + gid);
 		});
 	} else if (gid == -1) {
 		window.alert("ERROR 2: Gid no identificado");
@@ -454,7 +454,7 @@ function postLike(cid) {
 			window.alert("LIKE!");
 			getComments();
 	}).fail(function() {
-			window.alert("FAIL");
+			window.alert("FAIL PostLike");
 	});
 }
 
@@ -479,7 +479,7 @@ function postDislike(cid) {
 		window.alert("DISLIKE!");
 		getComments();
 	}).fail(function() {
-		window.alert("FAIL");
+		window.alert("FAIL Post Dislike");
 	});
 }
 
@@ -529,7 +529,7 @@ function postComment() {
 		//limpiar el new coments
 		
 	}).fail(function() {
-		window.alert("FAIL");
+		window.alert("FAIL Post Comment");
 	});
 }}
 

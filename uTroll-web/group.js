@@ -16,13 +16,14 @@ function getGroupDetails() {
 	
 	if (gid == 0) {
 		$("#group_details").text("No estas en ningun grupo!");
+		$('<strong> Tienes: ' + getCookie('points') + '</strong> puntos<br>').appendTo($('#group_state'));				
+		
+		var btn = document.getElementById("create_btn");
+
+		btn.style.visibility = 'visible'; // visible
+		btn.style.display = 'block'; // ocupa espacio
+		
 		window.alert("Sin grupo " + gid);
-		
-		
-		
-		
-		
-		
 
 	} else if (gid != 0) {
 		var url_group = API_BASE_URL + '/groups/' + gid;
@@ -121,8 +122,8 @@ function getGroup() {
 
 function createGroup(u) {
 
-	var space = document.getElementById("group_profile"), tbl = document
-			.createElement('table');
+	var space = document.getElementById("group_profile");
+	tbl = document.createElement('table');
 	tbl.style.width = '100%';
 	// tbl.style.border = "1px solid red";
 
@@ -135,8 +136,8 @@ function createGroup(u) {
 
 	ablock.appendChild(t);
 	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u);
-
 	tda.appendChild(ablock);
+	
 	if ((getCookie('vote')=='none')&&(getCookie('troll')=='false')) {
 		var tdt = tr.insertCell(1);// crea una celda y la inserta en la fila
 		tdt.setAttribute('class', 'btn btn-primary btn-warning btn-xs');
@@ -153,7 +154,6 @@ function createGroup(u) {
 
 function getGroupList() {
 	window.alert("group list 1");
-
 		
 	var u=getCookie('username');
 	var p=getCookie('password');	
