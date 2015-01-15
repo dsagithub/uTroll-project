@@ -16,7 +16,7 @@ function readCookies() {
 		if (c.indexOf(userVar) == 0)
 			user = c.substring(userVar.length, c.length);
 	}
-	
+
 	var pass;
 	var passVar = "password=";
 	var ca = document.cookie.split(';');
@@ -28,18 +28,19 @@ function readCookies() {
 			pass = c.substring(passVar.length, c.length);
 	}
 
-	window.alert(user);
-	window.alert(pass);
-	
-	USERNAME = user;
-	PASSWORD = pass;
+	// window.alert(user);
+	// window.alert(pass);
+	//
+	// USERNAME = user;
+	// PASSWORD = pass;
+	USERNAME = 'david';
+	PASSWORD = 'david';
 }
 
 function getFriends() {
-	// window.alert("iniciando 1");
 	// falta añadir funcion de los motores quizas separar likes dislikes
 	var url = API_BASE_URL + '/friends/getUniqueFriends/';
-	// $("#friends_space").text('');
+
 	$.ajax({
 		headers : {
 			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
@@ -89,15 +90,16 @@ function createFriends(u, vote) {
 		tdt.setAttribute('class', 'btn btn-primary btn-danger btn-xs');
 		tdt.appendChild(document.createTextNode('Vota al Troll'));
 		tdt.setAttribute('onclick', 'voteTroll(' + u + ')');// modifica atributo
-		tdt.onclick = function() {		voteTroll(u);	};	
+		tdt.onclick = function() {
+			voteTroll(u);
+		};
 		tdt.setAttribute('style', 'float:right');
 	}
 }
 
 function getPendingFriends() {
-	// window.alert("iniciando 1");
 	var url = API_BASE_URL + '/friends/getPendingFriends/';
-	// $("#friends_space").text('');
+
 	$.ajax({
 		headers : {
 			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
@@ -146,14 +148,15 @@ function createPendingFriends(u) {
 	tdt.setAttribute('class', 'btn btn-primary btn-success btn-xs');
 	tdt.appendChild(document.createTextNode('Acepta'));
 	tdt.setAttribute('onclick', 'acceptFriend(' + u + ')');// modifica atributo
-			tdt.onclick = function() {		acceptFriend(u);	};		
+	tdt.onclick = function() {
+		acceptFriend(u);
+	};
 	tdt.setAttribute('style', 'float:right');
 }
 
 function getSentFriends() {
-	// window.alert("iniciando 1");
 	var url = API_BASE_URL + '/friends/pendingUnique/' + USERNAME;
-	// $("#friends_space").text('');
+
 	$.ajax({
 		headers : {
 			'Authorization' : "Basic " + btoa(USERNAME + ':' + PASSWORD)
@@ -201,8 +204,6 @@ function createSentFriends(u) {
 }
 
 function acceptFriend(username) {
-	// getUserPass();
-
 	var url = API_BASE_URL + '/acceptFriend/' + username;
 	var data = JSON.stringify("");
 
@@ -227,7 +228,6 @@ function acceptFriend(username) {
 }
 
 function searchUser() {
-
 	document.getElementById("friends_search").innerHTML = "";
 	var mod_search = document.getElementById("search_block");
 
@@ -269,7 +269,6 @@ function searchUser() {
 }
 
 function createSearchedFriends(u, n) {
-
 	var tbl = document.getElementById("friends_search"),
 
 	tr = document.createElement('tr');
@@ -288,7 +287,9 @@ function createSearchedFriends(u, n) {
 	var tdt = tr.insertCell(1);// crea una celda y la inserta en la fila
 	tdt.setAttribute('class', 'btn btn-primary btn-warning btn-xs');
 	tdt.appendChild(document.createTextNode('Enviar petición de amistad'));
-		tdt.onclick = function() {		addFriend(u);	};	
+	tdt.onclick = function() {
+		addFriend(u);
+	};
 	tdt.setAttribute('onclick', 'addFriend(' + u + ')');// modifica atributo de
 
 	tdt.onclick = function() {
@@ -300,10 +301,6 @@ function createSearchedFriends(u, n) {
 }
 
 function addFriend(u) {
-	// getUserPass();
-
-	window.alert("HOLA");
-
 	var url = API_BASE_URL + '/friends/addFriend/' + u;
 	var data = JSON.stringify("");
 

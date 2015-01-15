@@ -264,14 +264,6 @@ public class FriendListResource {
 			stmt1.setString(3, "pending");
 			stmt1.setBoolean(4, false);
 			stmt1.executeUpdate();
-
-			ResultSet rs = stmt.getGeneratedKeys();
-			if (rs.next()) {
-				int friendshipid = rs.getInt("friendshipid");
-				friend = getFriendFromDatabase(friendshipid);
-			} else {
-				// Something has failed...
-			}
 		} catch (SQLException e) {
 			throw new ServerErrorException(e.getMessage(),
 					Response.Status.INTERNAL_SERVER_ERROR);
@@ -285,7 +277,9 @@ public class FriendListResource {
 			} catch (SQLException e) {
 			}
 		}
-		return friend;
+		FriendList friend1 = new FriendList();
+		friend1.setRequest(true);
+		return friend1;
 	}
 
 	// Aceptar una petición de amistad
