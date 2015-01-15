@@ -133,7 +133,7 @@ function getGroupList() {
 
 }
 
-//por probar
+// por probar
 function getTrollMode() {
 
 	var gid=getCookie('groupid');
@@ -194,7 +194,6 @@ function getComments() {
 	
 	// falta añadir funcion de los motores quizas separar likes dislikes
 	var url = API_BASE_URL + '/comments';
-	$("#comments_space").text('');
 	$.ajax({
 		headers : {
 			'Authorization' : "Basic " + btoa(u + ':' + p)
@@ -208,6 +207,49 @@ function getComments() {
 				var comments = data;
 				$.each(comments, function(i, v) {
 					var comment = v;
+					if (i == 2)
+						document.cookie = "prev=" + comment;
+					if (i == 3)
+						document.cookie = "next=" + comment;
+					$.each(comment, function(i, v) {
+						var com = v;
+						// window.alert(com.username);
+						if (com.username != undefined) {
+							createComments(com.username, com.content,
+									com.likes, com.dislikes, com.commentid);
+						}
+					});
+				});
+			}).fail(function() {
+		$("#comments_space").text("No hay comments.");
+	});
+}
+
+function getCommentsPrev() {
+	window.alert("HOLAAAA");
+	var u=getCookie('username');
+	var p=getCookie('password');
+	var prev = getCookie('prev');
+	var next = getCookie('next');
+	window.alert("prev"+prev);
+	window.alert("next"+next);
+	
+	// falta añadir funcion de los motores quizas separar likes dislikes
+	var url = API_BASE_URL + '/comments?before=' + next;
+	$.ajax({
+		headers : {
+			'Authorization' : "Basic " + btoa(u + ':' + p)
+		},
+		url : url,
+		type : 'GET',
+		crossDomain : true,
+		dataType : 'json',
+	}).done(
+			function(data, status, jqxhr) {
+				var comments = data;
+				$.each(comments, function(i, v) {
+					var comment = v;
+					window.alert(JSON.stringify(comment));
 					$.each(comment, function(i, v) {
 						var com = v;
 						// window.alert(com.username);
@@ -397,7 +439,7 @@ function createRanking(u, p, rnk) {
 	space.appendChild(document.createElement('P'));
 
 }
-//por hacer
+// por hacer
 function voteTroll(username) {
 	var u=getCookie('username');
 	var p=getCookie('password');	
@@ -526,7 +568,7 @@ function postComment() {
 		$("#new_comment").val("");
 		
 		getComments();
-		//limpiar el new coments
+		// limpiar el new coments
 		
 	}).fail(function() {
 		window.alert("FAIL Post Comment");
