@@ -10,7 +10,6 @@ $("#btn_mod_enable").click(function(e) {
 	
 	mod_profile.style.visibility='visible';			//visible
 	mod_profile.style.display = 'block';				//ocupa espacio
-	//getOldProfile();	
 	
 });
 
@@ -28,13 +27,6 @@ function getUserUrl(){
 
     return arrUrl[1];
 }
-
-function functionL() { 
-// Cogemos los valores pasados por get 
-var valores=getUserUrl(); 
- window.alert(valores);
- 
- }
 
 function getProfile() {
 	var u=getCookie('username');
@@ -81,7 +73,7 @@ function getProfile() {
 
 					
 			}).fail(function() {
-		$("#user_profile").text("??");
+		$("#user_profile").text("FAIL: Creating Text Show!");
 	});
 }
 

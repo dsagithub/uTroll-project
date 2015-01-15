@@ -47,7 +47,7 @@ function getGroup() {
 
 	if (gid == 0) {
 		$("#group_space").text("No estas en ningun grupo!");
-		window.alert("Sin grupo " + gid);
+		// window.alert("Sin grupo " + gid);
 
 		var btn = document.getElementById("group_btn_space");
 
@@ -68,6 +68,8 @@ function getGroup() {
 			dataType : 'json',
 		}).done(function(data, status, jqxhr) {
 			var users = data;
+			var s1 = document.getElementById("troll_sign");
+			s1.options[s1.length] = new Option(u, u);
 			$.each(users, function(i, v) {
 				var user = v;
 				$.each(user, function(i, v) {
@@ -92,7 +94,7 @@ function getGroup() {
 function getGroupPrice() {
 
 	var u = getCookie('username');
-	var p = getCookie('passwor	d');
+	var p = getCookie('password');
 	var gid = getCookie('groupid');
 
 	if ((gid != '0') || (gid != 'undefined')) {
@@ -111,7 +113,7 @@ function getGroupPrice() {
 			var group = data;
 			var price = group.price;
 			setCookie('price', price, 1);
-			window.alert(price);
+			// window.alert(price);
 			var space = document.getElementById("group_points");
 			space.appendChild(document.createTextNode('me cago en to'));
 		}).fail(function() {
@@ -312,10 +314,17 @@ function createGroup(u) {
 	tdt.onclick = function() {
 		voteTroll(a);
 	};
-	
-	if ((t = true) || (v != 'none')) {
+
+	if (v != 'none') {
 		tdt.setAttribute('disabled', 'true');// modifica atributo
 		tdt.appendChild(document.createTextNode('Ya has votado al Troll'));
+	} else if (t = true) {
+		tdt.setAttribute('disabled', 'true');// modifica atributo
+		tdt.appendChild(document.createTextNode('Ya has votado al Troll'));
+
+		var s1 = document.getElementById("troll_sign");
+		// s1.setAttribute('disabled', 'false');
+		s1.options[s1.length] = new Option(u, u);
 	} else {
 		tdt.appendChild(document.createTextNode('Vota al Troll'));
 	}
@@ -380,7 +389,6 @@ function postLike(cid) {
 		contentType : 'application/vnd.uTroll.api.comment+json',
 		data : data,
 	}).done(function(data, status, jqxhr) {
-		window.alert("LIKE!");
 		getComments();
 	}).fail(function() {
 		window.alert("FAIL PostLike");
@@ -405,7 +413,6 @@ function postDislike(cid) {
 		contentType : 'application/vnd.uTroll.api.comment+json',
 		data : data,
 	}).done(function(data, status, jqxhr) {
-		window.alert("DISLIKE!");
 		getComments();
 	}).fail(function() {
 		window.alert("FAIL Post Dislike");
@@ -427,19 +434,12 @@ function postComment() {
 
 		comment.creator = u;
 
-		window.alert("troll? " + t);
-
-		if (t == false) {
-			window.alert("troll? " + t);
-			comment.username = u;
-		} else if (t == true) {
-			comment.username = $("#troll_sign").val();
-		}
+		comment.username = document.getElementById("troll_sign").value;
 
 		var url = API_BASE_URL + '/comments';
 		var data = JSON.stringify(comment);
 
-		window.alert("troll? " + data);
+		// window.alert("troll? " + data);
 		$.ajax({
 			headers : {
 				'Authorization' : "Basic " + btoa(u + ':' + p)
@@ -451,7 +451,6 @@ function postComment() {
 			contentType : 'application/vnd.uTroll.api.comment+json',
 			data : data,
 		}).done(function(data, status, jqxhr) {
-			window.alert("Post!");
 			$("#new_comment").val("");
 
 			getComments();

@@ -36,7 +36,6 @@ function setCookieProfile() {
 				document.cookie="votedBy="+uProf.votedBy;
 				document.cookie="vote="+uProf.vote;
 				document.cookie="groupid="+uProf.groupid;
-				window.alert("setCookieProfile "+document.cookie);
 				window.location="/wall.html";
 			}).fail(function() {
 					window.alert("ERROR: SetCookieProfile");
