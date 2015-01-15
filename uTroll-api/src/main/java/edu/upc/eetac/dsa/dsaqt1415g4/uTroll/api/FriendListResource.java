@@ -383,7 +383,6 @@ public class FriendListResource {
 	}
 
 	// devuelve las peticiones de amigo que tiene el "username" que debe aceptar
-	// o no
 	@GET
 	@Path("/pending/{username}/")
 	@Produces(MediaType.UTROLL_API_FRIENDLIST_COLLECTION)
