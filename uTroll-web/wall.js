@@ -194,6 +194,7 @@ function getComments() {
 	
 	// falta añadir funcion de los motores quizas separar likes dislikes
 	var url = API_BASE_URL + '/comments';
+	window.alert(url);
 	$.ajax({
 		headers : {
 			'Authorization' : "Basic " + btoa(u + ':' + p)
@@ -207,13 +208,14 @@ function getComments() {
 				var comments = data;
 				$.each(comments, function(i, v) {
 					var comment = v;
-					if (i == 2)
-						document.cookie = "prev=" + comment;
-					if (i == 3)
-						document.cookie = "next=" + comment;
+					window.alert(comment);
+//					if (i == 2)
+//						document.cookie = "prev=" + comment;
+//					if (i == 3)
+//						document.cookie = "next=" + comment;
 					$.each(comment, function(i, v) {
 						var com = v;
-						// window.alert(com.username);
+//						window.alert(com.username);
 						if (com.username != undefined) {
 							createComments(com.username, com.content,
 									com.likes, com.dislikes, com.commentid);

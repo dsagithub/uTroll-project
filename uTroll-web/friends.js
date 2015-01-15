@@ -4,6 +4,7 @@ var USERNAME = "none";
 var PASSWORD = "none";
 var GID = -1;
 var TROLL = false;
+var alreadyFriends = new Array();
 
 function readCookies() {
 	var user;
@@ -30,16 +31,15 @@ function readCookies() {
 
 	// window.alert(user);
 	// window.alert(pass);
-	//
-	// USERNAME = user;
-	// PASSWORD = pass;
-	USERNAME = 'david';
-	PASSWORD = 'david';
+	
+	 USERNAME = user;
+	 PASSWORD = pass;
 }
 
 function getFriends() {
 	// falta añadir funcion de los motores quizas separar likes dislikes
 	var url = API_BASE_URL + '/friends/getUniqueFriends/';
+	alreadyFriends[alreadyFriends.length] = USERNAME;
 
 	$.ajax({
 		headers : {
@@ -59,6 +59,7 @@ function getFriends() {
 				var us = v;
 				// window.alert(us.username);
 				if (us.username != undefined) {
+					alreadyFriends[alreadyFriends.length] = us.username;
 					createFriends(us.username, false);
 				}
 			});
@@ -85,16 +86,16 @@ function createFriends(u, vote) {
 	ablock.setAttribute('href', WEB_URL + '/profile.html?username=' + u)
 	tda.appendChild(ablock);// crea un textnode y lo añade a la celda
 
-	if (!vote) {
-		var tdt = tr.insertCell(1);// crea una celda y la inserta en la fila
-		tdt.setAttribute('class', 'btn btn-primary btn-danger btn-xs');
-		tdt.appendChild(document.createTextNode('Vota al Troll'));
-		tdt.setAttribute('onclick', 'voteTroll(' + u + ')');// modifica atributo
-		tdt.onclick = function() {
-			voteTroll(u);
-		};
-		tdt.setAttribute('style', 'float:right');
-	}
+//	if (!vote) {
+//		var tdt = tr.insertCell(1);// crea una celda y la inserta en la fila
+//		tdt.setAttribute('class', 'btn btn-primary btn-danger btn-xs');
+//		tdt.appendChild(document.createTextNode('Vota al Troll'));
+//		tdt.setAttribute('onclick', 'voteTroll(' + u + ')');// modifica atributo
+//		tdt.onclick = function() {
+//			voteTroll(u);
+//		};
+//		tdt.setAttribute('style', 'float:right');
+//	}
 }
 
 function getPendingFriends() {
@@ -118,6 +119,7 @@ function getPendingFriends() {
 				var us = v;
 				// window.alert(us.username);
 				if (us.username != undefined) {
+					alreadyFriends[alreadyFriends.length] = us.username;
 					createPendingFriends(us.username);
 				}
 			});
@@ -175,6 +177,7 @@ function getSentFriends() {
 				var fr = v;
 				// window.alert("aaaa "+fr.friend2);
 				if (fr.friend2 != undefined) {
+					alreadyFriends[alreadyFriends.length] = fr.friend2;
 					createSentFriends(fr.friend2);
 				}
 			});
@@ -204,8 +207,11 @@ function createSentFriends(u) {
 }
 
 function acceptFriend(username) {
-	var url = API_BASE_URL + '/acceptFriend/' + username;
-	var data = JSON.stringify("");
+	var url = API_BASE_URL + '/friends/acceptFriend/' + username;
+
+	var friend = new Object();
+	friend.friend1 = username;
+	var data = JSON.stringify(friend);
 
 	$.ajax({
 		headers : {
@@ -218,10 +224,7 @@ function acceptFriend(username) {
 		contentType : 'application/vnd.uTroll.api.friendlist+json',
 		data : data,
 	}).done(function(data, status, jqxhr) {
-		window.alert("Aceptado!");
-		// getFriends();
-		// getPendingFriends();
-		// getSentFriends();
+		window.location.reload();
 	}).fail(function() {
 		window.alert("FAIL");
 	});
@@ -268,6 +271,10 @@ function searchUser() {
 	});
 }
 
+function isInArray(value, array) {
+	return array.indexOf(value) > -1;
+}
+
 function createSearchedFriends(u, n) {
 	var tbl = document.getElementById("friends_search"),
 
@@ -290,14 +297,21 @@ function createSearchedFriends(u, n) {
 	tdt.onclick = function() {
 		addFriend(u);
 	};
-	tdt.setAttribute('onclick', 'addFriend(' + u + ')');// modifica atributo de
+	tdt.setAttribute('onclick', 'addFriend(' + u + ')');// modifica atributo
+	// de
 
 	tdt.onclick = function() {
 		addFriend(u);
 	}; // TIENES QUE AÑADIR ESTA LÍNEA PARA QUE FUNCIONEN
 
-	tdt.setAttribute('style', 'float:right');// modifica atributo de la celda
+	tdt.setAttribute('style', 'float:right');// modifica atributo de la
+	// celda
 	// falta que responda algo como acceptFriend(u);
+
+	if (isInArray(u, alreadyFriends)) { // No poder añadir a amigos que ya
+		// tienes
+		tdt.setAttribute('disabled', 'true');
+	}
 }
 
 function addFriend(u) {
@@ -315,9 +329,8 @@ function addFriend(u) {
 		contentType : 'application/vnd.uTroll.api.friendlist+json',
 		data : data,
 	}).done(function(data, status, jqxhr) {
-		window.alert("Added!");
 		getPendingFriends();
-		// checkCookie();
+		window.location.reload();
 	}).fail(function() {
 		window.alert("FAIL");
 	});
