@@ -54,7 +54,7 @@ public class UserSearchActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(UserSearchActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();

@@ -24,7 +24,7 @@ import edu.upc.eetac.dsa.dsaqt1415g4.utroll.api.uTrollAPI;
 public class PendingFriendsActivity extends ListActivity {
     private final static String TAG = PendingFriendsActivity.class.toString();
     private ArrayList<User> usersList;
-    private UserAdapter adapter;
+    private PendingFriendsAdapter adapter;
 
     private class FetchUsersTask extends
             AsyncTask<Void, Void, UserCollection> {
@@ -59,7 +59,7 @@ public class PendingFriendsActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(PendingFriendsActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();
@@ -73,7 +73,7 @@ public class PendingFriendsActivity extends ListActivity {
         setContentView(R.layout.activity_pending_friends);
 
         usersList = new ArrayList<User>();
-        adapter = new UserAdapter(this, usersList);
+        adapter = new PendingFriendsAdapter(this, usersList);
         setListAdapter(adapter);
 
         SharedPreferences prefs = getSharedPreferences("uTroll-profile",

@@ -63,9 +63,9 @@ public class UserAdapter extends BaseAdapter {
         String username = data.get(position).getUsername();
         int points = data.get(position).getPoints();
         int age = data.get(position).getAge();
-        viewHolder.tvUserUsername.setText("Username: " + username);
-        viewHolder.tvUserAge.setText("Age: " + Integer.toString(age));
-        viewHolder.tvUserPoints.setText("Points: " + Integer.toString(points));
+        viewHolder.tvUserUsername.setText("Usuario: " + username);
+        viewHolder.tvUserAge.setText("Edad: " + Integer.toString(age));
+        viewHolder.tvUserPoints.setText("Puntos: " + Integer.toString(points));
 
         return convertView;
     }

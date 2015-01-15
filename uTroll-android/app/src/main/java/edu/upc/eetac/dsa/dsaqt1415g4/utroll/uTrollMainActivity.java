@@ -109,7 +109,7 @@ public class uTrollMainActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(uTrollMainActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();
@@ -146,7 +146,7 @@ public class uTrollMainActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(uTrollMainActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();
@@ -183,7 +183,7 @@ public class uTrollMainActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(uTrollMainActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();
@@ -229,7 +229,7 @@ public class uTrollMainActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(uTrollMainActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();
@@ -275,7 +275,7 @@ public class uTrollMainActivity extends ListActivity {
         @Override
         protected void onPreExecute() {
             pd = new ProgressDialog(uTrollMainActivity.this);
-            pd.setTitle("Searching...");
+            pd.setTitle("Buscando...");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
             pd.show();
