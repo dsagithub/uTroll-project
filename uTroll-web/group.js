@@ -25,7 +25,7 @@ function getGroupDetails() {
 		btn.style.visibility = 'visible'; // visible
 		btn.style.display = 'block'; // ocupa espacio
 
-		window.alert("Sin grupo " + gid);
+		//window.alert("Sin grupo " + gid);
 
 	} else if (gid != 0) {
 		var url_group = API_BASE_URL + '/groups/' + gid;
@@ -107,7 +107,7 @@ function getGroup() {
 
 	if (gid == 0) {
 		$("#group_title").text("No estas en ningun grupo!");
-		window.alert("Sin grupo " + gid);
+		//window.alert("Sin grupo " + gid);
 		/*
 		 * var btn = document.getElementById("group_btn_space");
 		 * 
@@ -186,14 +186,14 @@ function createGroup(u) {
 }
 
 function getGroupList() {
-	window.alert("group list 1");
+	//window.alert("group list 1");
 
 	var u = getCookie('username');
 	var p = getCookie('password');
 
 	var url = API_BASE_URL + '/groups';
 
-	window.alert("grouplist " + url);
+	//window.alert("grouplist " + url);
 
 	$.ajax({
 		headers : {
@@ -260,12 +260,12 @@ function joinGroup(gid) {
 	var u = getCookie('username');
 	var p = getCookie('password');
 	var gidi=getCookie('groupid');
-	window.alert("HOLA"+u+p);
+	//window.alert("HOLA"+u+p);
 
 	var url = API_BASE_URL + '/users/joingroup/' + gid;
-	window.alert(url);
+	//window.alert(url);
 	var data = JSON.stringify("");
-	window.alert(url);
+	//window.alert(url);
 
 	$.ajax({
 		headers : {
@@ -278,7 +278,7 @@ function joinGroup(gid) {
 		contentType : 'application/vnd.uTroll.api.user+json',
 		data : data,
 	}).done(function(data, status, jqxhr) {
-		window.alert("FUNCIONA");
+//		window.alert("FUNCIONA");
 //		reloadCookies();
 //		getGroup();
 //		window.location.reload();
