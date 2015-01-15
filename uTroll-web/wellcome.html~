@@ -1,0 +1,64 @@
+
+<!-- Tutorial URL: http://sixrevisions.com/css/responsive-background-image/ -->
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Responsive Full Background Image</title>
+  
+  <meta name="author" content="Sito" >
+  
+  <link rel="icon" href="http://sixrevisions.com/favicon.ico" type="image/x-icon" />
+  
+  <link href="http://fonts.googleapis.com/css?family=Kotta+One|Cantarell:400,700" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="css/presentational-only.css">
+  <link rel="stylesheet" href="css/responsive-full-background-image.css">
+  
+        <!-- Latest compiled and minified CSS 
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+      <!-- Optional theme 
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
+  <link rel="stylesheet" href="/css/styles.css">  --> 
+  <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  
+  <!-- Not required: jquery.min.js and presentational-only.js is only used to demonstrate scrolling behavior of the viewport  -->
+  <script src="js/jquery.min.js"></script>
+  <script src="js/presentational-only.js"></script>
+</head>
+<body>
+ <!-- Barra de navegacion -->
+    <nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+      <div class="container">
+        <div class="navbar-header"><!-- /.navbar 
+          <a class="navbar-brand" href="/wall.html">uTroll</a>-->
+        </div><!-- /.nav-collapse -->
+      </div><!-- /.container -->
+    </nav><!-- /.navbar -->   
+    
+  <header class="container">
+    <section class="content">
+      <h1>Bienvenido a uTroll!</h1>
+      <p class="sub-title"><strong>Trolea a tus amigos</strong> <br /> Compite por ser el primero</p>
+      <form class="form-signin">
+			<h1 class="form-signin-heading text-muted">Log In</h1>
+	      <p></p>
+			<input type="text" class="form-control" placeholder="Username" required="" autofocus="">
+			<input type="password" class="form-control" placeholder="Password" required="">
+			<button class="btn btn-lg btn-primary btn-block" type="submit">
+			Sign In
+			</button>
+		</form>
+		
+	   <p></p>
+		<p>or</p>
+      <p></p>
+      <p><a class="button" id="load-more-content" href="#top">Sign In</a></p>
+      
+
+</body>
+</html>

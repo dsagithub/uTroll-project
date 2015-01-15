@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <title>uTroll - Amigos</title>
+
+      <!-- Latest compiled and minified CSS -->
+      <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+      <!-- Optional theme -->
+      <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
+      <!-- CSS -->
+      <link rel="stylesheet" href="css/styles.css">
+    </head>
+    <body onload="readCookies(); getFriends(); getPendingFriends(); getSentFriends();">
+	    
+    
+    <!-- Barra de navegacion -->
+    <nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/wall.html">uTroll</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/wall.html">Muro</a></li>
+            <li><a href="/group.html">Grupo</a></li>
+            <li ><a href="/user.html">Ver Prefil</a></li>
+            <li class="active"><a href="/friends.html">Amigos</a></li>
+				<li><a onclick="LogOut()">Log Out</a></li>
+          </ul>
+        </div><!-- /.nav-collapse -->
+      </div><!-- /.container -->
+    </nav><!-- /.navbar -->   
+    
+    
+      <div class="container theme-showcase" role="main">
+             <img class="img-responsive img-rounded" src="img/slider1.png" style="display: block;min-height: 200px;min-width: 867px;margin-top: -20px;">
+				<p></p>
+			
+        <div class="row">
+        <p></p>
+          <div class="col-sm-8">
+          
+          <div class="panel panel-default" >
+			    <div class="input-group">
+      			<input type="text" class="form-control" placeholder="Escribe el nombre del amigo a buscar..." id="search_form">
+      				<span class="input-group-btn">
+        					<button class="btn btn-default" type="button" onclick="searchUser()">Buscar</button>
+      				</span>
+    				</div><!-- /input-group -->
+          </div>
+          
+          <div class="panel panel-default" id="search_block"style="display:none">
+              <div class="panel-heading">
+                <h3 class="panel-title">Usuarios encontrados</h3>
+              </div>
+              <div class="panel-body" >
+              
+              <table class="table table-hover table-striped" id="friends_search"></table>
+              </div>
+            </div>
+          
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Amigos enlazados</h3>
+              </div>
+              <div class="panel-body" >
+              
+              <table class="table table-hover table-striped" id="friends_space"></table>
+              </div>
+            </div>
+            
+                        
+          </div><!-- /.col-sm-8 -->
+          
+          <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                   <h3 class="panel-title">Solicitudes Pendientes</h3>
+                 </div>
+                 <div class="panel-body" >
+                  <table class="table table-hover table-striped"id="pending_space"></table>
+
+                  </div>
+            </div>          
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                   <h3 class="panel-title">Solicitudes Enviadas</h3>
+                 </div>
+                 <div class="panel-body">
+                  <table class="table table-hover table-striped" id="sent_space"></table>                 
+                 
+
+                  </div>
+            </div>  
+
+          </div>
+
+        </div>
+  		</div>
+
+
+      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+      <!-- Latest compiled and minified JavaScript -->
+      <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+      <!-- Include all compiled plugins (below), or include individual files as needed -->
+
+      <!-- Event and AJAX functions -->
+      <script type="text/javascript" src="friends.js"></script>
+      	<script type="text/javascript" src="logout.js"></script>
+    </body>
+  </html>
