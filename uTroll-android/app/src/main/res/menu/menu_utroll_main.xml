@@ -28,4 +28,8 @@
         android:title="@string/action_searchUsers"
         android:orderInCategory="100"
         app:showAsAction="never"/>
+    <item android:id="@+id/action_updateUser"
+        android:title="@string/action_updateUser"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
 </menu>

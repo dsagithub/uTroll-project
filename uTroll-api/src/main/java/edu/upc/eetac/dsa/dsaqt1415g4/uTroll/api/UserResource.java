@@ -317,10 +317,15 @@ public class UserResource {
 
 		PreparedStatement stmt = null;
 		try {
+			User user1 = getUserFromDatabase(security.getUserPrincipal().getName(), false);
+			
 			stmt = conn.prepareStatement(UPDATE_USER_QUERY);
 			stmt.setString(1, user.getName());
 			stmt.setString(2, user.getEmail());
-			stmt.setInt(3, user.getAge());
+			if (user.getAge() == 0)
+				stmt.setInt(3, user1.getAge());
+			else
+				stmt.setInt(3, user.getAge());
 			stmt.setString(4, security.getUserPrincipal().getName());
 
 			int rows = stmt.executeUpdate();

@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -252,7 +253,20 @@ public class uTrollMainActivity extends ListActivity {
         }
 
         @Override
-        protected void onPostExecute(User loginOK) {
+        protected void onPostExecute(User user) {
+            TextView tvMainGroup = (TextView) findViewById(R.id.tvMainGroup);
+            TextView tvMainTroll = (TextView) findViewById(R.id.tvMainTroll);
+
+            if (user.getGroupid() == 0)
+                tvMainGroup.setText("No estás en ninǵun grupo");
+            else
+                tvMainGroup.setText("Estás en el grupo: " + user.getGroupid());
+
+            if (user.isTroll())
+                tvMainTroll.setText("Eres Troll");
+            else
+                tvMainTroll.setText("No eres Troll");
+
             if (pd != null) {
                 pd.dismiss();
             }
@@ -320,6 +334,10 @@ public class uTrollMainActivity extends ListActivity {
             case R.id.friendshipNotificationsMenuItem:
                 Intent intent_friendshipNotifications = new Intent(this, PendingFriendsActivity.class);
                 startActivity(intent_friendshipNotifications);
+                return true;
+            case R.id.action_updateUser:
+                Intent intent_updateUser = new Intent(this, UpdateUserActivity.class);
+                startActivity(intent_updateUser);
                 return true;
 
             default:

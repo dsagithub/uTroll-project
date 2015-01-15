@@ -5,6 +5,18 @@
     android:layout_height="match_parent"
     android:layout_margin="20dip">
 
+    <TextView
+        android:id="@+id/tvEndingTimestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/group_detail_ending"/>
+
+    <TextView
+        android:id="@+id/tvClosingTimestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/group_detail_closing"/>
+
     <Button
         android:id="@+id/joinGroupBtn"
         android:layout_width="match_parent"

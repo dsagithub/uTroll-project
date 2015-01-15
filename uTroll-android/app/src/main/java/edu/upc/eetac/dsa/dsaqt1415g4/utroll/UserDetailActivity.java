@@ -34,7 +34,9 @@ public class UserDetailActivity extends Activity {
         username = (String) getIntent().getExtras().get("username");
 
         Button friendBtn = (Button) findViewById(R.id.friendBtn);
+        Button rejectFriendBtn = (Button) findViewById(R.id.rejectFriendBtn);
         friendBtn.setVisibility(View.INVISIBLE);
+        rejectFriendBtn.setVisibility(View.INVISIBLE);
 
         (new FetchUserTask()).execute(urlUser, username);
     }
@@ -42,28 +44,29 @@ public class UserDetailActivity extends Activity {
     private void loadUser(User user) {
         TextView tvDetailUsername = (TextView) findViewById(R.id.tvDetailUsername);
         TextView tvDetailFriend = (TextView) findViewById(R.id.tvDetailFriend);
-        TextView tvDetailName = (TextView) findViewById(R.id.tvDetailName);
+//        TextView tvDetailName = (TextView) findViewById(R.id.tvDetailName);
         TextView tvDetailEmail = (TextView) findViewById(R.id.tvDetailEmail);
         TextView tvDetailAge = (TextView) findViewById(R.id.tvDetailAge);
         TextView tvDetailPoints = (TextView) findViewById(R.id.tvDetailPoints);
         TextView tvDetailPointsMax = (TextView) findViewById(R.id.tvDetailPointsMax);
 
-        tvDetailUsername.setText("Username: " + user.getUsername());
-        tvDetailFriend.setText("Friend: " + friend.getState());
-        tvDetailName.setText("Name: " + user.getName());
-        tvDetailEmail.setText("eMail: " + user.getEmail());
-        tvDetailAge.setText("Age: " + Integer.toString(user.getAge()));
-        tvDetailPoints.setText("Points: " + Integer.toString(user.getPoints()));
-        tvDetailPointsMax.setText("Max Points: " + Integer.toString(user.getPoints_max()));
+        tvDetailUsername.setText(user.getUsername() + " (" + user.getName() + ")");
+        tvDetailFriend.setText("Amistad: " + friend.getState());
+        tvDetailEmail.setText("Email: " + user.getEmail());
+        tvDetailAge.setText("Edad: " + Integer.toString(user.getAge()));
+        tvDetailPoints.setText("Puntos: " + Integer.toString(user.getPoints()));
+        tvDetailPointsMax.setText("Máx Puntos: " + Integer.toString(user.getPoints_max()));
 
         Button friendBtn = (Button) findViewById(R.id.friendBtn);
+        Button rejectFriendBtn = (Button) findViewById(R.id.rejectFriendBtn);
 
         if (friend.getState().equals("none")) {
             friendBtn.setVisibility(View.VISIBLE);
-            friendBtn.setText("Add friend");
+            friendBtn.setText("Añadir amigo");
         } else if ((friend.getState().equals("pending")) && (friend.getRequest() == false)) {
             friendBtn.setVisibility(View.VISIBLE);
-            friendBtn.setText("Accept friend");
+            friendBtn.setText("Aceptar amigo");
+            rejectFriendBtn.setVisibility(View.VISIBLE);
         }
     }
 
@@ -71,8 +74,14 @@ public class UserDetailActivity extends Activity {
         Button friendBtn = (Button) findViewById(R.id.friendBtn);
         TextView tvDetailUsername = (TextView) findViewById(R.id.tvDetailUsername);
         String doFriend = friendBtn.getText().toString();
-        String usernameString = tvDetailUsername.getText().toString().substring((tvDetailUsername.getText().toString().indexOf(":") + 2), (tvDetailUsername.getText().toString().length()));
+        String usernameString = tvDetailUsername.getText().toString().substring(0, (tvDetailUsername.getText().toString().indexOf("(") - 1));
         (new doFriendTask()).execute(usernameString, doFriend);
+    }
+
+    public void rejectFriend(View v) {
+        TextView tvDetailUsername = (TextView) findViewById(R.id.tvDetailUsername);
+        String usernameString = tvDetailUsername.getText().toString().substring(0, (tvDetailUsername.getText().toString().indexOf("(") - 1));
+        (new rejectFriendTask()).execute(usernameString);
     }
 
     private class doFriendTask extends AsyncTask<String, Void, User> {
@@ -83,10 +92,44 @@ public class UserDetailActivity extends Activity {
             User user = null;
             friend = new FriendList();
             try {
-                if (params[1].equals("Add friend"))
+                if (params[1].equals("Añadir amigo"))
                     uTrollAPI.getInstance(UserDetailActivity.this).addFriend(params[0]);
-                else if (params[1].equals("Accept friend"))
+                else if (params[1].equals("Aceptar amigo"))
                     uTrollAPI.getInstance(UserDetailActivity.this).acceptFriend(params[0]);
+            } catch (AppException e) {
+                Log.d(TAG, e.getMessage(), e);
+            }
+            return user;
+        }
+
+        @Override
+        protected void onPostExecute(User result) {
+            finish();
+            if (pd != null) {
+                pd.dismiss();
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            pd = new ProgressDialog(UserDetailActivity.this);
+            pd.setTitle("Loading...");
+            pd.setCancelable(false);
+            pd.setIndeterminate(true);
+            pd.show();
+        }
+
+    }
+
+    private class rejectFriendTask extends AsyncTask<String, Void, User> {
+        private ProgressDialog pd;
+
+        @Override
+        protected User doInBackground(String... params) {
+            User user = null;
+            friend = new FriendList();
+            try {
+                uTrollAPI.getInstance(UserDetailActivity.this).rejectFriend(params[0]);
             } catch (AppException e) {
                 Log.d(TAG, e.getMessage(), e);
             }

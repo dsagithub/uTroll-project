@@ -8,8 +8,8 @@ create table groups (
 	groupname				varchar(100) not null,
 	price					int not null,
 	creation_timestamp		datetime not null default current_timestamp,
-	ending_timestamp		timestamp not null,
-	closing_timestamp		timestamp not null,
+	ending_timestamp		timestamp not null default current_timestamp,
+	closing_timestamp		timestamp not null default current_timestamp,
 	creator					varchar(20) not null,
 	troll					varchar(20) not null,
 	state					varchar(50) not null
@@ -70,3 +70,6 @@ create table likes (
 	foreign key(username) 	references users(username),
 	foreign key(commentid)	references comment(commentid)
 );
+
+insert into groups values(0, 'Grupo Nulo', 0, 0, 0, 0, 'uTroll', 'No Troll', 'none');
+update groups set groupid=0 where groupid=1;

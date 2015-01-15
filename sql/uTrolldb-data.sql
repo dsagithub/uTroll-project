@@ -1,10 +1,5 @@
 source uTrolldb-schema.sql;
 
-insert into groups values(0, 'Grupo Nulo', 0, 0, 0, 0, 'uTroll', 'No Troll', 'none');
-update groups set groupid=0 where groupid=1;
-insert into groups values(1, 'Grupo de prueba', 15, 0, 0, 0, 'david', 'No Troll', 'open');
-insert into groups values(2, 'Grupo de prueba 2', 30, 0, 0, 0, 'david', 'No Troll', 'open');
-
 insert into users values('david', MD5('david'), 'David', 'david@mail.com', 19, 30, 30, false, 0, 0, 'none');
 insert into user_roles values ('david', 'registered');
 
