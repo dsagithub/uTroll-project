@@ -1,4 +1,4 @@
-var API_BASE_URL = "http://localhost:8010/uTroll-api";
+var API_BASE_URL = "http://147.83.7.156:8080/uTroll-api";
 var WEB_URL = "http://localhost" // server ip
 var USERNAME = "none";
 var PASSWORD = "none";
