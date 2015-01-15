@@ -226,7 +226,7 @@ function acceptFriend(username) {
 	}).done(function(data, status, jqxhr) {
 		window.location.reload();
 	}).fail(function() {
-		window.alert("FAIL");
+//		window.alert("FAIL");
 	});
 }
 
